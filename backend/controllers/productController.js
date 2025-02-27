@@ -1,11 +1,12 @@
-import { sql } from "../config/db.js";
-import { productValidator } from "../validation/productValidation.js";
+import {
+  createProductValidator,
+  updateProductValidator,
+} from "../validation/productValidation.js";
+import { prisma } from "../config/db.js";
 
 export const getProducts = async (req, res) => {
   try {
-    const products = await sql`
-    SELECT * FROM products
-    ORDER BY created_at DESC`;
+    const products = await prisma.products.findMany();
 
     res.status(200).json({ success: true, data: products });
   } catch (error) {
@@ -18,47 +19,30 @@ export const getProduct = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const product = await sql`
-        SELECT * FROM products
-        WHERE ${id} = products.id
-    `;
-
-    console.log(product);
-
-    if (product.length > 0)
-      res.status(200).json({ success: true, data: product[0] });
-    else
-      res
-        .status(404)
-        .json({ success: false, message: "No product is founded" });
+    const product = await prisma.products.findUnique({
+      where: { id },
+    });
+    if (product) {
+      res.status(200).json({ success: true, data: product });
+    } else {
+      res.status(404).json({ success: false, message: "No product was found" });
+    }
   } catch (error) {
     console.log("Error get details product", error);
+    console.log(id);
     res.status(500).json({ success: false, error: "Internal Server Error" });
   }
 };
 
 export const createProduct = async (req, res) => {
-  const {
-    name,
-    type,
-    image,
-    unit,
-    description,
-    price,
-    opening_stock,
-    stock_in,
-    stock_out,
-    closing_stock,
-  } = req.body;
+  const data = req.body;
 
   try {
-    await productValidator.validateAsync(req.body);
+    await createProductValidator.validateAsync(req.body);
 
-    const newProduct = await sql`
-        INSERT INTO products (name, type, image, unit, description, price, opening_stock, stock_in, stock_out, closing_stock)
-        VALUES (${name}, ${type}, ${image}, ${unit}, ${description}, ${price}, ${opening_stock}, ${stock_in}, ${stock_out}, ${closing_stock})
-        RETURNING *;
-    `;
+    const newProduct = await prisma.products.create({
+      data: data,
+    });
 
     return res.status(200).json({
       success: true,
@@ -81,13 +65,20 @@ export const createProduct = async (req, res) => {
 export const deleteProduct = async (req, res) => {
   const { id } = req.params;
   try {
-    await sql`
-    DELETE FROM products
-    WHERE products.id = ${id}`;
+    const checkProduct = await prisma.products.findUnique({
+      where: { id },
+    });
 
-    return res
-      .status(200)
-      .json({ success: true, message: "Delete product successfully" });
+    if (checkProduct) {
+      await prisma.products.delete({ where: { id } });
+      return res
+        .status(200)
+        .json({ success: true, message: "Delete product successfully" });
+    } else {
+      return res
+        .status(404)
+        .json({ success: false, message: "No product was found" });
+    }
   } catch (error) {
     console.log("Error delete product", error);
     return res
@@ -98,34 +89,25 @@ export const deleteProduct = async (req, res) => {
 
 export const updateProduct = async (req, res) => {
   const { id } = req.params;
-  const {
-    name,
-    type,
-    image,
-    unit,
-    description,
-    price,
-    opening_stock,
-    stock_in,
-    stock_out,
-    closing_stock,
-  } = req.body;
+  const data = req.body;
 
   try {
-    await productValidator.validateAsync(req.body);
+    await updateProductValidator.validateAsync(req.body);
 
-    const updatedProduct = await sql`
-        UPDATE products
-        SET name=${name}, type=${type}, image=${image}, unit=${unit}, description=${description}, price=${price},opening_stock=${opening_stock}, closing_stock=${closing_stock}, stock_in=${stock_in}, stock_out=${stock_out}
-        WHERE id=${id}
-        RETURNING *`;
+    const updatedProduct = await prisma.products.update({
+      where: { id },
+      data: data,
+    });
 
-    if (updatedProduct.length == 0)
+    console.log("update:", updatedProduct);
+
+    if (updatedProduct) {
+      return res.status(200).json({ success: true, data: updatedProduct });
+    } else {
       return res
         .status(404)
         .json({ success: false, error: "No product was found" });
-    else
-      return res.status(200).json({ success: true, data: updatedProduct[0] });
+    }
   } catch (error) {
     if (error.isJoi) {
       return res.status(400).json({

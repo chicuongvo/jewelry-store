@@ -1,6 +1,6 @@
 import Joi from "@hapi/joi";
 
-export const productValidator = Joi.object({
+export const createProductValidator = Joi.object({
   name: Joi.string().min(6).max(255).required().messages({
     "string.empty": "Product name must not be empty",
     "any.required": "Product name is required",
@@ -20,7 +20,7 @@ export const productValidator = Joi.object({
     "string.empty": "Product unit must not be empty",
     "any.required": "Product unit is required",
   }),
-  description: Joi.string().min(6).max(1000).allow("").messages({
+  description: Joi.string().min(6).max(1000).default("").allow("").messages({
     "string.min": "Product description must be at least 6 characters",
     "string.max": "Product description must not be over 1000 characters",
   }),
@@ -40,4 +40,32 @@ export const productValidator = Joi.object({
   closing_stock: Joi.number().required().messages({
     "any.required": "Product closing stock is required",
   }),
+});
+
+export const updateProductValidator = Joi.object({
+  name: Joi.string().min(6).max(255).messages({
+    "string.empty": "Product name must not be empty",
+    "string.min": "Product name must be at least 6 characters",
+    "string.max": "Product name must not be over 255 characters",
+  }),
+  type: Joi.string().min(6).max(255).messages({
+    "string.empty": "Product type must not be empty",
+    "string.min": "Product type must be at least 6 characters",
+    "string.max": "Product type must not be over 255 characters",
+  }),
+  image: Joi.string(),
+  unit: Joi.string().messages({
+    "string.empty": "Product unit must not be empty",
+  }),
+  description: Joi.string().min(6).max(1000).messages({
+    "string.min": "Product description must be at least 6 characters",
+    "string.max": "Product description must not be over 1000 characters",
+  }),
+  price: Joi.number().messages({
+    "string.empty": "Product price must not be empty",
+  }),
+  opening_stock: Joi.number(),
+  stock_in: Joi.number(),
+  stock_out: Joi.number(),
+  closing_stock: Joi.number(),
 });
