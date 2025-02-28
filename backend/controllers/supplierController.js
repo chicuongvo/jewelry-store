@@ -8,7 +8,7 @@ export const getAllSuppliers = async (req, res) => {
   try {
     const suppliers = await prisma.suppliers.findMany();
 
-    return res.status(200).json({ success: true, message: suppliers });
+    return res.status(200).json({ success: true, data: suppliers });
   } catch (error) {
     console.log("Error get all suppliers:", error);
     return res
@@ -29,7 +29,7 @@ export const getSupplier = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Supplier not found" });
     } else {
-      return res.status(200).json({ success: true, message: supplier });
+      return res.status(200).json({ success: true, data: supplier });
     }
   } catch (error) {
     console.log("Error get supplier:", error);
@@ -46,7 +46,7 @@ export const createSupplier = async (req, res) => {
 
     const newSupplier = await prisma.suppliers.create({ data: data });
 
-    return res.status(200).json({ sucess: true, message: newSupplier });
+    return res.status(200).json({ sucess: true, data: newSupplier });
   } catch (error) {
     if (error.isJoi) {
       return res.status(400).json({
@@ -109,7 +109,7 @@ export const updateSupplier = async (req, res) => {
         data: data,
       });
 
-      return res.status(200).json({ success: true, message: updatedSupplier });
+      return res.status(200).json({ success: true, data: updatedSupplier });
     }
   } catch (error) {
     if (error.isJoi) {

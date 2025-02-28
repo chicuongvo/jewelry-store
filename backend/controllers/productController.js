@@ -29,7 +29,6 @@ export const getProduct = async (req, res) => {
     }
   } catch (error) {
     console.log("Error get details product", error);
-    console.log(id);
     res.status(500).json({ success: false, error: "Internal Server Error" });
   }
 };
