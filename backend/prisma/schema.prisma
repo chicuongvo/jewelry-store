@@ -7,28 +7,205 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model products {
-  id            String @id @default(cuid())
-  name          String?   
-  type          String    
-  image         String?
-  unit          String    
-  description   String?   
-  price         Decimal   
-  opening_stock Int
-  stock_in      Int
-  stock_out     Int
-  closing_stock Int
-  created_at    DateTime? @default(now())
+// --------------------------------------------------------------------------- //
+
+// PRODUCT 
+model suppliers {
+  supplier_id  String @id @default(cuid())
+  name         String
+  address      String
+  phone_number String
+
+  products     products[]
+  sales_orders sales_orders[]
 }
 
-model users {
-  id            String @id @default(cuid())
-  username    String    
-  email       String   
-  fullName    String?   
-  gender      String?   
-  phoneNumber String?   
-  profilePic  String?   
-created_at  DateTime? @default(now())
+model product_types {
+  type_id     String @id @default(cuid())
+  name        String
+  profit_rate Float
+
+  products products[]
 }
+
+model units {
+  unit_id  String     @id @default(cuid())
+  name     String
+  products products[]
+}
+
+model products {
+  product_id  String  @id @default(cuid())
+  name        String
+  image       String
+  description String? @default("")
+  buy_price   Decimal
+  sell_price  Decimal //sell_price = buy_price + buy_price * ProductType.profit_rate
+
+  created_at DateTime? @default(now())
+
+  supply      suppliers @relation(fields: [supplier_id], references: [supplier_id])
+  supplier_id String
+
+  type    product_types @relation(fields: [type_id], references: [type_id])
+  type_id String
+
+  unit    units  @relation(fields: [unit_id], references: [unit_id])
+  unit_id String
+
+  inventory_report_details inventory_report_details[]
+  purschase_order_details  purschase_order_details[]
+  sales_order_details      sales_order_details[]
+}
+
+// --------------------------------------------------------------------------- //
+
+// SERVICE
+model services {
+  service_id            String                  @id @default(cuid())
+  name                  String
+  base_price            Decimal
+  service_order_details service_order_details[]
+}
+
+// --------------------------------------------------------------------------- //
+
+// INVENTORY
+model inventory_reports {
+  report_id                String                     @id @default(cuid())
+  month                    Int
+  year                     Int
+  inventory_report_details inventory_report_details[]
+}
+
+model inventory_report_details {
+  belongs_to inventory_reports @relation(fields: [report_id], references: [report_id])
+  report_id  String
+
+  product    products @relation(fields: [product_id], references: [product_id])
+  product_id String
+
+  begin_stock   Int
+  buy_quantity  Int @default(0)
+  sell_quantity Int
+  end_stock     Int //end_stock = begin_stock + buy_quantity - sell_quantity
+
+  @@id([report_id, product_id])
+}
+
+// --------------------------------------------------------------------------- //
+
+// USER
+model users {
+  user_id          String             @id @default(cuid())
+  username         String
+  email            String
+  phoneNumber      String
+  role             Role               @default(USER)
+  fullName         String?
+  profilePic       String?
+  created_at       DateTime?          @default(now())
+  purschase_orders purschase_orders[]
+  service_orders   service_orders[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+// --------------------------------------------------------------------------- //
+
+// ORDERS
+
+/**
+ * Purchase
+ */
+model purschase_orders {
+  purchase_order_id String   @id @default(cuid())
+  created_at        DateTime @default(now())
+
+  client                  users                     @relation(fields: [client_id], references: [user_id])
+  client_id               String
+  purschase_order_details purschase_order_details[]
+}
+
+model purschase_order_details {
+  purchase_order    purschase_orders @relation(fields: [purchase_order_id], references: [purchase_order_id])
+  purchase_order_id String
+
+  product    products @relation(fields: [product_id], references: [product_id])
+  product_id String
+
+  quantity    Int //products.sell_quantity -= quantity
+  total_price Decimal //total_price = quantity * products.sell_price
+
+  @@id([purchase_order_id, product_id])
+}
+
+/**
+ * Sale
+ */
+model sales_orders {
+  sales_order_id String   @id @default(cuid())
+  created_at     DateTime @default(now())
+
+  supply              suppliers             @relation(fields: [supplier_id], references: [supplier_id])
+  supplier_id         String
+  sales_order_details sales_order_details[]
+}
+
+model sales_order_details {
+  sales_order    sales_orders @relation(fields: [sales_order_id], references: [sales_order_id])
+  sales_order_id String
+
+  product    products @relation(fields: [product_id], references: [product_id])
+  product_id String
+
+  quantity    String
+  total_price Decimal //total_price = product.sell_price * quantity
+
+  @@id([sales_order_id, product_id])
+}
+
+/**
+ * Service
+ */
+
+model service_orders {
+  service_order_id String   @id @default(cuid())
+  created_at       DateTime @default(now())
+
+  client                users                   @relation(fields: [client_id], references: [user_id])
+  client_id             String
+  total_price           Decimal
+  total_paid            Decimal
+  total_remaining       Decimal
+  status                Status
+  service_order_details service_order_details[]
+}
+
+model service_order_details {
+  service_order    service_orders @relation(fields: [service_order_id], references: [service_order_id])
+  service_order_id String
+
+  service    services @relation(fields: [service_id], references: [service_id])
+  service_id String
+
+  extra_cost       Decimal @default(0)
+  calculated_price Decimal //service.base_price + extra_cost
+  quantity         Int
+  total_price      Decimal //calculated_price * quantity
+  paid             Decimal // >= (0.5 * total_price )
+  remaining        Decimal
+  status           Status  @default(NOT_DELIVERED)
+
+  @@id([service_order_id])
+}
+
+enum Status {
+  NOT_DELIVERED
+  DELIVERED
+}
+
+// ---- 

@@ -1,0 +1,127 @@
+import {
+  createSupplierValidation,
+  updateSupplierValidator,
+} from "../validation/supplierValidation.js";
+import { prisma } from "../config/db.js";
+
+export const getAllSuppliers = async (req, res) => {
+  try {
+    const suppliers = await prisma.suppliers.findMany();
+
+    return res.status(200).json({ success: true, message: suppliers });
+  } catch (error) {
+    console.log("Error get all suppliers:", error);
+    return res
+      .status(500)
+      .json({ success: false, error: "Internal Server Error" });
+  }
+};
+
+export const getSupplier = async (req, res) => {
+  const { supplier_id } = req.params;
+  try {
+    const supplier = await prisma.suppliers.findUnique({
+      where: { supplier_id },
+    });
+
+    if (!supplier) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Supplier not found" });
+    } else {
+      return res.status(200).json({ success: true, message: supplier });
+    }
+  } catch (error) {
+    console.log("Error get supplier:", error);
+    return res
+      .status(500)
+      .json({ success: false, error: "Internal Server Error" });
+  }
+};
+
+export const createSupplier = async (req, res) => {
+  const data = req.body;
+  try {
+    await createSupplierValidation.validateAsync(req.body);
+
+    const newSupplier = await prisma.suppliers.create({ data: data });
+
+    return res.status(200).json({ sucess: true, message: newSupplier });
+  } catch (error) {
+    if (error.isJoi) {
+      return res.status(400).json({
+        success: false,
+        message: error.details.map((err) => err.message),
+      });
+    }
+    console.log("Error creating supplier:", error);
+    return res
+      .status(500)
+      .json({ success: false, error: "Internal Server Error" });
+  }
+};
+
+export const deleteSupplier = async (req, res) => {
+  const { supplier_id } = req.params;
+
+  try {
+    const checkSupplier = await prisma.suppliers.findUnique({
+      where: { supplier_id },
+    });
+
+    if (!checkSupplier) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Supplier not found" });
+    } else {
+      await prisma.suppliers.delete({ where: { supplier_id } });
+
+      return res
+        .status(200)
+        .json({ success: true, message: "Delete supplier successfully" });
+    }
+  } catch (error) {
+    console.log("Error delete supplier:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+export const updateSupplier = async (req, res) => {
+  const { supplier_id } = req.params;
+  const data = req.body;
+
+  try {
+    await updateSupplierValidator.validateAsync(req.body);
+
+    const checkSupplier = await prisma.suppliers.findUnique({
+      where: { supplier_id },
+    });
+
+    if (!checkSupplier) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Supplier not found" });
+    } else {
+      const updatedSupplier = await prisma.suppliers.updateManyAndReturn({
+        where: { supplier_id },
+        data: data,
+      });
+
+      return res.status(200).json({ success: true, message: updatedSupplier });
+    }
+  } catch (error) {
+    if (error.isJoi) {
+      return res.status(400).json({
+        success: false,
+        message: error.details.map((err) => err.message),
+      });
+    } else {
+      console.log("Error update supplier:", error);
+      return res
+        .status(500)
+        .json({ success: false, message: "Internal Server Error" });
+    }
+  }
+};

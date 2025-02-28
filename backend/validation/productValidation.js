@@ -28,18 +28,6 @@ export const createProductValidator = Joi.object({
     "string.empty": "Product price must not be empty",
     "any.required": "Product price is required",
   }),
-  opening_stock: Joi.number().required().messages({
-    "any.required": "Product opening stock is required",
-  }),
-  stock_in: Joi.number().required().messages({
-    "any.required": "Product stock in is required",
-  }),
-  stock_out: Joi.number().required().messages({
-    "any.required": "Product stock out is required",
-  }),
-  closing_stock: Joi.number().required().messages({
-    "any.required": "Product closing stock is required",
-  }),
 });
 
 export const updateProductValidator = Joi.object({
@@ -64,8 +52,4 @@ export const updateProductValidator = Joi.object({
   price: Joi.number().messages({
     "string.empty": "Product price must not be empty",
   }),
-  opening_stock: Joi.number(),
-  stock_in: Joi.number(),
-  stock_out: Joi.number(),
-  closing_stock: Joi.number(),
 });

@@ -6,7 +6,7 @@ import { prisma } from "../config/db.js";
 
 export const getProducts = async (req, res) => {
   try {
-    const products = await prisma.products.findMany();
+    const products = await prisma.Products.findMany();
 
     res.status(200).json({ success: true, data: products });
   } catch (error) {
