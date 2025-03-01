@@ -28,9 +28,9 @@ export const getSupplier = async (req, res) => {
       return res
         .status(404)
         .json({ success: false, message: "Supplier not found" });
-    } else {
-      return res.status(200).json({ success: true, data: supplier });
     }
+
+    return res.status(200).json({ success: true, data: supplier });
   } catch (error) {
     console.log("Error get supplier:", error);
     return res
@@ -54,7 +54,9 @@ export const createSupplier = async (req, res) => {
         message: error.details.map((err) => err.message),
       });
     }
+
     console.log("Error creating supplier:", error);
+
     return res
       .status(500)
       .json({ success: false, error: "Internal Server Error" });
@@ -73,13 +75,13 @@ export const deleteSupplier = async (req, res) => {
       return res
         .status(404)
         .json({ success: false, message: "Supplier not found" });
-    } else {
-      await prisma.suppliers.delete({ where: { supplier_id } });
-
-      return res
-        .status(200)
-        .json({ success: true, message: "Delete supplier successfully" });
     }
+
+    await prisma.suppliers.delete({ where: { supplier_id } });
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Delete supplier successfully" });
   } catch (error) {
     console.log("Error delete supplier:", error);
     return res
@@ -93,7 +95,13 @@ export const updateSupplier = async (req, res) => {
   const data = req.body;
 
   try {
-    await updateSupplierValidator.validateAsync(req.body);
+    if (!data || Object.keys(data).length === 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "No updated data provided" });
+    }
+
+    await updateSupplierValidator.validateAsync(data);
 
     const checkSupplier = await prisma.suppliers.findUnique({
       where: { supplier_id },
@@ -103,14 +111,14 @@ export const updateSupplier = async (req, res) => {
       return res
         .status(404)
         .json({ success: false, message: "Supplier not found" });
-    } else {
-      const updatedSupplier = await prisma.suppliers.updateManyAndReturn({
-        where: { supplier_id },
-        data: data,
-      });
-
-      return res.status(200).json({ success: true, data: updatedSupplier });
     }
+
+    const updatedSupplier = await prisma.suppliers.updateManyAndReturn({
+      where: { supplier_id },
+      data: data,
+    });
+
+    return res.status(200).json({ success: true, data: updatedSupplier });
   } catch (error) {
     if (error.isJoi) {
       return res.status(400).json({
