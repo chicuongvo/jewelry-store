@@ -1,6 +1,12 @@
 import Joi from "@hapi/joi";
 
 export const createUnitValidator = Joi.object({
+  unit_id: Joi.string()
+    .pattern(/^[A-Za-z0-9\s]+$/)
+    .message({
+      "string.empty": "Unit id must not be empty",
+      "string.pattern.base": "Unit id is not valid",
+    }),
   name: Joi.string()
     .min(1)
     .max(10)
@@ -16,6 +22,12 @@ export const createUnitValidator = Joi.object({
 });
 
 export const updateUnitValidator = Joi.object({
+  unit_id: Joi.string()
+    .pattern(/^[A-Za-z0-9\s]+$/)
+    .message({
+      "string.empty": "Unit id must not be empty",
+      "string.pattern.base": "Unit id is not valid",
+    }),
   name: Joi.string()
     .min(1)
     .max(10)

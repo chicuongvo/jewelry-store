@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["relationJoins"]
 }
 
 datasource db {
@@ -22,7 +23,7 @@ model suppliers {
 
 model product_types {
   type_id     String @id @default(cuid())
-  name        String
+  name        String @unique
   profit_rate Float
 
   products products[]
@@ -30,28 +31,28 @@ model product_types {
 
 model units {
   unit_id  String     @id @default(cuid())
-  name     String
+  name     String     @unique
   products products[]
 }
 
 model products {
   product_id  String  @id @default(cuid())
-  name        String
+  name        String  @unique
   image       String
-  description String? @default("")
+  description String
   buy_price   Decimal
   sell_price  Decimal //sell_price = buy_price + buy_price * ProductType.profit_rate
 
   created_at DateTime? @default(now())
 
-  supply      suppliers @relation(fields: [supplier_id], references: [supplier_id])
-  supplier_id String
+  supplier    suppliers? @relation(fields: [supplier_id], references: [supplier_id], onDelete: SetNull)
+  supplier_id String?
 
-  type    product_types @relation(fields: [type_id], references: [type_id])
-  type_id String
+  productType product_types? @relation(fields: [type], references: [name], onDelete: SetNull)
+  type        String?
 
-  unit    units  @relation(fields: [unit_id], references: [unit_id])
-  unit_id String
+  productUnit units?  @relation(fields: [unit], references: [name], onDelete: SetNull)
+  unit        String?
 
   inventory_report_details inventory_report_details[]
   purschase_order_details  purschase_order_details[]
@@ -63,7 +64,7 @@ model products {
 // SERVICE
 model services {
   service_id            String                  @id @default(cuid())
-  name                  String
+  name                  String                  @unique
   base_price            Decimal
   service_order_details service_order_details[]
 }
@@ -98,9 +99,9 @@ model inventory_report_details {
 // USER
 model users {
   user_id          String             @id @default(cuid())
-  username         String
-  email            String
-  phoneNumber      String
+  username         String             @unique
+  email            String             @unique
+  phoneNumber      String             @unique
   role             Role               @default(USER)
   fullName         String?
   profilePic       String?
@@ -150,7 +151,7 @@ model sales_orders {
   sales_order_id String   @id @default(cuid())
   created_at     DateTime @default(now())
 
-  supply              suppliers             @relation(fields: [supplier_id], references: [supplier_id])
+  supplier            suppliers             @relation(fields: [supplier_id], references: [supplier_id])
   supplier_id         String
   sales_order_details sales_order_details[]
 }
@@ -200,7 +201,7 @@ model service_order_details {
   remaining        Decimal
   status           Status  @default(NOT_DELIVERED)
 
-  @@id([service_order_id])
+  @@id([service_order_id, service_id])
 }
 
 enum Status {

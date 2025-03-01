@@ -35,8 +35,9 @@ export const getType = async (req, res) => {
 };
 
 export const createType = async (req, res) => {
-  const data = req.body;
   try {
+    const data = req.body;
+
     if (!data || Object.keys(data).length === 0) {
       return res
         .status(400)
@@ -45,9 +46,27 @@ export const createType = async (req, res) => {
 
     await createProductTypeValidator.validateAsync(data);
 
+    const [checkTypeId, checkTypeName] = await Promise.all([
+      data.type_id
+        ? prisma.product_types.findUnique({ where: { type_id: data.type_id } })
+        : null,
+      prisma.product_types.findUnique({ where: { name: data.name } }),
+    ]);
+
+    if (checkTypeId) {
+      return res
+        .status(409)
+        .json({ success: false, message: "Product type ID already exists" });
+    }
+    if (checkTypeName) {
+      return res
+        .status(409)
+        .json({ success: false, message: "Product type name already exists" });
+    }
+
     const newType = await prisma.product_types.create({ data });
 
-    return res.status(200).json({ success: true, data: newType });
+    return res.status(201).json({ success: true, data: newType });
   } catch (error) {
     if (error.isJoi) {
       return res.status(400).json({
@@ -56,8 +75,7 @@ export const createType = async (req, res) => {
       });
     }
 
-    console.log("Error creating product type:", error);
-
+    console.error("Error creating product type:", error);
     return res
       .status(500)
       .json({ success: false, error: "Internal Server Error" });
@@ -91,11 +109,11 @@ export const deleteType = async (req, res) => {
 };
 
 export const updateType = async (req, res) => {
-  const { type_id } = req.params;
-  const data = req.body;
-
   try {
-    if (!data || Object.keys(data).length === 0) {
+    const { type_id } = req.params;
+    const data = req.body;
+
+    if (!Object.keys(data).length) {
       return res
         .status(400)
         .json({ success: false, message: "No updated data provided" });
@@ -103,25 +121,47 @@ export const updateType = async (req, res) => {
 
     await updateProductTypeValidator.validateAsync(data);
 
-    const checkType = await prisma.product_types.findUnique({
+    const existingType = await prisma.product_types.findUnique({
       where: { type_id },
     });
 
-    if (!checkType) {
+    if (!existingType) {
       return res
         .status(404)
         .json({ success: false, message: "Product type not found" });
     }
 
-    // Cập nhật bản ghi
+    if (data.type_id && data.type_id !== type_id) {
+      const checkTypeId = await prisma.product_types.findUnique({
+        where: { type_id: data.type_id },
+      });
+      if (checkTypeId) {
+        return res
+          .status(409)
+          .json({ success: false, message: "Product type ID already exists" });
+      }
+    }
+
+    if (data.name) {
+      const checkTypeName = await prisma.product_types.findUnique({
+        where: { name: data.name },
+      });
+      if (checkTypeName && checkTypeName.type_id !== type_id) {
+        return res.status(409).json({
+          success: false,
+          message: "Product type name already exists",
+        });
+      }
+    }
+
     const updatedType = await prisma.product_types.update({
       where: { type_id },
-      data: data,
+      data,
     });
 
     return res.status(200).json({ success: true, data: updatedType });
   } catch (error) {
-    if (error.details) {
+    if (error?.details) {
       return res.status(400).json({
         success: false,
         message: error.details.map((err) => err.message),
@@ -129,7 +169,6 @@ export const updateType = async (req, res) => {
     }
 
     console.error("Error updating product type:", error);
-
     return res
       .status(500)
       .json({ success: false, error: "Internal Server Error" });

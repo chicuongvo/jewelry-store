@@ -48,6 +48,18 @@ export const createSupplier = async (req, res) => {
         .json({ success: false, message: "No data provided" });
     }
 
+    if (data.supplier_id) {
+      const checkSupplierId = await prisma.suppliers.findUnique({
+        where: { supplier_id: data.supplier_id },
+      });
+
+      if (checkSupplierId) {
+        return res
+          .status(400)
+          .json({ sucess: false, message: "Supplier ID existed" });
+      }
+    }
+
     await createSupplierValidation.validateAsync(data);
 
     const newSupplier = await prisma.suppliers.create({ data: data });
@@ -119,6 +131,17 @@ export const updateSupplier = async (req, res) => {
         .json({ success: false, message: "Supplier not found" });
     }
 
+    if (data.supplier_id && data.supplier_id !== supplier_id) {
+      const checkTypeId = await prisma.suppliers.findUnique({
+        where: { supplier_id: data.supplier_id },
+      });
+      if (checkTypeId) {
+        return res.status(409).json({
+          success: false,
+          message: "Supplier ID already exists",
+        });
+      }
+    }
     const updatedSupplier = await prisma.suppliers.updateManyAndReturn({
       where: { supplier_id },
       data: data,

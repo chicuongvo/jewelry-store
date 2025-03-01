@@ -14,7 +14,7 @@ export const createProductTypeValidator = Joi.object({
       "string.empty": "Product type name must not be empty",
     }),
   profit_rate: Joi.number().min(0.1).max(0.5).required().messages({
-    "any.required": "Product type rate is required",
+    "any.required": "Profit rate is required",
     "number.min": "Profit rate must be greater than or equal 0.1",
     "number.max": "Profit rate must not less than or equa 0.5",
   }),

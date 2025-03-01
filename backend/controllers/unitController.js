@@ -38,9 +38,10 @@ export const getUnit = async (req, res) => {
 };
 
 export const createUnit = async (req, res) => {
-  const data = req.body;
   try {
-    if (!data || Object.keys(data).length === 0) {
+    const data = req.body;
+
+    if (!Object.keys(data).length) {
       return res
         .status(400)
         .json({ success: false, message: "No data provided" });
@@ -48,19 +49,37 @@ export const createUnit = async (req, res) => {
 
     await createUnitValidator.validateAsync(data);
 
+    const [existingUnitId, existingUnitName] = await Promise.all([
+      data.unit_id
+        ? prisma.units.findUnique({ where: { unit_id: data.unit_id } })
+        : null,
+      prisma.units.findUnique({ where: { name: data.name } }),
+    ]);
+
+    if (existingUnitId) {
+      return res
+        .status(409)
+        .json({ success: false, message: "Unit ID already exists" });
+    }
+
+    if (existingUnitName) {
+      return res
+        .status(409)
+        .json({ success: false, message: "Unit name already exists" });
+    }
+
     const newUnit = await prisma.units.create({ data });
 
-    return res.status(200).json({ success: true, data: newUnit });
+    return res.status(201).json({ success: true, data: newUnit });
   } catch (error) {
-    if (error.isJoi) {
+    if (error?.details) {
       return res.status(400).json({
         success: false,
         message: error.details.map((err) => err.message),
       });
     }
 
-    console.log("Error creating unit:", error);
-
+    console.error("Error creating unit:", error);
     return res
       .status(500)
       .json({ success: false, error: "Internal Server Error" });
@@ -94,11 +113,11 @@ export const deleteUnit = async (req, res) => {
 };
 
 export const updateUnit = async (req, res) => {
-  const { unit_id } = req.params;
-  const data = req.body;
-
   try {
-    if (!data || Object.keys(data).length === 0) {
+    const { unit_id } = req.params;
+    const data = req.body;
+
+    if (!Object.keys(data).length) {
       return res
         .status(400)
         .json({ success: false, message: "No updated data provided" });
@@ -106,33 +125,42 @@ export const updateUnit = async (req, res) => {
 
     await updateUnitValidator.validateAsync(data);
 
-    const checkUnit = await prisma.units.findUnique({
-      where: { unit_id },
-    });
+    const existingUnit = await prisma.units.findUnique({ where: { unit_id } });
 
-    if (!checkUnit) {
+    if (!existingUnit) {
       return res
         .status(404)
         .json({ success: false, message: "Unit not found" });
     }
 
-    const updatedSupplier = await prisma.units.updateManyAndReturn({
+    if (data.name) {
+      const existingName = await prisma.units.findUnique({
+        where: { name: data.name },
+      });
+      if (existingName && existingName.unit_id !== unit_id) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Unit name already exists" });
+      }
+    }
+
+    const updatedUnit = await prisma.units.update({
       where: { unit_id },
-      data: data,
+      data,
     });
 
-    return res.status(200).json({ success: true, data: updatedSupplier });
+    return res.status(200).json({ success: true, data: updatedUnit });
   } catch (error) {
-    if (error.isJoi) {
+    if (error?.details) {
       return res.status(400).json({
         success: false,
         message: error.details.map((err) => err.message),
       });
-    } else {
-      console.log("Error update unit:", error);
-      return res
-        .status(500)
-        .json({ success: false, message: "Internal Server Error" });
     }
+
+    console.error("Error updating unit:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error" });
   }
 };
