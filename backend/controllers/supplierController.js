@@ -42,7 +42,13 @@ export const getSupplier = async (req, res) => {
 export const createSupplier = async (req, res) => {
   const data = req.body;
   try {
-    await createSupplierValidation.validateAsync(req.body);
+    if (!data || Object.keys(data).length === 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "No data provided" });
+    }
+
+    await createSupplierValidation.validateAsync(data);
 
     const newSupplier = await prisma.suppliers.create({ data: data });
 

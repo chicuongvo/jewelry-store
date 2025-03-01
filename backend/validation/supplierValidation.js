@@ -5,7 +5,7 @@ export const createSupplierValidation = Joi.object({
     .required()
     .min(6)
     .max(255)
-    .pattern(/^[A-Za-z\s]+$/)
+    .pattern(/^[A-Za-z0-9\s]+$/)
     .messages({
       "any.required": "Supplier name is required",
       "string.empty": "Supplier name must not be empty",
@@ -19,7 +19,6 @@ export const createSupplierValidation = Joi.object({
     "string.empty": "Supplier address must not be empty",
     "string.min": "Supplier address must be at least 6 characters",
     "string.max": "Supplier address must not be over 255 characters",
-    "string.pattern.base": "Supplier address is not valid",
   }),
 
   phone_number: Joi.string()
@@ -30,7 +29,7 @@ export const createSupplierValidation = Joi.object({
     .messages({
       "any.required": "Phone number is required",
       "string.empty": "Phone number must not be empty",
-      "string.patter.base": "Phone number is unvalid",
+      "string.pattern.base": "Phone number is unvalid",
       "string.min": "Phone number must be at least 8 characters",
       "string.max": "Phone number must not be over 12 characters",
     }),
@@ -40,7 +39,7 @@ export const updateSupplierValidator = Joi.object({
   name: Joi.string()
     .min(6)
     .max(255)
-    .pattern(/^[A-Za-z\s]+$/)
+    .pattern(/^[A-Za-z0-9\s]+$/)
     .messages({
       "string.empty": "Supplier name must not be empty",
       "string.min": "Supplier name must be at least 6 characters",
@@ -52,7 +51,6 @@ export const updateSupplierValidator = Joi.object({
     "string.empty": "Supplier address must not be empty",
     "string.min": "Supplier address must be at least 6 characters",
     "string.max": "Supplier address must not be over 255 characters",
-    "string.pattern.base": "Supplier address is not valid",
   }),
 
   phone_number: Joi.string()
@@ -61,7 +59,7 @@ export const updateSupplierValidator = Joi.object({
     .max(12)
     .messages({
       "string.empty": "Phone number must not be empty",
-      "string.patter.base": "Phone number is unvalid",
+      "string.pattern.base": "Phone number is unvalid",
       "string.min": "Phone number must be at least 8 characters",
       "string.max": "Phone number must not be over 12 characters",
     }),

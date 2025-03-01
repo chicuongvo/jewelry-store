@@ -37,6 +37,12 @@ export const getType = async (req, res) => {
 export const createType = async (req, res) => {
   const data = req.body;
   try {
+    if (!data || Object.keys(data).length === 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "No data provided" });
+    }
+
     await createProductTypeValidator.validateAsync(data);
 
     const newType = await prisma.product_types.create({ data });
