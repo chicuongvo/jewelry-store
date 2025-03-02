@@ -41,8 +41,12 @@ export const signUpValidator = Joi.object({
       "string.max": "Password must not be over 20 characters",
       "string.pattern.base": "Password is unvalid",
     }),
-  confirm_password: Joi.string().required().valid(Joi.ref("password")).messages({
-    "any.required": "Confirm password is required",
-    "any.only": "Password is not match",
-  }),
+  confirm_password: Joi.string()
+    .required()
+    .valid(Joi.ref("password"))
+    .messages({
+      "any.required": "Confirm password is required",
+      "any.only": "Password is not match",
+    }),
+  role: Joi.string(),
 });

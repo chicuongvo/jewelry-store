@@ -12,10 +12,11 @@ export const verifyToken = async (req, res, next) => {
     }
 
     const user = await prisma.users.findUnique({
-      where: { user_id: verified.userId },
+      where: { user_id: verified.user_id },
     });
 
     req.user_id = user.user_id;
+    req.role = user.role;
 
     next();
   } catch (err) {

@@ -3,6 +3,17 @@ import { signUpValidator } from "../validation/userValidation.js";
 import { prisma } from "../config/db.js";
 import generateTokenAndSetCookie from "../utils/generateToken.js";
 
+export const getAllUser = async (req, res) => {
+  try {
+    const users = await prisma.users.findMany();
+
+    return res.status(200).json({ success: true, data: users });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error" });
+  }
+};
 export const getUser = async (req, res) => {
   const user_id = req.user_id;
   try {
@@ -20,7 +31,6 @@ export const getUser = async (req, res) => {
     return res.status(404).json({ success: false, message: "User not found" });
   } catch (error) {
     console.log("Error get user: ", error);
-    // console.log(user_id);
     return res
       .status(500)
       .json({ success: false, message: "Internal Server Error" });
@@ -72,6 +82,7 @@ export const signUp = async (req, res) => {
         phone_number: data.phone_number,
         email: data.email,
         password: hashedPassword,
+        role: data.role ? data.role : "USER",
       },
     });
 
@@ -125,7 +136,7 @@ export const signIn = async (req, res) => {
         .json({ success: false, message: "Incorrect password" });
     }
 
-    generateTokenAndSetCookie(user.user_id, res);
+    generateTokenAndSetCookie(user.user_id, user.role, res);
 
     return res.json({
       success: true,
