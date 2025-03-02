@@ -72,7 +72,7 @@ export const createUnit = async (req, res) => {
 
     return res.status(201).json({ success: true, data: newUnit });
   } catch (error) {
-    if (error?.details) {
+    if (error.isJoi) {
       return res.status(400).json({
         success: false,
         message: error.details.map((err) => err.message),
@@ -139,7 +139,7 @@ export const updateUnit = async (req, res) => {
       });
       if (existingName && existingName.unit_id !== unit_id) {
         return res
-          .status(400)
+          .status(409)
           .json({ success: false, message: "Unit name already exists" });
       }
     }
@@ -151,7 +151,7 @@ export const updateUnit = async (req, res) => {
 
     return res.status(200).json({ success: true, data: updatedUnit });
   } catch (error) {
-    if (error?.details) {
+    if (error.isJoi) {
       return res.status(400).json({
         success: false,
         message: error.details.map((err) => err.message),

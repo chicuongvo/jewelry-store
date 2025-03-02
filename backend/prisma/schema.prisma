@@ -37,7 +37,7 @@ model units {
 
 model products {
   product_id  String  @id @default(cuid())
-  name        String  @unique
+  name        String
   image       String
   description String
   buy_price   Decimal
@@ -101,10 +101,11 @@ model users {
   user_id          String             @id @default(cuid())
   username         String             @unique
   email            String             @unique
-  phoneNumber      String             @unique
+  phone_number     String             @unique
+  password         String
   role             Role               @default(USER)
-  fullName         String?
-  profilePic       String?
+  fullname         String?
+  profile_pic      String?
   created_at       DateTime?          @default(now())
   purschase_orders purschase_orders[]
   service_orders   service_orders[]

@@ -89,6 +89,13 @@ export const createProduct = async (req, res) => {
 
     return res.status(201).json({ success: true, data: newProduct });
   } catch (error) {
+    if (error.isJoi) {
+      return res.status(400).json({
+        success: false,
+        message: error.details.map((err) => err.message),
+      });
+    }
+
     console.error("Error creating product:", error);
     return res
       .status(500)
@@ -185,6 +192,13 @@ export const updateProduct = async (req, res) => {
 
     return res.status(200).json({ success: true, data: updatedProduct });
   } catch (error) {
+    if (error.isJoi) {
+      return res.status(400).json({
+        success: false,
+        message: error.details.map((err) => err.message),
+      });
+    }
+
     console.error("Error updating product:", error);
     return res
       .status(500)

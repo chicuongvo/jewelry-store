@@ -1,25 +1,163 @@
-export const signUp = async (req, res) => {
-  const {
-    username,
-    email,
-    password,
-    confirmPassword,
-    fullname,
-    gender,
-    phoneNumber,
-    profilePic,
-  } = req.body;
-  try {
-    
+import bcrypt from "bcryptjs";
+import { signUpValidator } from "../validation/userValidation.js";
+import { prisma } from "../config/db.js";
+import generateTokenAndSetCookie from "../utils/generateToken.js";
 
-  } catch (error) {}
+export const getUser = async (req, res) => {
+  const user_id = req.user_id;
+  try {
+    const user = await prisma.users.findUnique({
+      omit: {
+        password: true,
+      },
+      where: { user_id },
+    });
+
+    if (user) {
+      return res.status(200).json({ success: true, data: user });
+    }
+
+    return res.status(404).json({ success: false, message: "User not found" });
+  } catch (error) {
+    console.log("Error get user: ", error);
+    // console.log(user_id);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error" });
+  }
 };
-//  id SERIAL PRIMARY KEY,
-//     username VARCHAR(20) NOT NULL UNIQUE,
-//     email VARCHAR(255) NOT NULL,
-//     passsword VARCHAR(20) NOT NULL,
-//     fullname VARCHAR(255) DEFAULT '',
-//     gender VARCHAR(255) DEFAULT 'Male',
-//     phoneNumber VARCHAR(12) DEFAULT '',
-//     profilePic TEXT DEFAULT '',
-//     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+export const signUp = async (req, res) => {
+  const data = req.body;
+  try {
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "No data provided" });
+    }
+
+    await signUpValidator.validateAsync(data);
+
+    const [checkEmail, checkUsername, checkPhoneNumber] = await Promise.all([
+      await prisma.users.findUnique({ where: { email: data.email } }),
+      await prisma.users.findUnique({ where: { username: data.username } }),
+      await prisma.users.findUnique({
+        where: { phone_number: data.phone_number },
+      }),
+    ]);
+
+    if (checkEmail) {
+      return res
+        .status(409)
+        .json({ success: false, message: "Email already exists" });
+    }
+
+    if (checkUsername) {
+      return res
+        .status(409)
+        .json({ success: false, message: "Username already exists" });
+    }
+
+    if (checkPhoneNumber) {
+      return res
+        .status(409)
+        .json({ success: false, message: "Phone number already exists" });
+    }
+
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+
+    const newUser = await prisma.users.create({
+      data: {
+        username: data.username,
+        phone_number: data.phone_number,
+        email: data.email,
+        password: hashedPassword,
+      },
+    });
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Sign up sucesfully", data: newUser });
+  } catch (error) {
+    if (error.isJoi) {
+      return res.status(400).json({
+        success: false,
+        message: error.details.map((err) => err.message),
+      });
+    }
+    console.log("Error signing up: ", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+export const signIn = async (req, res) => {
+  const { identifier, password } = req.body;
+  try {
+    if (!identifier || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide identifier and password",
+      });
+    }
+
+    const user = await prisma.users.findFirst({
+      where: {
+        OR: [
+          { email: identifier },
+          { phone_number: identifier },
+          { username: identifier },
+        ],
+      },
+    });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res
+        .status(406)
+        .json({ success: false, message: "Incorrect password" });
+    }
+
+    generateTokenAndSetCookie(user.user_id, res);
+
+    return res.json({
+      success: true,
+      data: {
+        username: user.username,
+        fullname: user.fullname,
+        email: user.email,
+        phone_number: user.phone_number,
+        profile_pic: user.profile_pic,
+      },
+    });
+  } catch (error) {
+    console.log("Error sign in:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+export const signInGoogle = async (req, res) => {};
+
+export const signOut = async (req, res) => {
+  try {
+    res.cookie("jwt", "", { maxAge: 0 });
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Sign out successfully" });
+  } catch (error) {
+    console.log("Error sign out:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error" });
+  }
+};

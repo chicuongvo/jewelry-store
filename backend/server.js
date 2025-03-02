@@ -4,14 +4,15 @@ import morgan from "morgan";
 import cors from "cors";
 import dotenv from "dotenv";
 import { routes } from "./routes/index.js";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
 const app = express();
+
 const PORT = process.env.PORT;
 
-console.log(PORT);
-
+app.use(cookieParser());
 app.use(express.json());
 app.use(cors());
 app.use(helmet()); // protect app
