@@ -99,9 +99,10 @@ model inventory_report_details {
 // USER
 model users {
   user_id          String             @id @default(cuid())
+  google_id        String             @unique @default(cuid())
   username         String             @unique
   email            String             @unique
-  phone_number     String             @unique
+  phone_number     String?            @unique
   password         String
   role             Role               @default(USER)
   fullname         String?

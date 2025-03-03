@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import { signUpValidator } from "../validation/userValidation.js";
 import { prisma } from "../config/db.js";
 import generateTokenAndSetCookie from "../utils/generateToken.js";
+import passport from "passport";
 
 export const getAllUser = async (req, res) => {
   try {
@@ -14,6 +15,7 @@ export const getAllUser = async (req, res) => {
       .json({ success: false, message: "Internal Server Error" });
   }
 };
+
 export const getUser = async (req, res) => {
   const user_id = req.user_id;
   try {
@@ -156,7 +158,20 @@ export const signIn = async (req, res) => {
   }
 };
 
-export const signInGoogle = async (req, res) => {};
+export const signInGoogle = async (req, res, next, user) => {
+  try {
+    if (!user) {
+      return res.status(401).json({ message: "Authentication failed" });
+    }
+
+    generateTokenAndSetCookie(user.user_id, user.role, res);
+
+    res.status(200).json({ message: "Login successful", data: user });
+  } catch (error) {
+    console.error("Google Sign-In Error:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
 
 export const signOut = async (req, res) => {
   try {
