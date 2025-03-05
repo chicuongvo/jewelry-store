@@ -98,23 +98,23 @@ model inventory_report_details {
 
 // USER
 model users {
-  user_id                       String             @id @default(cuid())
-  google_id                     String             @unique @default(cuid())
-  username                      String             @unique
-  email                         String             @unique
-  phone_number                  String?            @unique
-  password                      String
-  role                          Role               @default(USER)
-  fullname                      String?
-  profile_pic                   String?
-  created_at                    DateTime?          @default(now())
-  is_verified                   Boolean            @default(false)
-  reset_password_token          String?            @unique
-  reset_password_expires_at     DateTime?
-  verification_token            String?            @unique
-  verification_token_expires_at DateTime?
-  purschase_orders              purschase_orders[]
-  service_orders                service_orders[]
+  user_id                         String             @id @default(cuid())
+  google_id                       String             @unique @default(cuid())
+  username                        String             @unique
+  email                           String             @unique
+  phone_number                    String?            @unique
+  password                        String
+  role                            Role               @default(USER)
+  fullname                        String?
+  profile_pic                     String?
+  created_at                      DateTime?          @default(now())
+  is_verified                     Boolean            @default(false)
+  reset_password_token            String?            @unique
+  reset_password_token_expires_at DateTime?
+  verification_token              String?            @unique
+  verification_token_expires_at   DateTime?
+  purschase_orders                purschase_orders[]
+  service_orders                  service_orders[]
 }
 
 enum Role {
