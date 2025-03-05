@@ -3,8 +3,9 @@ import {
   signIn,
   getUser,
   signOut,
-  getAllUser,
+  getAllUsers,
   signInGoogle,
+  verifyEmail,
 } from "../controllers/authController.js";
 import { verifyToken } from "../middleware/verifyToken.js";
 import { verifyAdmin } from "../middleware/verifyAdmin.js";
@@ -14,7 +15,7 @@ import passport from "passport";
 const router = express.Router();
 
 router.get("/me", verifyToken, getUser);
-router.get("/get-all", verifyToken, verifyAdmin, getAllUser);
+router.get("/get-all", verifyToken, verifyAdmin, getAllUsers);
 router.post("/sign-up", signUp);
 router.post("/sign-in", signIn);
 router.post("/sign-out", signOut);
@@ -40,4 +41,5 @@ router.get("/google/callback", (req, res, next) => {
   })(req, res, next);
 });
 
+router.post("/verify", verifyEmail);
 export default router;

@@ -12,11 +12,15 @@ export const signUpValidator = Joi.object({
       minDomainSegments: 2,
       tlds: { allow: ["com", "net"] },
     })
+    .pattern(
+      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
+    )
     .required()
     .messages({
       "string.empty": "Email must not be empty",
       "string.email": "Email is unvalid",
       "any.required": "Email is required",
+      "string.pattern.base": "Email is unvalid",
     }),
   phone_number: Joi.string()
     .pattern(/^[0-9\s]+$/)
@@ -26,7 +30,7 @@ export const signUpValidator = Joi.object({
     .messages({
       "any.required": "Phone number is required",
       "string.empty": "Phone number must not be empty",
-      "string.patter.base": "Phone number is unvalid",
+      "string.pattern.base": "Phone number is unvalid",
       "string.min": "Phone number must be at least 8 characters",
       "string.max": "Phone number must not be over 12 characters",
     }),

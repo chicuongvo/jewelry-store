@@ -2,9 +2,10 @@ import bcrypt from "bcryptjs";
 import { signUpValidator } from "../validation/userValidation.js";
 import { prisma } from "../config/db.js";
 import generateTokenAndSetCookie from "../utils/generateToken.js";
-import passport from "passport";
+import generateVerificationToken from "../utils/generateVerificationToken.js";
+import { sendVerificationEmail } from "../config/nodemailer.js";
 
-export const getAllUser = async (req, res) => {
+export const getAllUsers = async (req, res) => {
   try {
     const users = await prisma.users.findMany();
 
@@ -41,6 +42,7 @@ export const getUser = async (req, res) => {
 
 export const signUp = async (req, res) => {
   const data = req.body;
+
   try {
     if (!req.body || Object.keys(req.body).length === 0) {
       return res
@@ -50,9 +52,9 @@ export const signUp = async (req, res) => {
 
     await signUpValidator.validateAsync(data);
 
-    const [checkEmail, checkUsername, checkPhoneNumber] = await Promise.all([
-      await prisma.users.findUnique({ where: { email: data.email } }),
+    const [checkUsername, checkEmail, checkPhoneNumber] = await Promise.all([
       await prisma.users.findUnique({ where: { username: data.username } }),
+      await prisma.users.findUnique({ where: { email: data.email } }),
       await prisma.users.findUnique({
         where: { phone_number: data.phone_number },
       }),
@@ -77,6 +79,7 @@ export const signUp = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
+    const verification_token = generateVerificationToken();
 
     const newUser = await prisma.users.create({
       data: {
@@ -85,8 +88,16 @@ export const signUp = async (req, res) => {
         email: data.email,
         password: hashedPassword,
         role: data.role ? data.role : "USER",
+        verification_token: verification_token,
+        verification_token_expires_at: new Date(
+          Date.now() + 24 * 60 * 60 * 1000
+        ),
       },
     });
+
+    generateTokenAndSetCookie(newUser.user_id, newUser.role, res);
+
+    await sendVerificationEmail(newUser.email, verification_token);
 
     return res
       .status(200)
@@ -185,5 +196,36 @@ export const signOut = async (req, res) => {
     return res
       .status(500)
       .json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+export const verifyEmail = async (req, res) => {
+  const { verification_token } = req.body;
+
+  try {
+    const user = await prisma.users.findUnique({
+      where: { verification_token },
+    });
+
+    if (user) {
+      await prisma.users.update({
+        where: { verification_token },
+        data: {
+          is_verified: true,
+          verification_token: undefined,
+          verification_token_expires_at: undefined,
+        },
+      });
+
+      return res
+        .status(200)
+        .json({ success: true, message: "Email verified successfuly" });
+    }
+
+    return res.status(404).json({ success: false, message: "User not found" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ success: false, message: "Internet Server Error" });
   }
 };

@@ -24,7 +24,6 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        // console.log("Pròile:", profile);
         if (!profile.id) return done(null, false);
 
         let user = await prisma.users.findUnique({
@@ -43,11 +42,11 @@ passport.use(
               email: profile.emails[0].value,
               profile_pic: profile.photos[0].value,
               password: hashedPassword,
+              is_verified: true,
             },
           });
         }
 
-        // console.log("new user:", user);
         return done(null, user);
       } catch (error) {
         console.error("Google Auth Error:", error);
