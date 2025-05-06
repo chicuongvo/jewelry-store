@@ -11,10 +11,10 @@ import { verifyAdmin } from "../middleware/verifyAdmin.js";
 
 const router = express.Router();
 
-router.get("/get-all", getAllProducts);
-router.get("/:product_id", getProduct);
-router.post("/create", verifyToken, verifyAdmin, createProduct);
-router.post("/delete/:product_id", verifyToken, verifyAdmin, deleteProduct);
-router.put("/update/:product_id", verifyToken, verifyAdmin, updateProduct);
+router.get("/", getAllProducts);
+router.get("/:id", getProduct);
+router.post("/", verifyToken, verifyAdmin, createProduct);
+router.delete("/:id", verifyToken, verifyAdmin, deleteProduct);
+router.put("/:id", verifyToken, verifyAdmin, updateProduct);
 
 export default router;

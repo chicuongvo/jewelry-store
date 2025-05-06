@@ -18,7 +18,7 @@ export const getAllUnits = async (req, res) => {
 };
 
 export const getUnit = async (req, res) => {
-  const { unit_id } = req.params;
+  const unit_id = req.params.id;
   try {
     const unit = await prisma.units.findUnique({ where: { unit_id } });
 
@@ -87,7 +87,7 @@ export const createUnit = async (req, res) => {
 };
 
 export const deleteUnit = async (req, res) => {
-  const { unit_id } = req.params;
+  const unit_id = req.params.id;
   try {
     const checkUnit = await prisma.units.findUnique({
       where: { unit_id },
@@ -114,7 +114,7 @@ export const deleteUnit = async (req, res) => {
 
 export const updateUnit = async (req, res) => {
   try {
-    const { unit_id } = req.params;
+    const unit_id = req.params.id;
     const data = req.body;
 
     if (!Object.keys(data).length) {

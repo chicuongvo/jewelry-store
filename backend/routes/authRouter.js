@@ -18,7 +18,7 @@ import passport from "passport";
 const router = express.Router();
 
 router.get("/me", verifyToken, getUser);
-router.get("/get-all", verifyToken, verifyAdmin, getAllUsers);
+router.get("/", verifyToken, verifyAdmin, getAllUsers);
 router.post("/sign-up", signUp);
 router.post("/sign-in", signIn);
 router.post("/sign-out", signOut);
@@ -43,9 +43,9 @@ router.get("/google/callback", (req, res, next) => {
     signInGoogle(req, res, next, user);
   })(req, res, next);
 });
-router.get("/get-verification-token/:user_id", getVerificationToken);
+router.get("/verification-token/:id", getVerificationToken);
 router.post("/verify", verifyEmail);
 
-router.post("/get-reset-password-token", getResetPasswordToken);
+router.post("/reset-password-token", getResetPasswordToken);
 router.post("/reset-password/:reset_password_token", resetPassword);
 export default router;

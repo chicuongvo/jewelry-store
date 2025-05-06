@@ -11,10 +11,10 @@ import { verifyAdmin } from "../middleware/verifyAdmin.js";
 
 const router = express.Router();
 
-router.get("/get-all", getAllTypes);
-router.get("/:type_id", getType);
-router.post("/create", verifyToken, verifyAdmin, createType);
-router.post("/delete/:type_id", verifyToken, verifyAdmin, deleteType);
-router.put("/update/:type_id", verifyToken, verifyAdmin, updateType);
+router.get("/", getAllTypes);
+router.get("/:id", getType);
+router.post("/", verifyToken, verifyAdmin, createType);
+router.delete("/:id", verifyToken, verifyAdmin, deleteType);
+router.put("/:id", verifyToken, verifyAdmin, updateType);
 
 export default router;

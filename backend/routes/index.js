@@ -1,5 +1,5 @@
-import productRouter from "./productRoutes.js";
-import supplierRouter from "./supplierRoutes.js";
+import productRouter from "./productRouter.js";
+import supplierRouter from "./supplierRouter.js";
 import productTypeRouter from "./productTypeRouter.js";
 import unitRouter from "./unitRouter.js";
 import authRouter from "./authRouter.js";

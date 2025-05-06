@@ -18,7 +18,7 @@ export const getAllSuppliers = async (req, res) => {
 };
 
 export const getSupplier = async (req, res) => {
-  const { supplier_id } = req.params;
+  const supplier_id = req.params.id;
   try {
     const supplier = await prisma.suppliers.findUnique({
       where: { supplier_id },
@@ -82,7 +82,7 @@ export const createSupplier = async (req, res) => {
 };
 
 export const deleteSupplier = async (req, res) => {
-  const { supplier_id } = req.params;
+  const supplier_id = req.params.id;
 
   try {
     const checkSupplier = await prisma.suppliers.findUnique({
@@ -109,7 +109,7 @@ export const deleteSupplier = async (req, res) => {
 };
 
 export const updateSupplier = async (req, res) => {
-  const { supplier_id } = req.params;
+  const supplier_id = req.params.id;
   const data = req.body;
 
   try {

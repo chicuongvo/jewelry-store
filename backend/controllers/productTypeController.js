@@ -16,7 +16,7 @@ export const getAllTypes = async (req, res) => {
 };
 
 export const getType = async (req, res) => {
-  const { type_id } = req.params;
+  const type_id = req.params.id;
 
   try {
     const type = await prisma.product_types.findUnique({ where: { type_id } });
@@ -83,7 +83,7 @@ export const createType = async (req, res) => {
 };
 
 export const deleteType = async (req, res) => {
-  const { type_id } = req.params;
+  const type_id = req.params.id;
 
   try {
     const checkType = await prisma.product_types.findUnique({
@@ -110,7 +110,7 @@ export const deleteType = async (req, res) => {
 
 export const updateType = async (req, res) => {
   try {
-    const { type_id } = req.params;
+    const type_id = req.params.id;
     const data = req.body;
 
     if (!Object.keys(data).length) {

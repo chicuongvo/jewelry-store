@@ -199,7 +199,7 @@ export const signOut = async (req, res) => {
 };
 
 export const getVerificationToken = async (req, res) => {
-  const { user_id } = req.params;
+  const user_id = req.params.id;
   try {
     const user = await prisma.users.findUnique({ where: { user_id } });
 
