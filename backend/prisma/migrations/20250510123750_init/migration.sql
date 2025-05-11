@@ -248,3 +248,70 @@ CREATE TRIGGER trg_update_end_stock
 BEFORE INSERT OR UPDATE ON inventory_report_details
 FOR EACH ROW
 EXECUTE FUNCTION update_end_stock();
+
+-- TRIGGER 3
+
+CREATE OR REPLACE FUNCTION update_status_order()
+RETURN TRIGGER AS $$
+DECLARE
+  row_count_not_done INT;
+BEGIN
+  SELECT COUNT(*) FROM service_order_details
+  WHERE service_order_details.service_order_id = NEW.service_order_id
+  AND service_order_details.status = "NOT_DELIVERED"
+  INTO row_count_not_done
+
+  IF row_count_not_done = 0 THEN
+    UPDATE service_orders
+    SET service_orders.status = "DELIVERED"
+    WHERE service_orders.service_order_id = NEW.service_order_id
+  ELSE
+    UPDATE service_orders
+    SET service_orders.status = "NOT_DELIVERED"
+    WHERE service_orders.service_order_id = NEW.service_order_id
+  END IF;
+
+  RETURN NEW
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_status_order_trigger
+BEFORE UPDATE OF status ON service_order_details
+FOR EACH ROW
+EXECUTE FUNCTION update_status_order()
+
+-- TRIGGER 3
+
+CREATE OR REPLACE FUNCTION update_total_price_order()
+RETURN TRIGGER AS $$
+BEGIN
+  UPDATE service_orders
+  SET service_orders.total_price += NEW.total_price - OLD.total_price
+  WHERE service_orders.service_order_id = NEW.service_order_id
+
+  RETURN NEW
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_total_price_order_trigger
+BEFORE UPDATE OF total_price ON service_order_details
+FOR EACH ROW
+EXECUTE FUNCTION update_total_price_order()
+
+-- TRIGGER 9
+
+CREATE TRIGGER update_total_remain()
+RETURN TRIGGER AS $$
+BEGIN
+  IF NEW.total_price <> OLD.total_price OR NEW.total_paid <> OLD.total_paid
+    SET NEW.total_remain = NEW.total_price - NEW.total_paid
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_total_remain_trigger
+BEFORE UPDATE OF total_price OR total_paid ON service_orders
+FOR EACH ROW
+EXECUTE FUNCTION update_total_remain()
