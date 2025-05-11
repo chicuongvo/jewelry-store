@@ -55,7 +55,7 @@ model products {
   unit        String?
 
   inventory_report_details inventory_report_details[]
-  purschase_order_details  purschase_order_details[]
+  purchase_order_details   purchase_order_details[]
   sales_order_details      sales_order_details[]
 }
 
@@ -98,22 +98,22 @@ model inventory_report_details {
 
 // USER
 model users {
-  user_id                         String             @id @default(cuid())
-  google_id                       String             @unique @default(cuid())
-  username                        String             @unique
-  email                           String             @unique
-  phone_number                    String?            @unique
+  user_id                         String            @id @default(cuid())
+  google_id                       String            @unique @default(cuid())
+  username                        String            @unique
+  email                           String            @unique
+  phone_number                    String?           @unique
   password                        String
-  role                            Role               @default(USER)
+  role                            Role              @default(USER)
   fullname                        String?
   profile_pic                     String?
-  created_at                      DateTime?          @default(now())
-  is_verified                     Boolean            @default(false)
-  reset_password_token            String?            @unique
+  created_at                      DateTime?         @default(now())
+  is_verified                     Boolean           @default(false)
+  reset_password_token            String?           @unique
   reset_password_token_expires_at DateTime?
-  verification_token              String?            @unique
+  verification_token              String?           @unique
   verification_token_expires_at   DateTime?
-  purschase_orders                purschase_orders[]
+  purchase_orders                 purchase_orders[]
   service_orders                  service_orders[]
 }
 
@@ -129,17 +129,17 @@ enum Role {
 /**
  * Purchase
  */
-model purschase_orders {
+model purchase_orders {
   purchase_order_id String   @id @default(cuid())
   created_at        DateTime @default(now())
 
-  client                  users                     @relation(fields: [client_id], references: [user_id])
-  client_id               String
-  purschase_order_details purschase_order_details[]
+  client                 users                    @relation(fields: [client_id], references: [user_id])
+  client_id              String
+  purchase_order_details purchase_order_details[]
 }
 
-model purschase_order_details {
-  purchase_order    purschase_orders @relation(fields: [purchase_order_id], references: [purchase_order_id])
+model purchase_order_details {
+  purchase_order    purchase_orders @relation(fields: [purchase_order_id], references: [purchase_order_id])
   purchase_order_id String
 
   product    products @relation(fields: [product_id], references: [product_id])
