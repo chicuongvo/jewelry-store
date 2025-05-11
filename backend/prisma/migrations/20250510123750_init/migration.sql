@@ -416,3 +416,24 @@ BEFORE INSERT ON sales_order_details
 FOR EACH ROW
 EXECUTE FUNCTION validate_sales_quantity();
 
+-- Trigger function cập nhật total_price khi quantity thay đổi
+CREATE OR REPLACE FUNCTION update_purchase_order_total_price()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.total_price := COALESCE((
+        SELECT buy_price * COALESCE(NEW.quantity, 0)
+        FROM products
+        WHERE product_id = NEW.product_id
+        LIMIT 1
+    ), 0);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- Trigger gắn với bảng purchase_order_details
+CREATE TRIGGER trg_update_purchase_order_total_price
+BEFORE INSERT OR UPDATE OF quantity ON purchase_order_details
+FOR EACH ROW
+EXECUTE FUNCTION update_purchase_order_total_price();
+
