@@ -232,3 +232,19 @@ ALTER TABLE "service_order_details" ADD CONSTRAINT "service_order_details_servic
 
 -- AddForeignKey
 ALTER TABLE "service_order_details" ADD CONSTRAINT "service_order_details_service_id_fkey" FOREIGN KEY ("service_id") REFERENCES "services"("service_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- TRIGGER Cập nhật end_stock khi buy_quantity || sell_quantity thay đổi
+
+CREATE OR REPLACE FUNCTION update_end_stock()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.end_stock := NEW.begin_stock + NEW.purchase_quantity - NEW.sell_quantity;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER trg_update_end_stock
+BEFORE INSERT OR UPDATE ON inventory_report_details
+FOR EACH ROW
+EXECUTE FUNCTION update_end_stock();
