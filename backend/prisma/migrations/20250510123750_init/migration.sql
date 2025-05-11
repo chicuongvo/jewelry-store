@@ -248,3 +248,75 @@ CREATE TRIGGER trg_update_end_stock
 BEFORE INSERT OR UPDATE ON inventory_report_details
 FOR EACH ROW
 EXECUTE FUNCTION update_end_stock();
+
+-- TRIGGER Cập nhật purchase_quantity khi thêm purchase order mới
+CREATE OR REPLACE FUNCTION update_purchase_quantity()
+RETURNS TRIGGER AS $$
+DECLARE
+    current_report_id TEXT;
+BEGIN
+    SELECT report_id INTO current_report_id
+    FROM inventory_reports
+    WHERE month = EXTRACT(MONTH FROM CURRENT_DATE)
+    AND year = EXTRACT(YEAR FROM CURRENT_DATE);
+
+    IF current_report_id IS NULL THEN
+        current_report_id := gen_random_uuid()::TEXT;
+        INSERT INTO inventory_reports (report_id, month, year)
+        VALUES (current_report_id, EXTRACT(MONTH FROM CURRENT_DATE), EXTRACT(YEAR FROM CURRENT_DATE));
+    END IF;
+
+    INSERT INTO inventory_report_details (
+        report_id,
+        product_id,
+        begin_stock,
+        purchase_quantity,
+        sell_quantity,
+        end_stock
+    )
+    VALUES (
+        current_report_id,
+        NEW.product_id,
+        COALESCE((
+            SELECT end_stock 
+            FROM inventory_report_details 
+            WHERE product_id = NEW.product_id 
+            AND report_id IN (
+                SELECT report_id 
+                FROM inventory_reports 
+                WHERE (year < EXTRACT(YEAR FROM CURRENT_DATE)) 
+                OR (year = EXTRACT(YEAR FROM CURRENT_DATE) AND month < EXTRACT(MONTH FROM CURRENT_DATE))
+                ORDER BY year DESC, month DESC 
+                LIMIT 1
+            )
+        ), 0),
+        NEW.quantity,
+        0,
+        COALESCE((
+            SELECT end_stock 
+            FROM inventory_report_details 
+            WHERE product_id = NEW.product_id 
+            AND report_id IN (
+                SELECT report_id 
+                FROM inventory_reports 
+                WHERE (year < EXTRACT(YEAR FROM CURRENT_DATE)) 
+                OR (year = EXTRACT(YEAR FROM CURRENT_DATE) AND month < EXTRACT(MONTH FROM CURRENT_DATE))
+                ORDER BY year DESC, month DESC 
+                LIMIT 1
+            )
+        ), 0) + NEW.quantity
+    )
+    ON CONFLICT (report_id, product_id) 
+    DO UPDATE SET
+        purchase_quantity = inventory_report_details.purchase_quantity + NEW.quantity,
+        end_stock = inventory_report_details.begin_stock + inventory_report_details.purchase_quantity + NEW.quantity - inventory_report_details.sell_quantity;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_update_purchase_quantity
+AFTER INSERT ON purchase_order_details
+FOR EACH ROW
+EXECUTE FUNCTION update_purchase_quantity();
+
