@@ -503,3 +503,57 @@ BEFORE INSERT OR UPDATE OF quantity ON purchase_order_details
 FOR EACH ROW
 EXECUTE FUNCTION update_purchase_order_total_price();
 
+--- TRIGGER Cập nhập sell_price = buy_price + buy_price * profit_rate
+
+CREATE OR REPLACE FUNCTION update_sell_price()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE products
+    SET products.sell_price = NEW.buy_price + (NEW.buy_price * NEW.profit_rate)
+    WHERE products.product_id = NEW.product_id;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_update_sell_price 
+BEFORE UPDATE OF profit_rate on products_type
+FOR EACH ROW
+EXECUTE FUNCTION update_sell_price()
+
+--- TRIGGER Cập nhập lại extra_cost và quantity
+CREATE OR REPLACE FUNCTION update_extra_cost_and_quantity()
+RETURNS TRIGGER AS $$
+DECLARE
+    base_price numeric;
+    new_calculated_price numeric;
+    new_total_price numeric;
+BEGIN
+    SELECT s.base_price INTO base_price
+    FROM services s
+    WHERE s.service_id = NEW.service_id;
+
+    IF base_price IS NULL THEN
+        RAISE EXCEPTION 'Không tìm thấy dịch vụ tương ứng.';
+    END IF;
+
+    -- Tính giá mới
+    new_calculated_price := NEW.extra_cost + base_price;
+    new_total_price := new_calculated_price * NEW.quantity;
+
+    -- Kiểm tra điều kiện thanh toán tối thiểu 50%
+    IF NEW.paid < new_total_price * 0.5 THEN
+        RAISE EXCEPTION 'Lỗi cập nhập: Chưa thanh toán đủ 50%% để cập nhật extra_cost và quantity';
+    END IF;
+
+    -- Gán giá trị vào NEW
+    NEW.calculated_price := new_calculated_price;
+    NEW.total_price := new_total_price;
+
+    RETURN NEW;
+END;
+
+CREATE TRIGGER trg_update_extra_cost
+BEFORE UPDATE on service_order_details
+FOR EACH ROW
+EXECUTE FUNCTION update_extra_cost_and_quantity();
+
