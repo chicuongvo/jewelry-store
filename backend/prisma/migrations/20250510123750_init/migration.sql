@@ -108,13 +108,13 @@ CREATE TABLE "purschase_orders" (
 );
 
 -- CreateTable
-CREATE TABLE "purschase_order_details" (
+CREATE TABLE "purchase_order_details" (
     "purchase_order_id" TEXT NOT NULL,
     "product_id" TEXT NOT NULL,
     "quantity" INTEGER NOT NULL,
     "total_price" DECIMAL(65,30) NOT NULL,
 
-    CONSTRAINT "purschase_order_details_pkey" PRIMARY KEY ("purchase_order_id","product_id")
+    CONSTRAINT "purchase_order_details_pkey" PRIMARY KEY ("purchase_order_id","product_id")
 );
 
 -- CreateTable
@@ -210,10 +210,10 @@ ALTER TABLE "inventory_report_details" ADD CONSTRAINT "inventory_report_details_
 ALTER TABLE "purschase_orders" ADD CONSTRAINT "purschase_orders_client_id_fkey" FOREIGN KEY ("client_id") REFERENCES "users"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "purschase_order_details" ADD CONSTRAINT "purschase_order_details_purchase_order_id_fkey" FOREIGN KEY ("purchase_order_id") REFERENCES "purschase_orders"("purchase_order_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "purchase_order_details" ADD CONSTRAINT "purchase_order_details_purchase_order_id_fkey" FOREIGN KEY ("purchase_order_id") REFERENCES "purschase_orders"("purchase_order_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "purschase_order_details" ADD CONSTRAINT "purschase_order_details_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "products"("product_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "purchase_order_details" ADD CONSTRAINT "purchase_order_details_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "products"("product_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "sales_orders" ADD CONSTRAINT "sales_orders_supplier_id_fkey" FOREIGN KEY ("supplier_id") REFERENCES "suppliers"("supplier_id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -252,59 +252,59 @@ EXECUTE FUNCTION update_end_stock();
 -- TRIGGER 3
 
 CREATE OR REPLACE FUNCTION update_status_order()
-RETURN TRIGGER AS $$
+RETURNS TRIGGER AS $$
 DECLARE
   row_count_not_done INT;
 BEGIN
   SELECT COUNT(*) FROM service_order_details
   WHERE service_order_details.service_order_id = NEW.service_order_id
-  AND service_order_details.status = "NOT_DELIVERED"
-  INTO row_count_not_done
+  AND service_order_details.status = 'NOT_DELIVERED'
+  INTO row_count_not_done;
 
   IF row_count_not_done = 0 THEN
     UPDATE service_orders
-    SET service_orders.status = "DELIVERED"
-    WHERE service_orders.service_order_id = NEW.service_order_id
+    SET service_orders.status = 'DELIVERED'
+    WHERE service_orders.service_order_id = NEW.service_order_id;
   ELSE
     UPDATE service_orders
-    SET service_orders.status = "NOT_DELIVERED"
-    WHERE service_orders.service_order_id = NEW.service_order_id
+    SET service_orders.status = 'NOT_DELIVERED'
+    WHERE service_orders.service_order_id = NEW.service_order_id;
   END IF;
 
-  RETURN NEW
+  RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER update_status_order_trigger
 BEFORE UPDATE OF status ON service_order_details
 FOR EACH ROW
-EXECUTE FUNCTION update_status_order()
+EXECUTE FUNCTION update_status_order();
 
 -- TRIGGER 3
 
 CREATE OR REPLACE FUNCTION update_total_price_order()
-RETURN TRIGGER AS $$
+RETURNS TRIGGER AS $$
 BEGIN
   UPDATE service_orders
-  SET service_orders.total_price += NEW.total_price - OLD.total_price
-  WHERE service_orders.service_order_id = NEW.service_order_id
+  SET total_price = total_price + (NEW.total_price - OLD.total_price)
+  WHERE service_orders.service_order_id = NEW.service_order_id;
 
-  RETURN NEW
+  RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;    
 
 CREATE TRIGGER update_total_price_order_trigger
 BEFORE UPDATE OF total_price ON service_order_details
 FOR EACH ROW
-EXECUTE FUNCTION update_total_price_order()
+EXECUTE FUNCTION update_total_price_order();
 
 -- TRIGGER 9
 
-CREATE TRIGGER update_total_remain()
-RETURN TRIGGER AS $$
+CREATE OR REPLACE FUNCTION update_total_remain()
+RETURNS TRIGGER AS $$
 BEGIN
-  IF NEW.total_price <> OLD.total_price OR NEW.total_paid <> OLD.total_paid
-    SET NEW.total_remain = NEW.total_price - NEW.total_paid
+  IF NEW.total_price <> OLD.total_price OR NEW.total_paid <> OLD.total_paid THEN
+    NEW.total_remaining := NEW.total_price - NEW.total_paid;
   END IF;
 
   RETURN NEW;
@@ -312,9 +312,10 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER update_total_remain_trigger
-BEFORE UPDATE OF total_price OR total_paid ON service_orders
+BEFORE UPDATE OF total_price, total_paid ON service_orders
 FOR EACH ROW
-EXECUTE FUNCTION update_total_remain()
+EXECUTE FUNCTION update_total_remain();
+
 -- TRIGGER Cập nhật purchase_quantity khi thêm purchase order mới
 CREATE OR REPLACE FUNCTION update_purchase_quantity()
 RETURNS TRIGGER AS $$
@@ -503,7 +504,7 @@ BEFORE INSERT OR UPDATE OF quantity ON purchase_order_details
 FOR EACH ROW
 EXECUTE FUNCTION update_purchase_order_total_price();
 
---- TRIGGER Cập nhập sell_price = buy_price + buy_price * profit_rate
+-- - TRIGGER Cập nhập sell_price = buy_price + buy_price * profit_rate
 
 CREATE OR REPLACE FUNCTION update_sell_price()
 RETURNS TRIGGER AS $$
@@ -516,9 +517,9 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trg_update_sell_price 
-BEFORE UPDATE OF profit_rate on products_type
+BEFORE UPDATE OF profit_rate on product_types
 FOR EACH ROW
-EXECUTE FUNCTION update_sell_price()
+EXECUTE FUNCTION update_sell_price();
 
 --- TRIGGER Cập nhập lại extra_cost và quantity
 CREATE OR REPLACE FUNCTION update_extra_cost_and_quantity()
@@ -551,6 +552,7 @@ BEGIN
 
     RETURN NEW;
 END;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trg_update_extra_cost
 BEFORE UPDATE on service_order_details
