@@ -249,191 +249,69 @@ BEFORE INSERT OR UPDATE ON inventory_report_details
 FOR EACH ROW
 EXECUTE FUNCTION update_end_stock();
 
--- TRIGGER Cập nhật purchase_quantity khi thêm purchase order mới
-CREATE OR REPLACE FUNCTION update_purchase_quantity()
-RETURNS TRIGGER AS $$
+-- TRIGGER 3
+
+CREATE OR REPLACE FUNCTION update_status_order()
+RETURN TRIGGER AS $$
 DECLARE
-    current_report_id TEXT;
+  row_count_not_done INT;
 BEGIN
-    SELECT report_id INTO current_report_id
-    FROM inventory_reports
-    WHERE month = EXTRACT(MONTH FROM CURRENT_DATE)
-    AND year = EXTRACT(YEAR FROM CURRENT_DATE);
+  SELECT COUNT(*) FROM service_order_details
+  WHERE service_order_details.service_order_id = NEW.service_order_id
+  AND service_order_details.status = "NOT_DELIVERED"
+  INTO row_count_not_done
 
-    IF current_report_id IS NULL THEN
-        current_report_id := gen_random_uuid()::TEXT;
-        INSERT INTO inventory_reports (report_id, month, year)
-        VALUES (current_report_id, EXTRACT(MONTH FROM CURRENT_DATE), EXTRACT(YEAR FROM CURRENT_DATE));
-    END IF;
+  IF row_count_not_done = 0 THEN
+    UPDATE service_orders
+    SET service_orders.status = "DELIVERED"
+    WHERE service_orders.service_order_id = NEW.service_order_id
+  ELSE
+    UPDATE service_orders
+    SET service_orders.status = "NOT_DELIVERED"
+    WHERE service_orders.service_order_id = NEW.service_order_id
+  END IF;
 
-    INSERT INTO inventory_report_details (
-        report_id,
-        product_id,
-        begin_stock,
-        purchase_quantity,
-        sell_quantity,
-        end_stock
-    )
-    VALUES (
-        current_report_id,
-        NEW.product_id,
-        COALESCE((
-            SELECT end_stock 
-            FROM inventory_report_details 
-            WHERE product_id = NEW.product_id 
-            AND report_id IN (
-                SELECT report_id 
-                FROM inventory_reports 
-                WHERE (year < EXTRACT(YEAR FROM CURRENT_DATE)) 
-                OR (year = EXTRACT(YEAR FROM CURRENT_DATE) AND month < EXTRACT(MONTH FROM CURRENT_DATE))
-                ORDER BY year DESC, month DESC 
-                LIMIT 1
-            )
-        ), 0),
-        NEW.quantity,
-        0,
-        COALESCE((
-            SELECT end_stock 
-            FROM inventory_report_details 
-            WHERE product_id = NEW.product_id 
-            AND report_id IN (
-                SELECT report_id 
-                FROM inventory_reports 
-                WHERE (year < EXTRACT(YEAR FROM CURRENT_DATE)) 
-                OR (year = EXTRACT(YEAR FROM CURRENT_DATE) AND month < EXTRACT(MONTH FROM CURRENT_DATE))
-                ORDER BY year DESC, month DESC 
-                LIMIT 1
-            )
-        ), 0) + NEW.quantity
-    )
-    ON CONFLICT (report_id, product_id) 
-    DO UPDATE SET
-        purchase_quantity = inventory_report_details.purchase_quantity + NEW.quantity,
-        end_stock = inventory_report_details.begin_stock + inventory_report_details.purchase_quantity + NEW.quantity - inventory_report_details.sell_quantity;
-
-    RETURN NEW;
+  RETURN NEW
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trg_update_purchase_quantity
-AFTER INSERT ON purchase_order_details
+CREATE TRIGGER update_status_order_trigger
+BEFORE UPDATE OF status ON service_order_details
 FOR EACH ROW
-EXECUTE FUNCTION update_purchase_quantity();
+EXECUTE FUNCTION update_status_order()
 
--- TRIGGER Cập nhật total_price khi quantity thay đổi trong sales_order_details
-CREATE OR REPLACE FUNCTION update_sales_order_total_price()
-RETURNS TRIGGER AS $$
+-- TRIGGER 3
+
+CREATE OR REPLACE FUNCTION update_total_price_order()
+RETURN TRIGGER AS $$
 BEGIN
-    NEW.total_price := (
-        SELECT sell_price * CAST(NEW.quantity AS INTEGER)
-        FROM products
-        WHERE product_id = NEW.product_id
-    );
-    
-    RETURN NEW;
+  UPDATE service_orders
+  SET service_orders.total_price += NEW.total_price - OLD.total_price
+  WHERE service_orders.service_order_id = NEW.service_order_id
+
+  RETURN NEW
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trg_update_sales_order_total_price
-BEFORE INSERT OR UPDATE OF quantity ON sales_order_details
+CREATE TRIGGER update_total_price_order_trigger
+BEFORE UPDATE OF total_price ON service_order_details
 FOR EACH ROW
-EXECUTE FUNCTION update_sales_order_total_price();
+EXECUTE FUNCTION update_total_price_order()
 
--- TRIGGER Kiểm tra số lượng bán và cập nhật sell_quantity
-CREATE OR REPLACE FUNCTION validate_sales_quantity()
-RETURNS TRIGGER AS $$
-DECLARE
-    current_report_id TEXT;
-    available_stock INTEGER;
+-- TRIGGER 9
+
+CREATE TRIGGER update_total_remain()
+RETURN TRIGGER AS $$
 BEGIN
-    SELECT report_id INTO current_report_id
-    FROM inventory_reports
-    WHERE month = EXTRACT(MONTH FROM CURRENT_DATE)
-    AND year = EXTRACT(YEAR FROM CURRENT_DATE);
+  IF NEW.total_price <> OLD.total_price OR NEW.total_paid <> OLD.total_paid
+    SET NEW.total_remain = NEW.total_price - NEW.total_paid
+  END IF;
 
-    IF current_report_id IS NULL THEN
-        current_report_id := gen_random_uuid()::TEXT;
-        INSERT INTO inventory_reports (report_id, month, year)
-        VALUES (current_report_id, EXTRACT(MONTH FROM CURRENT_DATE), EXTRACT(YEAR FROM CURRENT_DATE));
-    END IF;
-
-    SELECT end_stock INTO available_stock
-    FROM inventory_report_details
-    WHERE report_id = current_report_id
-    AND product_id = NEW.product_id;
-
-    IF available_stock IS NULL THEN
-        SELECT end_stock INTO available_stock
-        FROM inventory_report_details
-        WHERE product_id = NEW.product_id
-        AND report_id IN (
-            SELECT report_id
-            FROM inventory_reports
-            WHERE (year < EXTRACT(YEAR FROM CURRENT_DATE))
-            OR (year = EXTRACT(YEAR FROM CURRENT_DATE) AND month < EXTRACT(MONTH FROM CURRENT_DATE))
-            ORDER BY year DESC, month DESC
-            LIMIT 1
-        );
-
-        available_stock := COALESCE(available_stock, 0);
-
-        INSERT INTO inventory_report_details (
-            report_id,
-            product_id,
-            begin_stock,
-            purchase_quantity,
-            sell_quantity,
-            end_stock
-        )
-        VALUES (
-            current_report_id,
-            NEW.product_id,
-            available_stock,
-            0,
-            0,
-            available_stock
-        );
-    END IF;
-
-    IF CAST(NEW.quantity AS INTEGER) > available_stock THEN
-        RAISE EXCEPTION 'Số lượng bán (%) vượt quá số lượng tồn kho hiện có (%)', 
-            NEW.quantity, available_stock;
-    END IF;
-
-    UPDATE inventory_report_details
-    SET 
-        sell_quantity = sell_quantity + CAST(NEW.quantity AS INTEGER),
-        end_stock = begin_stock + purchase_quantity - (sell_quantity + CAST(NEW.quantity AS INTEGER))
-    WHERE report_id = current_report_id
-    AND product_id = NEW.product_id;
-
-    RETURN NEW;
+  RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trg_validate_sales_quantity
-BEFORE INSERT ON sales_order_details
+CREATE TRIGGER update_total_remain_trigger
+BEFORE UPDATE OF total_price OR total_paid ON service_orders
 FOR EACH ROW
-EXECUTE FUNCTION validate_sales_quantity();
-
--- Trigger function cập nhật total_price khi quantity thay đổi
-CREATE OR REPLACE FUNCTION update_purchase_order_total_price()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.total_price := COALESCE((
-        SELECT buy_price * COALESCE(NEW.quantity, 0)
-        FROM products
-        WHERE product_id = NEW.product_id
-        LIMIT 1
-    ), 0);
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-
--- Trigger gắn với bảng purchase_order_details
-CREATE TRIGGER trg_update_purchase_order_total_price
-BEFORE INSERT OR UPDATE OF quantity ON purchase_order_details
-FOR EACH ROW
-EXECUTE FUNCTION update_purchase_order_total_price();
-
+EXECUTE FUNCTION update_total_remain()
