@@ -3,11 +3,16 @@ import supplierRouter from "./supplierRouter.js";
 import productTypeRouter from "./productTypeRouter.js";
 import unitRouter from "./unitRouter.js";
 import authRouter from "./authRouter.js";
-
+import serviceOrdersRouter from "./serviceOrdersRouter.js";
+import salesOrderDetailsRouter from "./salesOrderDetailsRouter.js";
+import serviceOrderDetailsRouter from "./serviceOrderDetailsRouter.js";
 export const routes = (app) => {
   app.use("/api/products", productRouter);
   app.use("/api/suppliers", supplierRouter);
   app.use("/api/product-types", productTypeRouter);
   app.use("/api/units", unitRouter);
   app.use("/api/auth", authRouter);
+  app.use("/api/service-orders", serviceOrdersRouter);
+  app.use("/api/sales-order-details", salesOrderDetailsRouter);
+  app.use("/api/service-order-details", serviceOrderDetailsRouter);
 };
