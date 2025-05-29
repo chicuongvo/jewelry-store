@@ -1,0 +1,137 @@
+import { prisma } from "../config/db.js";
+import {
+  createServiceOrderValidator,
+  updateServiceOrderValidator,
+  getServiceOrderValidator,
+  deleteServiceOrderValidator,
+} from "../validation/serviceOrdersValidation.js";
+export const createServiceOrders = async (req, res) => {
+  const {
+    client_id,
+    status,
+    quantity,
+    total_price,
+    total_paid,
+    total_remaining,
+  } = req.body;
+  try {
+    await createServiceOrderValidator.validateAsync(req.body);
+    const newServiceOrder = await prisma.service_order_details.create({
+      data: {
+        client_id,
+        quantity,
+        total_price,
+        total_paid,
+        total_remaining,
+        total_price,
+        status,
+      },
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Service order detail created successfully",
+      data: newServiceOrder,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};
+
+export const getServiceOrder = async (req, res) => {
+  const { service_order_id } = req.params;
+  try {
+    await getServiceOrderValidator.validateAsync({
+      service_order_id,
+    });
+    const serviceOrder = await prisma.service_orders.findUnique({
+      where: {
+        service_order_id,
+      },
+    });
+
+    if (!serviceOrder) {
+      return res.status(404).json({
+        success: false,
+        message: "Service order detail not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Service order detail retrieved successfully",
+      data: serviceOrder,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};
+
+export const updateServiceOrder = async (req, res) => {
+  // const {
+  //   client_id,
+  //   status,
+  //   quantity,
+  //   total_price,
+  //   total_paid,
+  //   total_remaining,
+  // } = req.body;
+  const { service_order_id } = req.params;
+  try {
+    await updateServiceOrderValidator.validateAsync({
+      ...req.body,
+      service_order_id,
+    });
+    const updatedServiceOrderDetail = await prisma.service_order_details.update(
+      {
+        where: {
+          service_order_id: service_order_id,
+        },
+        data: req.body,
+      }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Service order detail updated successfully",
+      data: updatedServiceOrderDetail,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};
+
+export const deleteServiceOrder = async (req, res) => {
+  const { service_order_id } = req.params;
+  try {
+    await deleteServiceOrderValidator.validateAsync(req.params);
+    await prisma.service_order_details.delete({
+      where: {
+        service_order_id,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Service order detail deleted successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};

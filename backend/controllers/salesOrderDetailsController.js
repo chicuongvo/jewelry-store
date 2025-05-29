@@ -1,0 +1,123 @@
+import {
+  createSalesOrderDetailsValidator,
+  getSalesOrderDetailsValidator,
+  updateSalesOrderDetailsValidator,
+  deleteSalesOrderDetailsValidator,
+} from "../validation/salesOrderDetailsValidation.js";
+import { prisma } from "../config/db.js";
+
+export const getSalesOrderDetails = async (req, res) => {
+  const { sales_order_id, product_id } = req.params;
+
+  try {
+    await getSalesOrderDetailsValidator.validateAsync(req.params);
+    const salesOrderDetails = await prisma.sales_order_details.findMany({
+      where: {
+        sales_order_id: sales_order_id,
+        product_id: product_id,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Sales order details retrieved successfully",
+      data: salesOrderDetails,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};
+export const createSalesOrderDetails = async (req, res) => {
+  const { sales_order_id, product_id, quantity, total_price } = req.body;
+
+  try {
+    await createSalesOrderDetailsValidator.validateAsync(req.body);
+    const newSalesOrderDetail = await prisma.sales_order_details.create({
+      data: {
+        sales_order_id,
+        product_id,
+        quantity,
+        total_price,
+      },
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Sales order detail created successfully",
+      data: newSalesOrderDetail,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};
+
+export const updateSalesOrderDetails = async (req, res) => {
+  const { quantity, total_price } = req.body;
+  const { product_id, sales_order_id } = req.params;
+  try {
+    await updateSalesOrderDetailsValidator.validateAsync({
+      quantity,
+      total_price,
+      product_id,
+      sales_order_id,
+    });
+    const updatedSalesOrderDetail = await prisma.sales_order_details.update({
+      where: {
+        sales_order_id_product_id: {
+          sales_order_id,
+          product_id,
+        },
+      },
+      data: {
+        quantity,
+        total_price,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Sales order detail updated successfully",
+      data: updatedSalesOrderDetail,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};
+
+export const deleteSalesOrderDetails = async (req, res) => {
+  const { sales_order_id, product_id } = req.params;
+  try {
+    await deleteSalesOrderDetailsValidator.validateAsync(req.params);
+    await prisma.sales_order_details.delete({
+      where: {
+        sales_order_id_product_id: {
+          sales_order_id,
+          product_id,
+        },
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Sales order detail deleted successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.toString(),
+    });
+  }
+};
