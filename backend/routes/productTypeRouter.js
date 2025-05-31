@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.get("/", getAllTypes);
 router.get("/:id", getType);
-router.post("/", verifyToken, verifyAdmin, createType);
+router.post("/", createType);
 router.delete("/:id", verifyToken, verifyAdmin, deleteType);
 router.put("/:id", verifyToken, verifyAdmin, updateType);
 
