@@ -1,13 +1,10 @@
 import Joi from "@hapi/joi";
 
 export const createSupplierValidation = Joi.object({
-  supplier_id: Joi.string().message({
-    "string.empty": "Supplier id must not be empty",
-  }),
-  name: Joi.string().required().min(6).max(255).messages({
+  name: Joi.string().required().min(3).max(255).messages({
     "any.required": "Supplier name is required",
     "string.empty": "Supplier name must not be empty",
-    "string.min": "Supplier name must be at least 6 characters",
+    "string.min": "Supplier name must be at least 3 characters",
     "string.max": "Supplier name must not be over 255 characters",
   }),
 
@@ -33,12 +30,9 @@ export const createSupplierValidation = Joi.object({
 });
 
 export const updateSupplierValidator = Joi.object({
-  supplier_id: Joi.string().message({
-    "string.empty": "Supplier id must not be empty",
-  }),
-  name: Joi.string().min(6).max(255).messages({
+  name: Joi.string().min(3).max(255).messages({
     "string.empty": "Supplier name must not be empty",
-    "string.min": "Supplier name must be at least 6 characters",
+    "string.min": "Supplier name must be at least 3 characters",
     "string.max": "Supplier name must not be over 255 characters",
   }),
 

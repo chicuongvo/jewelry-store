@@ -48,18 +48,6 @@ export const createSupplier = async (req, res) => {
         .json({ success: false, message: "No data provided" });
     }
 
-    if (data.supplier_id) {
-      const checkSupplierId = await prisma.suppliers.findUnique({
-        where: { supplier_id: data.supplier_id },
-      });
-
-      if (checkSupplierId) {
-        return res
-          .status(400)
-          .json({ sucess: false, message: "Supplier ID existed" });
-      }
-    }
-
     await createSupplierValidation.validateAsync(data);
 
     const newSupplier = await prisma.suppliers.create({ data: data });
