@@ -1,24 +1,15 @@
 import Joi from "@hapi/joi";
 
 export const createSupplierValidation = Joi.object({
-  supplier_id: Joi.string()
-    .pattern(/^[A-Za-z0-9\s]+$/)
-    .message({
-      "string.empty": "Supplier id must not be empty",
-      "string.pattern.base": "Supplier id is not valid",
-    }),
-  name: Joi.string()
-    .required()
-    .min(6)
-    .max(255)
-    .pattern(/^[A-Za-z0-9\s]+$/)
-    .messages({
-      "any.required": "Supplier name is required",
-      "string.empty": "Supplier name must not be empty",
-      "string.min": "Supplier name must be at least 6 characters",
-      "string.max": "Supplier name must not be over 255 characters",
-      "string.pattern.base": "Supplier name is not valid",
-    }),
+  supplier_id: Joi.string().message({
+    "string.empty": "Supplier id must not be empty",
+  }),
+  name: Joi.string().required().min(6).max(255).messages({
+    "any.required": "Supplier name is required",
+    "string.empty": "Supplier name must not be empty",
+    "string.min": "Supplier name must be at least 6 characters",
+    "string.max": "Supplier name must not be over 255 characters",
+  }),
 
   address: Joi.string().required().min(6).max(255).messages({
     "any.required": "Supplier address is required",
@@ -42,22 +33,14 @@ export const createSupplierValidation = Joi.object({
 });
 
 export const updateSupplierValidator = Joi.object({
-  supplier_id: Joi.string()
-    .pattern(/^[A-Za-z0-9\s]+$/)
-    .message({
-      "string.empty": "Supplier id must not be empty",
-      "string.pattern.base": "Supplier id is not valid",
-    }),
-  name: Joi.string()
-    .min(6)
-    .max(255)
-    .pattern(/^[A-Za-z0-9\s]+$/)
-    .messages({
-      "string.empty": "Supplier name must not be empty",
-      "string.min": "Supplier name must be at least 6 characters",
-      "string.max": "Supplier name must not be over 255 characters",
-      "string.pattern.base": "Supplier name is not valid",
-    }),
+  supplier_id: Joi.string().message({
+    "string.empty": "Supplier id must not be empty",
+  }),
+  name: Joi.string().min(6).max(255).messages({
+    "string.empty": "Supplier name must not be empty",
+    "string.min": "Supplier name must be at least 6 characters",
+    "string.max": "Supplier name must not be over 255 characters",
+  }),
 
   address: Joi.string().min(6).max(255).messages({
     "string.empty": "Supplier address must not be empty",
