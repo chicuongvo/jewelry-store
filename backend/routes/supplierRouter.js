@@ -14,8 +14,8 @@ const router = express.Router();
 
 router.get("/", getAllSuppliers);
 router.get("/:id", getSupplier);
-router.post("/", verifyToken, verifyAdmin, createSupplier);
-router.delete("/:id", verifyToken, verifyAdmin, deleteSupplier);
-router.put("/:id", verifyToken, verifyAdmin, updateSupplier);
+router.post("/", createSupplier);
+router.delete("/:id", deleteSupplier);
+router.put("/:id", updateSupplier);
 
 export default router;

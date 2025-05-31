@@ -23,6 +23,7 @@ export const signUpValidator = Joi.object({
       "string.pattern.base": "Email is unvalid",
     }),
   phone_number: Joi.string()
+    .required()
     .pattern(/^[0-9\s]+$/)
     .min(8)
     .max(12)

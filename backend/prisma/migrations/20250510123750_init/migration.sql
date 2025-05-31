@@ -281,22 +281,39 @@ FOR EACH ROW
 EXECUTE FUNCTION update_status_order();
 
 -- TRIGGER 3
-
+-- trigger new
 CREATE OR REPLACE FUNCTION update_total_price_order()
 RETURNS TRIGGER AS $$
 BEGIN
-  UPDATE service_orders
-  SET total_price = total_price + (NEW.total_price - OLD.total_price)
-  WHERE service_orders.service_order_id = NEW.service_order_id;
+  IF TG_OP = 'UPDATE' THEN
+    UPDATE service_orders
+    SET total_price = total_price + (NEW.total_price - OLD.total_price)
+    WHERE service_order_id = NEW.service_order_id;
+  ELSIF TG_OP = 'DELETE' THEN
+    UPDATE service_orders
+    SET total_price = total_price - OLD.total_price
+    WHERE service_order_id = OLD.service_order_id;
+  END IF;
 
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;    
+$$ LANGUAGE plpgsql;
 
-CREATE TRIGGER update_total_price_order_trigger
-BEFORE UPDATE OF total_price ON service_order_details
-FOR EACH ROW
-EXECUTE FUNCTION update_total_price_order();
+-- CREATE OR REPLACE FUNCTION update_total_price_order()
+-- RETURNS TRIGGER AS $$
+-- BEGIN
+--   UPDATE service_orders
+--   SET total_price = total_price + (NEW.total_price - OLD.total_price)
+--   WHERE service_orders.service_order_id = NEW.service_order_id;
+
+--   RETURN NEW;
+-- END;
+-- $$ LANGUAGE plpgsql;    
+
+-- CREATE TRIGGER update_total_price_order_trigger
+-- BEFORE UPDATE OF total_price ON service_order_details
+-- FOR EACH ROW
+-- EXECUTE FUNCTION update_total_price_order();
 
 -- TRIGGER 9
 DROP TRIGGER IF EXISTS update_total_remain_trigger on service_orders;
@@ -508,13 +525,12 @@ FOR EACH ROW
 EXECUTE FUNCTION update_purchase_order_total_price();
 
 -- - TRIGGER Cập nhập sell_price = buy_price + buy_price * profit_rate
-
 CREATE OR REPLACE FUNCTION update_sell_price()
 RETURNS TRIGGER AS $$
 BEGIN
     UPDATE products
-    SET products.sell_price = buy_price + (buy_price * NEW.profit_rate)
-    WHERE products.product_id = NEW.product_id;
+    SET sell_price = buy_price + (buy_price * NEW.profit_rate)
+    WHERE products.type = NEW.name;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -562,5 +578,24 @@ BEFORE UPDATE on service_order_details
 FOR EACH ROW
 EXECUTE FUNCTION update_extra_cost_and_quantity();
 
+-------
+-- TRIGGER TÍNH TOTAL PRICE| CALCULATED PRICE| khi insert service_order_details
+CREATE OR REPLACE FUNCTION calculate_total_price_and_calculated_price()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.calculated_price := (
+        SELECT base_price
+        FROM services
+        WHERE services.service_id = NEW.service_id
+    ) + NEW.extra_cost;
+    NEW.total_price := NEW.calculated_price * NEW.quantity;
 
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
+-- Trigger để gọi function trên trước khi INSERT
+CREATE TRIGGER trg_calculate_total_price
+BEFORE INSERT OR UPDATE ON service_order_details
+FOR EACH ROW
+EXECUTE FUNCTION calculate_total_price_and_calculated_price();

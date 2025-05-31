@@ -12,10 +12,6 @@ export const createServiceOrderDetailsValidator = Joi.object({
     "number.empty": "Total price must not be empty",
     "any.required": "Total price is required",
   }),
-  status: Joi.string().required().messages({
-    "string.empty": "Status must not be empty",
-    "any.required": "Status is required",
-  }),
   service_id: Joi.string().required().messages({
     "string.empty": "Service ID must not be empty",
     "any.required": "Service ID is required",
@@ -56,11 +52,11 @@ export const updateServiceOrderDetailsValidator = Joi.object({
     "number.empty": "Extra cost must not be empty",
     "any.required": "Extra cost is required",
   }),
-  total_price: Joi.number().required().messages({
+  total_price: Joi.number().messages({
     "number.empty": "Total price must not be empty",
     "any.required": "Total price is required",
   }),
-  status: Joi.string().required().messages({
+  status: Joi.string().messages({
     "string.empty": "Status must not be empty",
     "any.required": "Status is required",
   }),
@@ -68,19 +64,19 @@ export const updateServiceOrderDetailsValidator = Joi.object({
     "string.empty": "Service ID must not be empty",
     "any.required": "Service ID is required",
   }),
-  quantity: Joi.number().required().greater(0).messages({
+  quantity: Joi.number().greater(0).messages({
     "any.required": "Quantity is required",
     "number.greater": "Quantity must be greater than 0",
   }),
-  paid: Joi.number().required().messages({
+  paid: Joi.number().messages({
     "number.empty": "Paid amount must not be empty",
     "any.required": "Paid amount is required",
   }),
-  remaining: Joi.number().required().messages({
+  remaining: Joi.number().messages({
     "number.empty": "Remaining amount must not be empty",
     "any.required": "Remaining amount is required",
   }),
-  calculated_price: Joi.number().required().messages({
+  calculated_price: Joi.number().messages({
     "number.empty": "Calculated price must not be empty",
     "any.required": "Calculated price is required",
   }),

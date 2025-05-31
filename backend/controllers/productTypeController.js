@@ -74,7 +74,7 @@ export const createType = async (req, res) => {
         message: error.details.map((err) => err.message),
       });
     }
-
+    console.log(error);
     console.error("Error creating product type:", error);
     return res
       .status(500)
@@ -130,7 +130,7 @@ export const updateType = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Product type not found" });
     }
-
+    console.log(data, "!!");
     if (data.type_id && data.type_id !== type_id) {
       const checkTypeId = await prisma.product_types.findUnique({
         where: { type_id: data.type_id },
@@ -158,7 +158,7 @@ export const updateType = async (req, res) => {
       where: { type_id },
       data,
     });
-
+    console.log(data, "DATAHERE");
     return res.status(200).json({ success: true, data: updatedType });
   } catch (error) {
     if (error?.details) {
