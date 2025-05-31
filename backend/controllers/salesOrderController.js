@@ -1,3 +1,4 @@
+import { cli } from "@mermaid-js/mermaid-cli";
 import { prisma } from "../config/db.js";
 
 export const getAllSalesOrders = async (req, res) => {
@@ -35,7 +36,7 @@ export const getSalesOrder = async (req, res) => {
 };
 
 export const createSalesOrder = async (req, res) => {
-  const { supplier_id } = req.body;
+  const { client_id } = req.body;
 
   try {
     if (!req.body || Object.keys(req.body).length === 0) {
@@ -44,18 +45,18 @@ export const createSalesOrder = async (req, res) => {
         .json({ success: false, message: "No data provided" });
     }
 
-    const [checkSupplier] = await Promise.all([
-      prisma.suppliers.findUnique({ where: { supplier_id } }),
+    const [checkClient] = await Promise.all([
+      prisma.suppliers.findUnique({ where: { client_id } }),
     ]);
 
-    if (!checkSupplier)
+    if (!checkClient)
       return res
         .status(404)
-        .json({ success: false, message: "Supplier was not valid" });
+        .json({ success: false, message: "Client was not valid" });
 
     const newSalesOrder = await prisma.sales_orders.create({
       data: {
-        supplier_id,
+        client_id,
       },
     });
 
@@ -103,7 +104,7 @@ export const deleteSalesOrder = async (req, res) => {
 
 export const updateSalesOrder = async (req, res) => {
   const sales_order_id = req.params.id;
-  const { supplier_id } = req.body;
+  const { client_id } = req.body;
 
   try {
     if (!req.body || Object.keys(req.body).length === 0) {
@@ -121,19 +122,19 @@ export const updateSalesOrder = async (req, res) => {
         .json({ success: false, message: "Sales order not found" });
     }
 
-    const [checkSupplier] = await Promise.all([
-      prisma.suppliers.findUnique({ where: { supplier_id } }),
+    const [checkClient] = await Promise.all([
+      prisma.suppliers.findUnique({ where: { client_id } }),
     ]);
 
-    if (!checkSupplier)
+    if (!checkClient)
       return res
         .status(404)
-        .json({ success: false, message: "Supplier was not valid" });
+        .json({ success: false, message: "Client was not valid" });
 
     const updatedSalesOrder = await prisma.sales_orders.update({
       where: { sales_order_id },
       data: {
-        supplier_id: supplier_id ?? oldProduct.supplier_id,
+        client_id: client_id ?? oldProduct.client_id,
       },
     });
 
