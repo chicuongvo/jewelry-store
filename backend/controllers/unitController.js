@@ -38,29 +38,13 @@ export const getUnit = async (req, res) => {
 };
 
 export const createUnit = async (req, res) => {
+  const data = req.body;
   try {
-    const data = req.body;
-
-    if (!Object.keys(data).length) {
-      return res
-        .status(400)
-        .json({ success: false, message: "No data provided" });
-    }
-
     await createUnitValidator.validateAsync(data);
 
-    const [existingUnitId, existingUnitName] = await Promise.all([
-      data.unit_id
-        ? prisma.units.findUnique({ where: { unit_id: data.unit_id } })
-        : null,
-      prisma.units.findUnique({ where: { name: data.name } }),
-    ]);
-
-    if (existingUnitId) {
-      return res
-        .status(409)
-        .json({ success: false, message: "Unit ID already exists" });
-    }
+    const existingUnitName = await prisma.units.findUnique({
+      where: { name: data.name },
+    });
 
     if (existingUnitName) {
       return res

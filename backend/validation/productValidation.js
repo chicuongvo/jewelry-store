@@ -1,18 +1,12 @@
 import Joi from "@hapi/joi";
 
 export const createProductValidator = Joi.object({
-  name: Joi.string()
-    .pattern(/^[A-Za-z0-9\s]+$/)
-    .min(6)
-    .max(255)
-    .required()
-    .messages({
-      "string.empty": "Product name must not be empty",
-      "any.required": "Product name is required",
-      "string.min": "Product name must be at least 6 characters",
-      "string.max": "Product name must not be over 255 characters",
-      "string.pattern.base": "Product name is not valid",
-    }),
+  name: Joi.string().min(6).max(255).required().messages({
+    "string.empty": "Product name must not be empty",
+    "any.required": "Product name is required",
+    "string.min": "Product name must be at least 6 characters",
+    "string.max": "Product name must not be over 255 characters",
+  }),
   type: Joi.string().required().messages({
     "string.empty": "Product type must not be empty",
     "any.required": "Product type is required",
@@ -41,16 +35,11 @@ export const createProductValidator = Joi.object({
 });
 
 export const updateProductValidator = Joi.object({
-  name: Joi.string()
-    .pattern(/^[A-Za-z0-9\s]+$/)
-    .min(6)
-    .max(255)
-    .messages({
-      "string.empty": "Product name must not be empty",
-      "string.min": "Product name must be at least 6 characters",
-      "string.max": "Product name must not be over 255 characters",
-      "string.pattern.base": "Product name is not valid",
-    }),
+  name: Joi.string().min(6).max(255).messages({
+    "string.empty": "Product name must not be empty",
+    "string.min": "Product name must be at least 6 characters",
+    "string.max": "Product name must not be over 255 characters",
+  }),
   type: Joi.string().messages({
     "string.empty": "Product type must not be empty",
   }),

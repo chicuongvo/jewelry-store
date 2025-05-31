@@ -4,7 +4,7 @@ export const createProductTypeValidator = Joi.object({
   name: Joi.string()
     .min(2)
     .max(255)
-    .pattern(/^[A-Za-z\s]+$/)
+    .pattern(/^[\p{L}\s]+$/u)
     .required()
     .messages({
       "any.required": "Product type name is required",
@@ -24,7 +24,7 @@ export const updateProductTypeValidator = Joi.object({
   name: Joi.string()
     .min(2)
     .max(255)
-    .pattern(/^[A-Za-z\s]+$/)
+    .pattern(/^[\p{L}\s]+$/u)
     .messages({
       "string.min": "Product type name must be at least 2 characters",
       "string.max": "Product type name must not be over 255 characters",

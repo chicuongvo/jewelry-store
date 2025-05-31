@@ -99,12 +99,12 @@ CREATE TABLE "users" (
 );
 
 -- CreateTable
-CREATE TABLE "purschase_orders" (
+CREATE TABLE "purchase_orders" (
     "purchase_order_id" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "client_id" TEXT NOT NULL,
 
-    CONSTRAINT "purschase_orders_pkey" PRIMARY KEY ("purchase_order_id")
+    CONSTRAINT "purchase_orders_pkey" PRIMARY KEY ("purchase_order_id")
 );
 
 -- CreateTable
@@ -207,10 +207,10 @@ ALTER TABLE "inventory_report_details" ADD CONSTRAINT "inventory_report_details_
 ALTER TABLE "inventory_report_details" ADD CONSTRAINT "inventory_report_details_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "products"("product_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "purschase_orders" ADD CONSTRAINT "purschase_orders_client_id_fkey" FOREIGN KEY ("client_id") REFERENCES "users"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "purchase_orders" ADD CONSTRAINT "purchase_orders_client_id_fkey" FOREIGN KEY ("client_id") REFERENCES "users"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "purchase_order_details" ADD CONSTRAINT "purchase_order_details_purchase_order_id_fkey" FOREIGN KEY ("purchase_order_id") REFERENCES "purschase_orders"("purchase_order_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "purchase_order_details" ADD CONSTRAINT "purchase_order_details_purchase_order_id_fkey" FOREIGN KEY ("purchase_order_id") REFERENCES "purchase_orders"("purchase_order_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "purchase_order_details" ADD CONSTRAINT "purchase_order_details_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "products"("product_id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -238,7 +238,7 @@ ALTER TABLE "service_order_details" ADD CONSTRAINT "service_order_details_servic
 CREATE OR REPLACE FUNCTION update_end_stock()
 RETURNS TRIGGER AS $$
 BEGIN
-    NEW.end_stock := NEW.begin_stock + NEW.purchase_quantity - NEW.sell_quantity;
+    NEW.end_stock := NEW.begin_stock + NEW.buy_quantity - NEW.sell_quantity;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -510,7 +510,7 @@ CREATE OR REPLACE FUNCTION update_sell_price()
 RETURNS TRIGGER AS $$
 BEGIN
     UPDATE products
-    SET products.sell_price = NEW.buy_price + (NEW.buy_price * NEW.profit_rate)
+    SET products.sell_price = buy_price + (buy_price * NEW.profit_rate)
     WHERE products.product_id = NEW.product_id;
     RETURN NEW;
 END;
