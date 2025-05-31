@@ -92,7 +92,7 @@ export const updateServiceOrder = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "Service order detail updated successfully",
+      message: "Service order updated successfully",
       data: updatedServiceOrderDetail,
     });
   } catch (error) {
@@ -108,7 +108,7 @@ export const deleteServiceOrder = async (req, res) => {
   const { service_order_id } = req.params;
   try {
     await deleteServiceOrderValidator.validateAsync(req.params);
-    await prisma.service_order_details.delete({
+    await prisma.service_orders.delete({
       where: {
         service_order_id,
       },
@@ -116,7 +116,7 @@ export const deleteServiceOrder = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "Service order detail deleted successfully",
+      message: "Service order deleted successfully",
     });
   } catch (error) {
     return res.status(500).json({

@@ -207,10 +207,10 @@ ALTER TABLE "inventory_report_details" ADD CONSTRAINT "inventory_report_details_
 ALTER TABLE "inventory_report_details" ADD CONSTRAINT "inventory_report_details_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "products"("product_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "purschase_orders" ADD CONSTRAINT "purschase_orders_client_id_fkey" FOREIGN KEY ("client_id") REFERENCES "users"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "purchase_orders" ADD CONSTRAINT "purchase_orders_client_id_fkey" FOREIGN KEY ("client_id") REFERENCES "users"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "purchase_order_details" ADD CONSTRAINT "purchase_order_details_purchase_order_id_fkey" FOREIGN KEY ("purchase_order_id") REFERENCES "purschase_orders"("purchase_order_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "purchase_order_details" ADD CONSTRAINT "purchase_order_details_purchase_order_id_fkey" FOREIGN KEY ("purchase_order_id") REFERENCES "purchase_orders"("purchase_order_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "purchase_order_details" ADD CONSTRAINT "purchase_order_details_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "products"("product_id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -340,7 +340,7 @@ BEGIN
         report_id,
         product_id,
         begin_stock,
-        purchase_quantity,
+        buy_quantity,
         sell_quantity,
         end_stock
     )
@@ -378,8 +378,8 @@ BEGIN
     )
     ON CONFLICT (report_id, product_id) 
     DO UPDATE SET
-        purchase_quantity = inventory_report_details.purchase_quantity + NEW.quantity,
-        end_stock = inventory_report_details.begin_stock + inventory_report_details.purchase_quantity + NEW.quantity - inventory_report_details.sell_quantity;
+        buy_quantity = inventory_report_details.buy_quantity + NEW.quantity,
+        end_stock = inventory_report_details.begin_stock + inventory_report_details.buy_quantity + NEW.quantity - inventory_report_details.sell_quantity;
 
     RETURN NEW;
 END;
@@ -451,7 +451,7 @@ BEGIN
             report_id,
             product_id,
             begin_stock,
-            purchase_quantity,
+            buy_quantity,
             sell_quantity,
             end_stock
         )
@@ -473,7 +473,7 @@ BEGIN
     UPDATE inventory_report_details
     SET 
         sell_quantity = sell_quantity + CAST(NEW.quantity AS INTEGER),
-        end_stock = begin_stock + purchase_quantity - (sell_quantity + CAST(NEW.quantity AS INTEGER))
+        end_stock = begin_stock + buy_quantity - (sell_quantity + CAST(NEW.quantity AS INTEGER))
     WHERE report_id = current_report_id
     AND product_id = NEW.product_id;
 
