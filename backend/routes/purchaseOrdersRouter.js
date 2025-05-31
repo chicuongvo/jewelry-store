@@ -1,12 +1,13 @@
-const express = require("express");
-const router = express.Router();
-const {
+import express from "express";
+import {
   getAllPurchaseOrders,
   getPurchaseOrder,
   createPurchaseOrder,
   updatePurchaseOrder,
   deletePurchaseOrder,
-} = require("../controllers/purchaseOrdersController");
+} from "../controllers/purchaseOrdersController.js";
+
+const router = express.Router();
 
 // Get all purchase orders
 router.get("/", getAllPurchaseOrders);
@@ -23,4 +24,4 @@ router.put("/:orderId", updatePurchaseOrder);
 // Delete purchase order
 router.delete("/:orderId", deletePurchaseOrder);
 
-module.exports = router;
+export default router;
