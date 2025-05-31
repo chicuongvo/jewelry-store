@@ -18,7 +18,8 @@ model suppliers {
   phone_number String
 
   products     products[]
-  sales_orders sales_orders[]
+  // sales_orders sales_orders[]
+  purchase_orders purchase_orders[]
 }
 
 model product_types {
@@ -113,8 +114,9 @@ model users {
   reset_password_token_expires_at DateTime?
   verification_token              String?           @unique
   verification_token_expires_at   DateTime?
-  purchase_orders                 purchase_orders[]
+  // purchase_orders                 purchase_orders[]
   service_orders                  service_orders[]
+  sales_orders                    sales_orders[]
 }
 
 enum Role {
@@ -133,8 +135,11 @@ model purchase_orders {
   purchase_order_id String   @id @default(cuid())
   created_at        DateTime @default(now())
 
-  client                 users                    @relation(fields: [client_id], references: [user_id])
-  client_id              String
+
+  supplier            suppliers             @relation(fields: [supplier_id], references: [supplier_id])
+  supplier_id         String
+  // client                 users                    @relation(fields: [client_id], references: [user_id])
+  // client_id?              String
   purchase_order_details purchase_order_details[]
 }
 
@@ -158,8 +163,10 @@ model sales_orders {
   sales_order_id String   @id @default(cuid())
   created_at     DateTime @default(now())
 
-  supplier            suppliers             @relation(fields: [supplier_id], references: [supplier_id])
-  supplier_id         String
+  client                users                   @relation(fields: [client_id], references: [user_id])
+  client_id             String
+  // supplier            suppliers             @relation(fields: [supplier_id], references: [supplier_id])
+  // supplier_id         String
   sales_order_details sales_order_details[]
 }
 

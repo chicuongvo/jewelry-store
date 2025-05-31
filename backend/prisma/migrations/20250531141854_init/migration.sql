@@ -102,7 +102,7 @@ CREATE TABLE "users" (
 CREATE TABLE "purchase_orders" (
     "purchase_order_id" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "client_id" TEXT NOT NULL,
+    "supplier_id" TEXT NOT NULL,
 
     CONSTRAINT "purchase_orders_pkey" PRIMARY KEY ("purchase_order_id")
 );
@@ -121,7 +121,7 @@ CREATE TABLE "purchase_order_details" (
 CREATE TABLE "sales_orders" (
     "sales_order_id" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "supplier_id" TEXT NOT NULL,
+    "client_id" TEXT NOT NULL,
 
     CONSTRAINT "sales_orders_pkey" PRIMARY KEY ("sales_order_id")
 );
@@ -207,7 +207,7 @@ ALTER TABLE "inventory_report_details" ADD CONSTRAINT "inventory_report_details_
 ALTER TABLE "inventory_report_details" ADD CONSTRAINT "inventory_report_details_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "products"("product_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "purchase_orders" ADD CONSTRAINT "purchase_orders_client_id_fkey" FOREIGN KEY ("client_id") REFERENCES "users"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "purchase_orders" ADD CONSTRAINT "purchase_orders_supplier_id_fkey" FOREIGN KEY ("supplier_id") REFERENCES "suppliers"("supplier_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "purchase_order_details" ADD CONSTRAINT "purchase_order_details_purchase_order_id_fkey" FOREIGN KEY ("purchase_order_id") REFERENCES "purchase_orders"("purchase_order_id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -216,7 +216,7 @@ ALTER TABLE "purchase_order_details" ADD CONSTRAINT "purchase_order_details_purc
 ALTER TABLE "purchase_order_details" ADD CONSTRAINT "purchase_order_details_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "products"("product_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "sales_orders" ADD CONSTRAINT "sales_orders_supplier_id_fkey" FOREIGN KEY ("supplier_id") REFERENCES "suppliers"("supplier_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "sales_orders" ADD CONSTRAINT "sales_orders_client_id_fkey" FOREIGN KEY ("client_id") REFERENCES "users"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "sales_order_details" ADD CONSTRAINT "sales_order_details_sales_order_id_fkey" FOREIGN KEY ("sales_order_id") REFERENCES "sales_orders"("sales_order_id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -233,7 +233,6 @@ ALTER TABLE "service_order_details" ADD CONSTRAINT "service_order_details_servic
 -- AddForeignKey
 ALTER TABLE "service_order_details" ADD CONSTRAINT "service_order_details_service_id_fkey" FOREIGN KEY ("service_id") REFERENCES "services"("service_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
--- TRIGGER Cập nhật end_stock khi buy_quantity || sell_quantity thay đổi
 
 CREATE OR REPLACE FUNCTION update_end_stock()
 RETURNS TRIGGER AS $$
