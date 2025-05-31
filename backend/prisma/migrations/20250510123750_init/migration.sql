@@ -99,12 +99,12 @@ CREATE TABLE "users" (
 );
 
 -- CreateTable
-CREATE TABLE "purschase_orders" (
+CREATE TABLE "purchase_orders" (
     "purchase_order_id" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "client_id" TEXT NOT NULL,
 
-    CONSTRAINT "purschase_orders_pkey" PRIMARY KEY ("purchase_order_id")
+    CONSTRAINT "purchase_orders_pkey" PRIMARY KEY ("purchase_order_id")
 );
 
 -- CreateTable
