@@ -112,12 +112,12 @@ const renderProducts = (products: product[]) => {
 export default function FeaturedProducts() {
   return (
     <div>
-      <div className="w-screen bg-primary font-logo py-4 flex items-center justify-center font-medium text-white text-[20px] gap-3 md:text-[23px] lg:text-[25px]">
+      <div className="bg-primary font-logo py-4 flex items-center justify-center font-medium text-white text-[20px] gap-3 md:text-[23px] lg:text-[25px]">
         <Sparkles />
         Sản phẩm nổi bật
         <Sparkles />
       </div>
-      <div className="bg-white flex flex-col gap-5 px-3 py-8 md:grid md:grid-cols-2 lg:grid-cols-4">
+      <div className="bg-white flex flex-col gap-5 px-3 md:px-8 py-8 md:grid md:grid-cols-2 lg:grid-cols-4">
         {renderProducts(products)}
       </div>
     </div>

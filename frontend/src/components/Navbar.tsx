@@ -1,6 +1,6 @@
 import { Menu, ShoppingBag, UserRound, X } from "lucide-react";
 import Sidebar from "./Sidebar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router";
 import Logo from "./Logo";
 
@@ -15,6 +15,16 @@ export default function Navbar() {
   const handleOnClick = () => {
     setOpenSidebar(!openSidebar);
   };
+
+  const [isScrolled, setIsScrolled] = useState(false);
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const options = [
     { name: "Trang chủ", page: "/" },
@@ -37,7 +47,11 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="font-primary bg-white flex text-black items-center h-[60px] relative justify-between px-5 sticky z-30 top-0 ">
+    <nav
+      className={`font-primary bg-white flex text-black items-center h-[60px] relative justify-between px-5 sticky z-30 top-0 shadow-md  ${
+        isScrolled && "bg-white/30 backdrop-blur-xl shadow-xl "
+      }`}
+    >
       <div className="block md:hidden">
         <div>
           {openSidebar ? (
