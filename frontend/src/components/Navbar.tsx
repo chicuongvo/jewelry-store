@@ -1,4 +1,4 @@
-import { Gem, Menu, ShoppingBag, UserRound, X } from "lucide-react";
+import { Menu, ShoppingBag, UserRound, X } from "lucide-react";
 import Sidebar from "./Sidebar";
 import { useState } from "react";
 import { Link } from "react-router";
