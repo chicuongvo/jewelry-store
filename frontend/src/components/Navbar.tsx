@@ -37,7 +37,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="font-primary bg-white flex text-black items-center h-[60px] relative justify-between px-5">
+    <nav className="font-primary bg-white flex text-black items-center h-[60px] relative justify-between px-5 sticky z-30 top-0 ">
       <div className="block md:hidden">
         <div>
           {openSidebar ? (
