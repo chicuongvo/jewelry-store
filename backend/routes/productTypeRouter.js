@@ -13,8 +13,8 @@ const router = express.Router();
 
 router.get("/", getAllTypes);
 router.get("/:id", getType);
-router.post("/", verifyToken, verifyAdmin, createType);
-router.delete("/:id", verifyToken, verifyAdmin, deleteType);
-router.put("/:id", verifyToken, verifyAdmin, updateType);
+router.post("/", createType);
+router.delete("/:id", deleteType);
+router.put("/:id", updateType);
 
 export default router;
