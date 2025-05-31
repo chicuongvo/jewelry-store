@@ -562,3 +562,5 @@ BEFORE UPDATE on service_order_details
 FOR EACH ROW
 EXECUTE FUNCTION update_extra_cost_and_quantity();
 
+
+
