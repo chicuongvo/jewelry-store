@@ -6,20 +6,13 @@ import {
   deleteServiceOrderValidator,
 } from "../validation/serviceOrdersValidation.js";
 export const createServiceOrders = async (req, res) => {
-  const {
-    client_id,
-    status,
-    quantity,
-    total_price,
-    total_paid,
-    total_remaining,
-  } = req.body;
+  const { client_id, status, total_price, total_paid, total_remaining } =
+    req.body;
   try {
     await createServiceOrderValidator.validateAsync(req.body);
-    const newServiceOrder = await prisma.service_order_details.create({
+    const newServiceOrder = await prisma.service_orders.create({
       data: {
         client_id,
-        quantity,
         total_price,
         total_paid,
         total_remaining,
@@ -30,14 +23,14 @@ export const createServiceOrders = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: "Service order detail created successfully",
+      message: "Service order created successfully",
       data: newServiceOrder,
     });
   } catch (error) {
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",
-      error: error.message,
+      error: error.toString(),
     });
   }
 };
@@ -86,18 +79,16 @@ export const updateServiceOrder = async (req, res) => {
   // } = req.body;
   const { service_order_id } = req.params;
   try {
-    await updateServiceOrderValidator.validateAsync({
-      ...req.body,
-      service_order_id,
+    // await updateServiceOrderValidator.validateAsync({
+    // ...req.body,
+    // service_order_id,
+    //});
+    const updatedServiceOrderDetail = await prisma.service_orders.update({
+      where: {
+        service_order_id: service_order_id,
+      },
+      data: req.body,
     });
-    const updatedServiceOrderDetail = await prisma.service_order_details.update(
-      {
-        where: {
-          service_order_id: service_order_id,
-        },
-        data: req.body,
-      }
-    );
 
     return res.status(200).json({
       success: true,
