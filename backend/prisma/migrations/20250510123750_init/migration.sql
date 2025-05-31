@@ -505,13 +505,12 @@ FOR EACH ROW
 EXECUTE FUNCTION update_purchase_order_total_price();
 
 -- - TRIGGER Cập nhập sell_price = buy_price + buy_price * profit_rate
-
 CREATE OR REPLACE FUNCTION update_sell_price()
 RETURNS TRIGGER AS $$
 BEGIN
     UPDATE products
-    SET products.sell_price = buy_price + (buy_price * NEW.profit_rate)
-    WHERE products.type_id = NEW.type_id;
+    SET sell_price = buy_price + (buy_price * NEW.profit_rate)
+    WHERE products.type = NEW.name;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
