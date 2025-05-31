@@ -16,7 +16,7 @@ export const getSalesOrder = async (req, res) => {
   const sales_order_id = req.params.id;
 
   try {
-    const salesOrder = await prisma.sales_orders.findUnique({
+    const salesOrder = await prisma.sales_orders.findMany({
       where: { sales_order_id },
     });
 
@@ -77,12 +77,15 @@ export const createSalesOrder = async (req, res) => {
 export const deleteSalesOrder = async (req, res) => {
   const sales_order_id = req.params.id;
   try {
-    const checkSalesOrder = await prisma.sales_orders.findUnique({
+    const checkSalesOrder = await prisma.sales_orders.findMany({
       where: { sales_order_id },
     });
 
     if (checkSalesOrder) {
-      await prisma.sales_orders.delete({ where: { sales_order_id } });
+      await prisma.sales_order_details.deleteMany({
+        where: { sales_order_id },
+      });
+      await prisma.sales_orders.deleteMany({ where: { sales_order_id } });
       return res
         .status(200)
         .json({ success: true, message: "Delete sales order successfully" });

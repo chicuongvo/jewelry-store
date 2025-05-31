@@ -7,13 +7,16 @@ import {
 } from "../validation/serviceOrderDetailsValidation.js";
 export const getServiceOrderDetails = async (req, res) => {
   const { service_order_id, service_id } = req.params;
+  console.log(req.params);
 
   try {
     await getServiceOrderDetailsValidator.validateAsync(req.params);
     const serviceOrderDetail = await prisma.service_order_details.findUnique({
       where: {
-        service_id,
-        service_order_id,
+        service_order_id_service_id: {
+          service_id,
+          service_order_id,
+        },
       },
     });
     return res.status(200).json({
@@ -30,20 +33,24 @@ export const getServiceOrderDetails = async (req, res) => {
 };
 export const createServiceOrderDetails = async (req, res) => {
   // const { service_order_id, service_id, quantity, total_price } = req.body;
-  const { service_order_id, service_id } = req.params;
+  const { service_order_id, service_id } = req.body;
   try {
     await createServiceOrderDetailsValidator.validateAsync({
       ...req.body,
       ...req.params,
     });
+    console.log(service_order_id, service_id);
+
     const existingServiceOrderDetail =
-      await prisma.service_order_details.findUnique({
+      await prisma.service_order_details.findMany({
         where: {
           service_order_id,
           service_id,
         },
       });
-    if (existingServiceOrderDetail) {
+
+    console.log(existingServiceOrderDetail);
+    if (existingServiceOrderDetail.length > 0) {
       return res.status(400).json({
         success: false,
         message: "Service order detail already exists",
@@ -76,18 +83,22 @@ export const updateServiceOrderDetails = async (req, res) => {
     const updatedServiceOrderDetail = await prisma.service_order_details.update(
       {
         where: {
-          service_order_id,
-          service_id,
+          service_order_id_service_id: {
+            service_order_id,
+            service_id,
+          },
         },
         data: req.body,
       }
     );
+    console.log(req.body, req.params, "@@");
     return res.status(200).json({
       success: true,
       message: "Service order detail updated successfully",
       data: updatedServiceOrderDetail,
     });
   } catch (error) {
+    console.log(error.toString());
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",

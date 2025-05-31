@@ -14,8 +14,8 @@ const router = express.Router();
 
 router.get("/", getAllUnits);
 router.get("/:id", getUnit);
-router.post("/", verifyToken, verifyAdmin, createUnit);
-router.delete("/:id", verifyToken, verifyAdmin, deleteUnit);
-router.put("/:id", verifyToken, verifyAdmin, updateUnit);
+router.post("/", createUnit);
+router.delete("/:id", deleteUnit);
+router.put("/:id", updateUnit);
 
 export default router;
