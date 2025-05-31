@@ -238,7 +238,7 @@ ALTER TABLE "service_order_details" ADD CONSTRAINT "service_order_details_servic
 CREATE OR REPLACE FUNCTION update_end_stock()
 RETURNS TRIGGER AS $$
 BEGIN
-    NEW.end_stock := NEW.begin_stock + NEW.purchase_quantity - NEW.sell_quantity;
+    NEW.end_stock := NEW.begin_stock + NEW.buy_quantity - NEW.sell_quantity;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
