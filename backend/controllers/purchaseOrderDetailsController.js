@@ -52,9 +52,7 @@ export const createPurchaseOrderDetail = async (req, res) => {
       return res
         .status(404)
         .json({ success: false, message: "Product not found" });
-
     const total_price = checkProduct.sell_price * quantity;
-
     const newPurchaseOrderDetail = await prisma.purchase_order_details.create({
       data: {
         purchase_order_id,
@@ -63,7 +61,6 @@ export const createPurchaseOrderDetail = async (req, res) => {
         total_price,
       },
     });
-
     return res
       .status(201)
       .json({ success: true, data: newPurchaseOrderDetail });
@@ -75,9 +72,11 @@ export const createPurchaseOrderDetail = async (req, res) => {
       });
     }
 
-    return res
-      .status(500)
-      .json({ success: false, error: "Internal Server Error" });
+    return res.status(500).json({
+      success: false,
+      error: "Internal Server Error",
+      error: error.toString(),
+    });
   }
 };
 
@@ -87,12 +86,11 @@ export const deletePurchaseOrderDetail = async (req, res) => {
 
   try {
     const checkPurchaseOrderDetail =
-      await prisma.purchase_order_details.findUnique({
+      await prisma.purchase_order_details.findMany({
         where: { purchase_order_id, product_id },
       });
-
     if (checkPurchaseOrderDetail) {
-      await prisma.purchase_order_details.delete({
+      await prisma.purchase_order_details.deleteMany({
         where: { purchase_order_id, product_id },
       });
       return res.status(200).json({
@@ -106,9 +104,11 @@ export const deletePurchaseOrderDetail = async (req, res) => {
       });
     }
   } catch (error) {
-    return res
-      .status(500)
-      .json({ success: false, error: "Internal Server Error" });
+    return res.status(500).json({
+      success: false,
+      error: "Internal Server Error",
+      error: error.toString(),
+    });
   }
 };
 
@@ -118,16 +118,17 @@ export const updatePurchaseOrderDetail = async (req, res) => {
   const { quantity } = req.body;
 
   try {
-    if (!res.body || Object.keys(req.body).length === 0) {
+    if (!req.body || Object.keys(req.body).length === 0) {
       return res
         .status(400)
         .json({ success: false, message: "No data provided" });
     }
 
-    const oldPurchaseOrderDetail =
-      await prisma.purchase_order_details.findUnique({
+    const oldPurchaseOrderDetail = await prisma.purchase_order_details.findMany(
+      {
         where: { purchase_order_id, product_id },
-      });
+      },
+    );
     if (!oldPurchaseOrderDetail) {
       return res
         .status(404)
@@ -151,7 +152,7 @@ export const updatePurchaseOrderDetail = async (req, res) => {
     const total_price = checkProduct.sell_price * quantity;
 
     const updatePurchaseOrderDetail =
-      await prisma.purchase_order_details.update({
+      await prisma.purchase_order_details.updateMany({
         where: { purchase_order_id, product_id },
         data: {
           quantity: quantity ?? oldPurchaseOrderDetail.quantity,
