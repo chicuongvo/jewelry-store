@@ -6,21 +6,14 @@ import {
 
 export const getAllPurchaseOrders = async (req, res) => {
   try {
-    const purchaseOrders = await prisma.purchase_orders.findMany({
-      include: {
-        client: true,
-        purchase_order_details: {
-          include: {
-            product: true,
-          },
-        },
-      },
-    });
+    const purchaseOrders = await prisma.purchase_orders.findMany({});
     return res.status(200).json({ success: true, data: purchaseOrders });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ success: false, error: "Internal Server Error" });
+    return res.status(500).json({
+      success: false,
+      error: "Internal Server Error",
+      error2: error.toString(),
+    });
   }
 };
 
@@ -105,14 +98,17 @@ export const createPurchaseOrder = async (req, res) => {
 };
 
 export const deletePurchaseOrder = async (req, res) => {
-  const purchase_order_id = req.params.id;
+  const purchase_order_id = req.params.orderId;
   try {
-    const checkPurchaseOrder = await prisma.purchase_orders.findUnique({
+    const checkPurchaseOrder = await prisma.purchase_orders.findMany({
       where: { purchase_order_id },
     });
 
     if (checkPurchaseOrder) {
-      await prisma.purchase_orders.delete({ where: { purchase_order_id } });
+      await prisma.purchase_order_details.deleteMany({
+        where: { purchase_order_id },
+      });
+      await prisma.purchase_orders.deleteMany({ where: { purchase_order_id } });
       return res
         .status(200)
         .json({ success: true, message: "Delete purchase order successfully" });
@@ -122,9 +118,11 @@ export const deletePurchaseOrder = async (req, res) => {
         .json({ success: false, message: "No purchase order was found" });
     }
   } catch (error) {
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal Server Error" });
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.toString(),
+    });
   }
 };
 

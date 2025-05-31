@@ -24,8 +24,8 @@ export const getAllInventoryReportDetails = async (req, res) => {
 };
 
 export const getInventoryReportDetail = async (req, res) => {
-  const report_id = req.params.id;
-  const product_id = req.params.id2;
+  const report_id = req.params.reportId;
+  const product_id = req.params.productId;
 
   try {
     const inventoryReportDetail =
@@ -113,15 +113,17 @@ export const createInventoryReportDetail = async (req, res) => {
       });
     }
 
-    return res
-      .status(500)
-      .json({ success: false, error: "Internal Server Error" });
+    return res.status(500).json({
+      success: false,
+      error: "Internal Server Error",
+      error: error.message,
+    });
   }
 };
 
 export const deleteInventoryReportDetail = async (req, res) => {
-  const report_id = req.params.id;
-  const product_id = req.params.id2;
+  const report_id = req.params.reportId;
+  const product_id = req.params.productId;
 
   try {
     const checkInventoryReportDetail =
@@ -161,8 +163,8 @@ export const deleteInventoryReportDetail = async (req, res) => {
 };
 
 export const updateInventoryReportDetail = async (req, res) => {
-  const report_id = req.params.id;
-  const product_id = req.params.id2;
+  const report_id = req.params.reportId;
+  const product_id = req.params.productId;
   const { begin_stock, buy_quantity, sell_quantity } = req.body;
 
   try {
