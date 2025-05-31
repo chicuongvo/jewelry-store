@@ -1,9 +1,10 @@
 import { Outlet } from "react-router";
+import Navbar from "./components/Navbar";
 
 function App() {
   return (
     <>
-      <nav className="underline">Navbar</nav>
+      <Navbar />
       <Outlet />
       <footer>Footer</footer>
     </>
