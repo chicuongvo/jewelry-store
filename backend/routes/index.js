@@ -10,6 +10,8 @@ import salesOrderDetailsRouter from "./salesOrderDetailsRouter.js";
 import serviceOrderDetailsRouter from "./serviceOrderDetailsRouter.js";
 import inventoryReportDetailsRouter from "./inventoryReportDetailsRouter.js";
 import purchaseOrdersRouter from "./purchaseOrdersRouter.js";
+import purchaseOrderDetailRouter from "./purchaseOrderDetailRouter.js";
+
 export const routes = (app) => {
   app.use("/api/products", productRouter);
   app.use("/api/suppliers", supplierRouter);
@@ -23,4 +25,5 @@ export const routes = (app) => {
   app.use("/api/service-order-details", serviceOrderDetailsRouter);
   app.use("/api/inventory-reports-details", inventoryReportDetailsRouter);
   app.use("/api/purchase-orders", purchaseOrdersRouter);
+  app.use("/api/purchase-order-details", purchaseOrderDetailRouter);
 };
