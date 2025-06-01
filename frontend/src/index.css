@@ -8,3 +8,7 @@
   --font-logo: "Playwrite HU", cursive;
   --color-primary: rgb(255, 147, 160);
 }
+
+.scroll-container::-webkit-scrollbar {
+  display: none;
+}

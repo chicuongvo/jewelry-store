@@ -8,6 +8,7 @@ import App from "./App.tsx";
 import Home from "./pages/HomePage/Home.tsx";
 import Auth from "./pages/AuthPage/Auth.tsx";
 import { UserProvider } from "./contexts/userContext.tsx";
+import Products from "./pages/ProductsPage/Products.tsx";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,10 @@ createRoot(document.getElementById("root")!).render(
 
             <Route path="/auth" element={<App />}>
               <Route index element={<Auth />} />
+            </Route>
+
+            <Route path="/products" element={<App />}>
+              <Route index element={<Products />} />
             </Route>
           </Routes>
         </BrowserRouter>

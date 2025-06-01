@@ -8,7 +8,7 @@ interface option {
 export default function Sidebar({ openSidebar }: { openSidebar: boolean }) {
   const options = [
     { name: "Trang chủ", page: "/" },
-    { name: "Bộ sưu tập", page: "/shop" },
+    { name: "Bộ sưu tập", page: "/products" },
     { name: "Dịch vụ", page: "/service" },
     { name: "Tài khoản", page: "/profile" },
     { name: "Yêu thích", page: "/wishlist" },

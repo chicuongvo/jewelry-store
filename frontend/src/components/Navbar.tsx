@@ -32,7 +32,7 @@ export default function Navbar() {
 
   const options = [
     { name: "Trang chủ", page: "/" },
-    { name: "Bộ sưu tập", page: "/shop" },
+    { name: "Bộ sưu tập", page: "/products" },
     { name: "Dịch vụ", page: "/service" },
     { name: "Tài khoản", page: userProfile ? "/profile" : "/auth" },
     { name: "Yêu thích", page: "/wishlist" },
