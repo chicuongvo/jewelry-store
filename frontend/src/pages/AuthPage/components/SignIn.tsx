@@ -1,5 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { EyeClosed, EyeIcon } from "lucide-react";
 import { useState } from "react";
+import { signIn } from "../../../api/user.api";
+import { useNavigate } from "react-router";
+import { Alert } from "@mui/material";
 
 export default function SignIn() {
   const [seePassword, setSeePassword] = useState(false);
@@ -8,8 +12,44 @@ export default function SignIn() {
     setSeePassword(!seePassword);
   };
 
+  const [identifier, setIdentifier] = useState("");
+  const [password, setPassword] = useState("");
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState("");
+  const nav = useNavigate();
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      await signIn({ identifier, password });
+
+      setIsSuccess("success");
+      nav("/");
+      window.location.reload();
+    } catch (error: any) {
+      setIsSuccess(error?.response?.data?.message || "Lỗi hệ thống");
+      console.log(
+        "Error in sign in: " + error?.response?.data?.message || "Lỗi hệ thống"
+      );
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <form className="border border-zinc-300 w-full px-4 py-5 space-y-2 flex flex-col gap-3">
+    <form
+      className="border border-zinc-300 w-full px-4 py-5 space-y-2 flex flex-col gap-3"
+      onSubmit={handleSubmit}
+    >
+      {" "}
+      <div className={`${isSuccess == "" ? "hidden" : "block"}`}>
+        {isSuccess == "success" ? (
+          <Alert severity="success">Đăng nhập thành công</Alert>
+        ) : (
+          <Alert severity="error">{isSuccess}</Alert>
+        )}
+      </div>
       <div className="flex flex-col gap-1">
         <label
           htmlFor="identifier"
@@ -23,9 +63,11 @@ export default function SignIn() {
           className="mt-1 block w-full border border-zinc-300 px-3 py-2 focus:outline-primary text-sm"
           required
           placeholder="Nhập thông tin của bạn"
+          onChange={(e) => {
+            setIdentifier(e.target.value);
+          }}
         />
       </div>
-
       <div className="flex flex-col gap-1 relative">
         <label
           htmlFor="password"
@@ -41,6 +83,9 @@ export default function SignIn() {
           minLength={6}
           maxLength={20}
           placeholder="Nhập mật khẩu"
+          onChange={(e) => {
+            setPassword(e.target.value);
+          }}
         />
         {!seePassword ? (
           <EyeIcon
@@ -54,12 +99,12 @@ export default function SignIn() {
           />
         )}
       </div>
-
       <button
         type="submit"
-        className="py-2 bg-primary text-white font-semibold "
+        className="py-2 bg-primary text-white font-semibold cursor-pointer border border-2 border-primary hover:bg-white  hover:text-primary transition-all duration-300 "
+        disabled={isLoading}
       >
-        ĐĂNG NHẬP
+        {isLoading ? "Đang xử lý" : "ĐĂNG NHẬP"}
       </button>
     </form>
   );
