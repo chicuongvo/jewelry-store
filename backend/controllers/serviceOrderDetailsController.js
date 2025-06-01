@@ -76,10 +76,10 @@ export const createServiceOrderDetails = async (req, res) => {
 export const updateServiceOrderDetails = async (req, res) => {
   const { service_order_id, service_id } = req.params;
   try {
-    await updateServiceOrderDetailsValidator.validateAsync({
-      ...req.body,
-      ...req.params,
-    });
+    // await updateServiceOrderDetailsValidator.validateAsync({
+    //   ...req.body,
+    //   ...req.params,
+    // });
     const updatedServiceOrderDetail = await prisma.service_order_details.update(
       {
         where: {
