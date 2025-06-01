@@ -286,24 +286,24 @@ RETURNS TRIGGER AS $$
 BEGIN
   IF TG_OP = 'INSERT' THEN
     UPDATE service_orders
-    SET total_price = total_price + NEW.total_price
-    SET total_paid = total_paid + COALESCE(NEW.paid, 0)
-    SET total_remaining = total_price - total_paid
+    SET total_price = total_price + NEW.total_price,
+    total_paid = total_paid + COALESCE(NEW.paid, 0),
+    total_remaining = total_price - total_paid
     WHERE service_order_id = NEW.service_order_id;
 
 
   ELSIF TG_OP = 'UPDATE' THEN
     UPDATE service_orders
-    SET total_price = total_price + (NEW.total_price - OLD.total_price)
-    SET total_paid = total_paid + (COALESCE(NEW.paid, 0) - COALESCE(OLD.paid, 0))
-    SET total_remaining = total_price - total_paid
+    SET total_price = total_price + (NEW.total_price - OLD.total_price),
+    total_paid = total_paid + (COALESCE(NEW.paid, 0) - COALESCE(OLD.paid, 0)),
+    total_remaining = total_price - total_paid
     WHERE service_order_id = NEW.service_order_id;
 
   ELSIF TG_OP = 'DELETE' THEN
     UPDATE service_orders
-    SET total_price = total_price - OLD.total_price
-    SET total_paid = total_paid - COALESCE(OLD.paid, 0)
-    SET total_remaining = total_price - total_paid
+    SET total_price = total_price - OLD.total_price,
+        total_paid = total_paid - COALESCE(OLD.paid, 0),
+        total_remaining = total_price - total_paid
     WHERE service_order_id = OLD.service_order_id;
   END IF;
 
