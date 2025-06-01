@@ -284,13 +284,26 @@ EXECUTE FUNCTION update_status_order();
 CREATE OR REPLACE FUNCTION update_total_price_order()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'UPDATE' THEN
+  IF TG_OP = 'INSERT' THEN
+    UPDATE service_orders
+    SET total_price = total_price + NEW.total_price
+    SET total_paid = total_paid + COALESCE(NEW.paid, 0)
+    SET total_remaining = total_price - total_paid
+    WHERE service_order_id = NEW.service_order_id;
+
+
+  ELSIF TG_OP = 'UPDATE' THEN
     UPDATE service_orders
     SET total_price = total_price + (NEW.total_price - OLD.total_price)
+    SET total_paid = total_paid + (COALESCE(NEW.paid, 0) - COALESCE(OLD.paid, 0))
+    SET total_remaining = total_price - total_paid
     WHERE service_order_id = NEW.service_order_id;
+
   ELSIF TG_OP = 'DELETE' THEN
     UPDATE service_orders
     SET total_price = total_price - OLD.total_price
+    SET total_paid = total_paid - COALESCE(OLD.paid, 0)
+    SET total_remaining = total_price - total_paid
     WHERE service_order_id = OLD.service_order_id;
   END IF;
 
@@ -298,6 +311,22 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+
+CREATE TRIGGER update_total_price_order_trigger
+BEFORE UPDATE OF total_price ON service_order_details
+FOR EACH ROW
+EXECUTE FUNCTION update_total_price_order();
+
+
+CREATE TRIGGER trg_total_price_after_insert
+AFTER INSERT ON service_order_details
+FOR EACH ROW
+EXECUTE FUNCTION update_total_price_order();
+
+CREATE TRIGGER trg_total_price_after_delete
+AFTER DELETE ON service_order_details
+FOR EACH ROW
+EXECUTE FUNCTION update_total_price_order();
 -- CREATE OR REPLACE FUNCTION update_total_price_order()
 -- RETURNS TRIGGER AS $$
 -- BEGIN
@@ -309,10 +338,6 @@ $$ LANGUAGE plpgsql;
 -- END;
 -- $$ LANGUAGE plpgsql;    
 
--- CREATE TRIGGER update_total_price_order_trigger
--- BEFORE UPDATE OF total_price ON service_order_details
--- FOR EACH ROW
--- EXECUTE FUNCTION update_total_price_order();
 
 -- TRIGGER 9
 DROP TRIGGER IF EXISTS update_total_remain_trigger on service_orders;
@@ -588,9 +613,10 @@ BEGIN
         WHERE services.service_id = NEW.service_id
     ) + NEW.extra_cost;
     NEW.total_price := NEW.calculated_price * NEW.quantity;
+    NEW.remaining := NEW.total_price - COALESCE(NEW.paid, 0);
 
     RETURN NEW;
-END;
+END;  
 $$ LANGUAGE plpgsql;
 
 -- Trigger để gọi function trên trước khi INSERT

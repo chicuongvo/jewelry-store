@@ -8,16 +8,13 @@ import {
 export const createServiceOrders = async (req, res) => {
   const { client_id, status, total_price, total_paid, total_remaining } =
     req.body;
+  // const service_order_id = req.body.service_order_id
+
   try {
     await createServiceOrderValidator.validateAsync(req.body);
     const newServiceOrder = await prisma.service_orders.create({
       data: {
-        client_id,
-        total_price,
-        total_paid,
-        total_remaining,
-        total_price,
-        status,
+        ...req.body,
       },
     });
 
