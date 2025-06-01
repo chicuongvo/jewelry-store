@@ -365,71 +365,105 @@ CREATE OR REPLACE FUNCTION update_purchase_quantity()
 RETURNS TRIGGER AS $$
 DECLARE
     current_report_id TEXT;
+    purchases_created_at TIMESTAMP(3) WITH TIME ZONE;
+    last_end_stock INTEGER;
+    affected_product_id INTEGER;
+    affected_quantity INTEGER;
 BEGIN
-    SELECT report_id INTO current_report_id
-    FROM inventory_reports
-    WHERE month = EXTRACT(MONTH FROM CURRENT_DATE)
-    AND year = EXTRACT(YEAR FROM CURRENT_DATE);
-
-    IF current_report_id IS NULL THEN
-        current_report_id := gen_random_uuid()::TEXT;
-        INSERT INTO inventory_reports (report_id, month, year)
-        VALUES (current_report_id, EXTRACT(MONTH FROM CURRENT_DATE), EXTRACT(YEAR FROM CURRENT_DATE));
+    -- Xác định thời gian tạo và sản phẩm bị ảnh hưởng
+    IF (TG_OP = 'INSERT') THEN
+        purchases_created_at := (SELECT created_at FROM purchase_orders WHERE purchase_order_id = NEW.purchase_order_id);
+        affected_product_id := NEW.product_id;
+        affected_quantity := NEW.quantity;
+        
+    ELSIF (TG_OP = 'UPDATE') THEN
+        purchases_created_at := (SELECT created_at FROM purchase_orders WHERE purchase_order_id = NEW.purchase_order_id);
+        affected_product_id := NEW.product_id;
+        affected_quantity := NEW.quantity - OLD.quantity; -- phần chênh lệch số lượng
+        
+    ELSIF (TG_OP = 'DELETE') THEN
+        purchases_created_at := (SELECT created_at FROM purchase_orders WHERE purchase_order_id = OLD.purchase_order_id);
+        affected_product_id := OLD.product_id;
+        affected_quantity := -OLD.quantity; -- bị xóa = giảm số lượng
     END IF;
 
-    INSERT INTO inventory_report_details (
-        report_id,
-        product_id,
-        begin_stock,
-        buy_quantity,
-        sell_quantity,
-        end_stock
-    )
-    VALUES (
-        current_report_id,
-        NEW.product_id,
-        COALESCE((
-            SELECT end_stock 
-            FROM inventory_report_details 
-            WHERE product_id = NEW.product_id 
-            AND report_id IN (
-                SELECT report_id 
-                FROM inventory_reports 
-                WHERE (year < EXTRACT(YEAR FROM CURRENT_DATE)) 
-                OR (year = EXTRACT(YEAR FROM CURRENT_DATE) AND month < EXTRACT(MONTH FROM CURRENT_DATE))
-                ORDER BY year DESC, month DESC 
-                LIMIT 1
-            )
-        ), 0),
-        NEW.quantity,
-        0,
-        COALESCE((
-            SELECT end_stock 
-            FROM inventory_report_details 
-            WHERE product_id = NEW.product_id 
-            AND report_id IN (
-                SELECT report_id 
-                FROM inventory_reports 
-                WHERE (year < EXTRACT(YEAR FROM CURRENT_DATE)) 
-                OR (year = EXTRACT(YEAR FROM CURRENT_DATE) AND month < EXTRACT(MONTH FROM CURRENT_DATE))
-                ORDER BY year DESC, month DESC 
-                LIMIT 1
-            )
-        ), 0) + NEW.quantity
-    )
-    ON CONFLICT (report_id, product_id) 
-    DO UPDATE SET
-        buy_quantity = inventory_report_details.buy_quantity + NEW.quantity,
-        end_stock = inventory_report_details.begin_stock + inventory_report_details.buy_quantity + NEW.quantity - inventory_report_details.sell_quantity;
+    -- Tìm hoặc tạo báo cáo tháng hiện tại
+    SELECT report_id INTO current_report_id
+    FROM inventory_reports
+    WHERE month = EXTRACT(MONTH FROM purchases_created_at)
+      AND year = EXTRACT(YEAR FROM purchases_created_at);
 
-    RETURN NEW;
+    IF current_report_id IS NULL THEN
+        INSERT INTO inventory_reports (month, year)
+        VALUES (EXTRACT(MONTH FROM purchases_created_at), EXTRACT(YEAR FROM purchases_created_at));
+        
+        SELECT report_id INTO current_report_id
+        FROM inventory_reports
+        WHERE month = EXTRACT(MONTH FROM purchases_created_at)
+          AND year = EXTRACT(YEAR FROM purchases_created_at);
+    END IF;
+
+    -- Kiểm tra xem có dòng chi tiết tồn kho chưa
+    SELECT end_stock INTO last_end_stock
+    FROM inventory_report_details
+    WHERE report_id = current_report_id
+      AND product_id = affected_product_id;
+
+    IF last_end_stock IS NULL THEN
+        -- Tìm tồn kho cuối kỳ trước
+        SELECT end_stock INTO last_end_stock
+        FROM inventory_report_details
+        WHERE product_id = affected_product_id
+          AND report_id IN (
+              SELECT report_id FROM inventory_reports
+              WHERE (year < EXTRACT(YEAR FROM purchases_created_at))
+                 OR (year = EXTRACT(YEAR FROM purchases_created_at) AND month < EXTRACT(MONTH FROM purchases_created_at))
+              ORDER BY year DESC, month DESC
+              LIMIT 1
+          );
+
+        last_end_stock := COALESCE(last_end_stock, 0);
+
+        -- Tạo dòng chi tiết mới
+        INSERT INTO inventory_report_details (
+            report_id,
+            product_id,
+            begin_stock,
+            buy_quantity,
+            sell_quantity,
+            end_stock
+        )
+        VALUES (
+            current_report_id,
+            affected_product_id,
+            last_end_stock,
+            0,
+            0,
+            last_end_stock
+        );
+    END IF;
+
+    -- Cập nhật báo cáo chi tiết
+    UPDATE inventory_report_details
+    SET 
+        buy_quantity = buy_quantity + CAST(affected_quantity AS INTEGER),
+        end_stock = begin_stock + buy_quantity + CAST(affected_quantity AS INTEGER) - sell_quantity
+    WHERE report_id = current_report_id
+      AND product_id = affected_product_id;
+
+    RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
 
+
+DROP TRIGGER IF EXISTS trg_update_purchase_quantity ON purchase_order_details;
+
 CREATE TRIGGER trg_update_purchase_quantity
-AFTER INSERT ON purchase_order_details
+AFTER INSERT OR UPDATE OR DELETE ON purchase_order_details
 FOR EACH ROW
 EXECUTE FUNCTION update_purchase_quantity();
+
+
 
 -- TRIGGER Cập nhật total_price khi quantity thay đổi trong sales_order_details
 CREATE OR REPLACE FUNCTION update_sales_order_total_price()

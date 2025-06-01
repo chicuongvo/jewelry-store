@@ -75,6 +75,7 @@ export const createPurchaseOrderDetail = async (req, res) => {
     return res.status(500).json({
       success: false,
       error: "Internal Server Error",
+      error2: error.toString(),
     });
   }
 };
@@ -125,7 +126,7 @@ export const updatePurchaseOrderDetail = async (req, res) => {
     const oldPurchaseOrderDetail = await prisma.purchase_order_details.findMany(
       {
         where: { purchase_order_id, product_id },
-      },
+      }
     );
     if (!oldPurchaseOrderDetail) {
       return res
