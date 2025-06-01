@@ -57,7 +57,7 @@ export const createPurchaseOrder = async (req, res) => {
         .json({ success: false, message: "No data provided" });
     }
 
-    await createPurchaseOrderValidator.validateAsync(req.body);
+    // await createPurchaseOrderValidator.validateAsync(req.body);
 
     const checkSupplier = await prisma.suppliers.findUnique({
       where: { supplier_id: supplier_id },

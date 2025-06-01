@@ -48,12 +48,13 @@ export const getUser = async (req, res) => {
 
 export const signUp = async (req, res) => {
   const data = req.body;
+  console.log(data);
 
   try {
     if (!req.body || Object.keys(req.body).length === 0) {
       return res
         .status(400)
-        .json({ success: false, message: "No data provided" });
+        .json({ success: false, message: "Vui lòng cung cấp đủ thông tin." });
     }
 
     await signUpValidator.validateAsync(data);
@@ -69,19 +70,19 @@ export const signUp = async (req, res) => {
     if (checkEmail) {
       return res
         .status(409)
-        .json({ success: false, message: "Email already exists" });
+        .json({ success: false, message: "Email đã tồn tại." });
     }
 
     if (checkUsername) {
       return res
         .status(409)
-        .json({ success: false, message: "Username already exists" });
+        .json({ success: false, message: "Tên đăng nhập đã tồn tại." });
     }
 
     if (checkPhoneNumber) {
       return res
         .status(409)
-        .json({ success: false, message: "Phone number already exists" });
+        .json({ success: false, message: "Số điện thoại đã tồn tại." });
     }
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
@@ -121,7 +122,7 @@ export const signIn = async (req, res) => {
     if (!identifier || !password) {
       return res.status(400).json({
         success: false,
-        message: "Please provide identifier and password",
+        message: "Vui lòng cung cấp đủ thông tin.",
       });
     }
 
@@ -138,14 +139,12 @@ export const signIn = async (req, res) => {
     if (!user) {
       return res
         .status(404)
-        .json({ success: false, message: "User not found" });
+        .json({ success: false, message: "Không tìm thấy người dùng." });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res
-        .status(406)
-        .json({ success: false, message: "Incorrect password" });
+      return res.status(406).json({ success: false, message: "Sai mật khẩu" });
     }
 
     generateTokenAndSetCookie(user.user_id, user.role, res);
@@ -217,13 +216,15 @@ export const getVerificationToken = async (req, res) => {
 
         await sendVerificationEmail(user.email, verification_token);
 
-        return res.status(200).json({ message: "Send Token successfully" });
+        return res.status(200).json({ message: "Gửi mã xác nhận thành công!" });
       } else {
-        return res.status(400).json({ message: "User has already verified" });
+        return res
+          .status(400)
+          .json({ message: "Người dùng đã được xác thực." });
       }
     }
 
-    return res.status(404).json({ message: "User not found" });
+    return res.status(404).json({ message: "Không tìm thấy người dùng." });
   } catch (error) {
     console.log("Error send token", error);
     return res
@@ -255,10 +256,12 @@ export const verifyEmail = async (req, res) => {
 
       return res
         .status(200)
-        .json({ success: true, message: "Email verified successfuly" });
+        .json({ success: true, message: "Xác thực người dùng thành công." });
     }
 
-    return res.status(404).json({ success: false, message: "Invalid token" });
+    return res
+      .status(404)
+      .json({ success: false, message: "Mã xác thực không hợp lệ." });
   } catch (error) {
     console.log("Error verify email:", error);
     return res
@@ -275,7 +278,7 @@ export const getResetPasswordToken = async (req, res) => {
     if (!user)
       return res
         .status(404)
-        .json({ success: false, message: "User not found" });
+        .json({ success: false, message: "Không tìm thấy người dùng." });
 
     const reset_password_token = generateToken();
 
@@ -289,9 +292,10 @@ export const getResetPasswordToken = async (req, res) => {
 
     await sendResetPasswordEmail(user.email, reset_password_token);
 
-    return res
-      .status(200)
-      .json({ success: true, message: "Send mail succesfully" });
+    return res.status(200).json({
+      success: true,
+      message: "Mã xác nhận đã được gửi tới email của bạn.",
+    });
   } catch (error) {
     console.log("Error send reset password mail:", error);
     return res
@@ -327,10 +331,12 @@ export const resetPassword = async (req, res) => {
 
       return res
         .status(200)
-        .json({ success: true, message: "Reset password successfully" });
+        .json({ success: true, message: "Đặt lại mật khẩu thành công." });
     }
 
-    return res.status(400).json({ sucess: false, message: "Invalid token" });
+    return res
+      .status(400)
+      .json({ sucess: false, message: "Mã xác thực không hợp lệ." });
   } catch (error) {
     if (error.isJoi) {
       return res.status(400).json({
