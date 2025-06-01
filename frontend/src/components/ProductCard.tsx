@@ -1,4 +1,5 @@
 import { ShoppingBag, Tag } from "lucide-react";
+import { Link } from "react-router";
 
 interface product {
   product_id: string;
@@ -14,7 +15,10 @@ interface product {
 
 export default function ProductCard({ product }: { product: product }) {
   return (
-    <div className="bg-white font-primary rounded-3xl shadow-lg overflow-hidden transition-all hover:shadow-xl border border-primary group">
+    <Link
+      to={`/product/${product.product_id}`}
+      className="bg-white font-primary rounded-3xl shadow-lg overflow-hidden transition-all hover:shadow-xl border border-primary group"
+    >
       <div className="relative">
         <img
           src={product.image}
@@ -54,6 +58,6 @@ export default function ProductCard({ product }: { product: product }) {
           </button>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
