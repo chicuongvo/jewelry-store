@@ -6,15 +6,19 @@ import {
   deleteServiceOrderValidator,
 } from "../validation/serviceOrdersValidation.js";
 export const createServiceOrders = async (req, res) => {
-  const { client_id, status, total_price, total_paid, total_remaining } =
-    req.body;
-  // const service_order_id = req.body.service_order_id
+  let { client_id, status } = req.body;
 
+  const total_paid = (total_paid = total_remaining = 0);
+  status = "NOT_DELIVERED";
   try {
-    await createServiceOrderValidator.validateAsync(req.body);
+    // await createServiceOrderValidator.validateAsync(req.body);
     const newServiceOrder = await prisma.service_orders.create({
       data: {
-        ...req.body,
+        client_id,
+        status,
+        total_price,
+        total_paid,
+        total_remaining,
       },
     });
 
