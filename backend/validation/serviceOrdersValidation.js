@@ -13,9 +13,8 @@ export const createServiceOrderValidator = Joi.object({
     "any.required": "Price is required",
     "number.greater": "Price must be greater than 0",
   }),
-  total_paid: Joi.number().required().greater(0).messages({
+  total_paid: Joi.number().required().messages({
     "any.required": "Total paid is required",
-    "number.greater": "Total paid must be greater than 0",
   }),
   status: Joi.string().required().messages({
     "string.empty": "Status must not be empty",
