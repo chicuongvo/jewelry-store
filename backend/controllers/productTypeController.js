@@ -44,20 +44,12 @@ export const createType = async (req, res) => {
         .json({ success: false, message: "No data provided" });
     }
 
-    await createProductTypeValidator.validateAsync(data);
+    // await createProductTypeValidator.validateAsync(data);
 
-    const [checkTypeId, checkTypeName] = await Promise.all([
-      data.type_id
-        ? prisma.product_types.findUnique({ where: { type_id: data.type_id } })
-        : null,
+    const [checkTypeName] = await Promise.all([
       prisma.product_types.findUnique({ where: { name: data.name } }),
     ]);
 
-    if (checkTypeId) {
-      return res
-        .status(409)
-        .json({ success: false, message: "Product type ID already exists" });
-    }
     if (checkTypeName) {
       return res
         .status(409)

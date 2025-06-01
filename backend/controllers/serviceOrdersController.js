@@ -32,6 +32,31 @@ export const createServiceOrders = async (req, res) => {
   }
 };
 
+export const getAllServiceOrders = async (req, res) => {
+  try {
+    const serviceOrder = await prisma.service_orders.findMany({});
+
+    if (!serviceOrder) {
+      return res.status(404).json({
+        success: false,
+        message: "Service order detail not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Service order detail retrieved successfully",
+      data: serviceOrder,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};
+
 export const getServiceOrder = async (req, res) => {
   const { service_order_id } = req.params;
   try {
