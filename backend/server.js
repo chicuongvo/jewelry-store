@@ -13,7 +13,12 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cookieParser());
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:5173"],
+    credentials: true,
+  })
+);
 app.use(morgan("dev")); // log the requests
 app.use(
   cookieSession({
