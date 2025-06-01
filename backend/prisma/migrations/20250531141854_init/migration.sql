@@ -313,7 +313,7 @@ $$ LANGUAGE plpgsql;
 
 
 CREATE TRIGGER update_total_price_order_trigger
-BEFORE UPDATE OF total_price ON service_order_details
+BEFORE UPDATE ON service_order_details
 FOR EACH ROW
 EXECUTE FUNCTION update_total_price_order();
 
@@ -598,7 +598,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trg_update_extra_cost
-BEFORE UPDATE on service_order_details
+BEFORE UPDATE OR INSERT on service_order_details
 FOR EACH ROW
 EXECUTE FUNCTION update_extra_cost_and_quantity();
 

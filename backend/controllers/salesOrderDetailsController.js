@@ -51,6 +51,7 @@ export const createSalesOrderDetails = async (req, res) => {
       data: newSalesOrderDetail,
     });
   } catch (error) {
+    console.log(error.toString());
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",

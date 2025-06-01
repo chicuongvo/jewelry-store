@@ -89,8 +89,8 @@ model inventory_report_details {
 
   begin_stock   Int
   buy_quantity  Int @default(0)
-  sell_quantity Int
-  end_stock     Int //end_stock = begin_stock + buy_quantity - sell_quantity
+  sell_quantity Int @default(0)
+  end_stock     Int @default(0)//end_stock = begin_stock + buy_quantity - sell_quantity
 
   @@id([report_id, product_id])
 }
@@ -150,8 +150,8 @@ model purchase_order_details {
   product    products @relation(fields: [product_id], references: [product_id])
   product_id String
 
-  quantity    Int //products.sell_quantity -= quantity
-  total_price Decimal //total_price = quantity * products.sell_price
+  quantity    Int  //products.sell_quantity -= quantity
+  total_price Decimal @default(0) //total_price = quantity * products.sell_price
 
   @@id([purchase_order_id, product_id])
 }
@@ -177,8 +177,8 @@ model sales_order_details {
   product    products @relation(fields: [product_id], references: [product_id])
   product_id String
 
-  quantity    String
-  total_price Decimal //total_price = product.sell_price * quantity
+  quantity    Int
+  total_price Decimal @default(0)//total_price = product.sell_price * quantity
 
   @@id([sales_order_id, product_id])
 }
@@ -193,10 +193,10 @@ model service_orders {
 
   client                users                   @relation(fields: [client_id], references: [user_id])
   client_id             String
-  total_price           Decimal
-  total_paid            Decimal
-  total_remaining       Decimal
-  status                Status
+  total_price           Decimal @default(0)
+  total_paid            Decimal @default(0)
+  total_remaining       Decimal @default(0)
+  status                Status @default(NOT_DELIVERED)
   service_order_details service_order_details[]
 }
 
@@ -208,11 +208,11 @@ model service_order_details {
   service_id String
 
   extra_cost       Decimal @default(0)
-  calculated_price Decimal //service.base_price + extra_cost
+  calculated_price Decimal @default(0) //service.base_price + extra_cost
   quantity         Int
-  total_price      Decimal //calculated_price * quantity
+  total_price      Decimal @default(0)//calculated_price * quantity
   paid             Decimal // >= (0.5 * total_price )
-  remaining        Decimal
+  remaining        Decimal @default(0)
   status           Status  @default(NOT_DELIVERED)
 
   @@id([service_order_id, service_id])

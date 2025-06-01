@@ -7,6 +7,7 @@ export const getAllSalesOrders = async (req, res) => {
 
     return res.status(200).json({ success: true, data: products });
   } catch (error) {
+    console.log(error.toString());
     return res
       .status(500)
       .json({ success: false, error: "Internal Server Error" });
