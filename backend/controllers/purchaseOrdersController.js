@@ -24,7 +24,7 @@ export const getPurchaseOrder = async (req, res) => {
     const purchaseOrder = await prisma.purchase_orders.findUnique({
       where: { purchase_order_id },
       include: {
-        client: true,
+        supplier: true,
         purchase_order_details: {
           include: {
             product: true,
@@ -48,7 +48,7 @@ export const getPurchaseOrder = async (req, res) => {
 };
 
 export const createPurchaseOrder = async (req, res) => {
-  const { client_id } = req.body;
+  const { supplier_id } = req.body;
 
   try {
     if (!req.body || Object.keys(req.body).length === 0) {
@@ -57,23 +57,23 @@ export const createPurchaseOrder = async (req, res) => {
         .json({ success: false, message: "No data provided" });
     }
 
-    await createPurchaseOrderValidator.validateAsync(req.body);
+    // await createPurchaseOrderValidator.validateAsync(req.body);
 
-    const checkClient = await prisma.users.findUnique({
-      where: { user_id: client_id },
+    const checkSupplier = await prisma.suppliers.findUnique({
+      where: { supplier_id: supplier_id },
     });
 
-    if (!checkClient)
+    if (!checkSupplier)
       return res
         .status(404)
-        .json({ success: false, message: "Client was not valid" });
+        .json({ success: false, message: "Supplier was not valid" });
 
     const newPurchaseOrder = await prisma.purchase_orders.create({
       data: {
-        client_id,
+        supplier_id,
       },
       include: {
-        client: true,
+        supplier: true,
         purchase_order_details: {
           include: {
             product: true,
@@ -128,7 +128,7 @@ export const deletePurchaseOrder = async (req, res) => {
 
 export const updatePurchaseOrder = async (req, res) => {
   const purchase_order_id = req.params.id;
-  const { client_id } = req.body;
+  const { supplier_id } = req.body;
 
   try {
     if (!req.body || Object.keys(req.body).length === 0) {
@@ -148,22 +148,22 @@ export const updatePurchaseOrder = async (req, res) => {
         .json({ success: false, message: "Purchase order not found" });
     }
 
-    const checkClient = await prisma.users.findUnique({
-      where: { user_id: client_id },
+    const checkSupplier = await prisma.users.findUnique({
+      where: { supplier_id: supplier_id },
     });
 
-    if (!checkClient)
+    if (!checkSupplier)
       return res
         .status(404)
-        .json({ success: false, message: "Client was not valid" });
+        .json({ success: false, message: "Supplier was not valid" });
 
     const updatedPurchaseOrder = await prisma.purchase_orders.update({
       where: { purchase_order_id },
       data: {
-        client_id: client_id ?? oldPurchaseOrder.client_id,
+        supplier_id: supplier_id ?? oldPurchaseOrder.supplier_id,
       },
       include: {
-        client: true,
+        supplier: true,
         purchase_order_details: {
           include: {
             product: true,

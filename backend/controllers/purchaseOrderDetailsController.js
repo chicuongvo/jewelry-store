@@ -75,7 +75,6 @@ export const createPurchaseOrderDetail = async (req, res) => {
     return res.status(500).json({
       success: false,
       error: "Internal Server Error",
-      error: error.toString(),
     });
   }
 };
@@ -107,7 +106,6 @@ export const deletePurchaseOrderDetail = async (req, res) => {
     return res.status(500).json({
       success: false,
       error: "Internal Server Error",
-      error: error.toString(),
     });
   }
 };

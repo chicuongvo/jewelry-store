@@ -8,16 +8,13 @@ import {
 export const createServiceOrders = async (req, res) => {
   const { client_id, status, total_price, total_paid, total_remaining } =
     req.body;
+  // const service_order_id = req.body.service_order_id
+
   try {
     await createServiceOrderValidator.validateAsync(req.body);
     const newServiceOrder = await prisma.service_orders.create({
       data: {
-        client_id,
-        total_price,
-        total_paid,
-        total_remaining,
-        total_price,
-        status,
+        ...req.body,
       },
     });
 
@@ -31,6 +28,31 @@ export const createServiceOrders = async (req, res) => {
       success: false,
       message: "Internal Server Error",
       error: error.toString(),
+    });
+  }
+};
+
+export const getAllServiceOrders = async (req, res) => {
+  try {
+    const serviceOrder = await prisma.service_orders.findMany({});
+
+    if (!serviceOrder) {
+      return res.status(404).json({
+        success: false,
+        message: "Service order detail not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Service order detail retrieved successfully",
+      data: serviceOrder,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
     });
   }
 };
