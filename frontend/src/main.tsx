@@ -7,23 +7,26 @@ import "./index.css";
 import App from "./App.tsx";
 import Home from "./pages/HomePage/Home.tsx";
 import Auth from "./pages/AuthPage/Auth.tsx";
+import { UserProvider } from "./contexts/userContext.tsx";
 
 const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<App />}>
-            <Route index element={<Home />} />
-          </Route>
+    <UserProvider>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<App />}>
+              <Route index element={<Home />} />
+            </Route>
 
-          <Route path="/auth" element={<App />}>
-            <Route index element={<Auth />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </QueryClientProvider>
+            <Route path="/auth" element={<App />}>
+              <Route index element={<Auth />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </QueryClientProvider>{" "}
+    </UserProvider>
   </StrictMode>
 );

@@ -18,7 +18,7 @@ export default function Auth() {
             onClick={() => {
               setOption("SignIn");
             }}
-            className={`pb-2 border-b-3 px-2 ${
+            className={`pb-2 border-b-3 px-2 cursor-pointer ${
               option == "SignIn"
                 ? "text-black border-black"
                 : "text-zinc-400 border-zinc-400"
@@ -30,7 +30,7 @@ export default function Auth() {
             onClick={() => {
               setOption("SignUp");
             }}
-            className={`pb-2 border-b-3 px-2 ${
+            className={`pb-2 border-b-3 px-2 cursor-pointer ${
               option == "SignUp"
                 ? "text-black border-black"
                 : "text-zinc-400 border-zinc-400"
