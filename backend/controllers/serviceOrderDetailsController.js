@@ -109,7 +109,7 @@ export const updateServiceOrderDetails = async (req, res) => {
 
 export const deleteServiceOrderDetails = async (req, res) => {
   const { service_id, service_order_id } = req.params;
-
+  console.log("TRI");
   try {
     await deleteServiceOrderDetailsValidator.validateAsync(req.params);
     await prisma.service_order_details.delete({

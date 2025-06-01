@@ -8,7 +8,10 @@ import {
 export const createServiceOrders = async (req, res) => {
   let { client_id, status } = req.body;
 
-  const total_paid = (total_paid = total_remaining = 0);
+  let total_paid = 0,
+    total_price = 0,
+    total_remaining = 0;
+
   status = "NOT_DELIVERED";
   try {
     // await createServiceOrderValidator.validateAsync(req.body);
