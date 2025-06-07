@@ -99,8 +99,20 @@ export const updateSalesOrderDetails = async (req, res) => {
 
 export const deleteSalesOrderDetails = async (req, res) => {
   const { sales_order_id, product_id } = req.params;
+  console.log(sales_order_id, product_id);
   try {
     await deleteSalesOrderDetailsValidator.validateAsync(req.params);
+
+    const existing = await prisma.sales_order_details.findUnique({
+      where: {
+        sales_order_id_product_id: {
+          sales_order_id,
+          product_id,
+        },
+      },
+    });
+    console.log(existing);
+
     await prisma.sales_order_details.delete({
       where: {
         sales_order_id_product_id: {

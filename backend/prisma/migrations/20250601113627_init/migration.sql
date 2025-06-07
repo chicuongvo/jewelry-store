@@ -241,6 +241,86 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- TRIGGER 1
+CREATE OR REPLACE FUNCTION validate_sales_quantity()
+RETURNS TRIGGER AS $$
+DECLARE
+    current_report_id TEXT;
+    available_stock INTEGER;
+    sales_orders_created_at TIMESTAMP(3) WITH TIME ZONE;
+BEGIN
+    SELECT created_at INTO sales_orders_created_at
+    FROM sales_orders
+    WHERE sales_orders.sales_order_id = NEW.sales_order_id;
+
+    SELECT report_id INTO current_report_id
+    FROM inventory_reports
+    WHERE month = EXTRACT(MONTH FROM sales_orders_created_at)
+    AND year = EXTRACT(YEAR FROM sales_orders_created_at);
+
+    IF current_report_id IS NULL THEN
+        INSERT INTO inventory_reports (month, year)
+        VALUES (EXTRACT(MONTH FROM sales_orders_created_at), EXTRACT(YEAR FROM sales_orders_created_at));
+    END IF;
+    
+    SELECT report_id INTO current_report_id
+    FROM inventory_reports
+    WHERE month = EXTRACT(MONTH FROM sales_orders_created_at) AND year = EXTRACT(YEAR FROM sales_orders_created_at);
+
+    SELECT end_stock INTO available_stock
+    FROM inventory_report_details
+    WHERE report_id = current_report_id
+    AND product_id = NEW.product_id;
+
+    IF available_stock IS NULL THEN
+        SELECT end_stock INTO available_stock
+        FROM inventory_report_details
+        WHERE product_id = NEW.product_id
+        AND report_id IN (
+            SELECT report_id
+            FROM inventory_reports
+            WHERE (year < EXTRACT(YEAR FROM sales_orders_created_at))
+            OR (year = EXTRACT(YEAR FROM sales_orders_created_at) AND month < EXTRACT(MONTH FROM sales_orders_created_at))
+            ORDER BY year DESC, month DESC
+            LIMIT 1
+        );
+
+        available_stock := COALESCE(available_stock, 0);
+
+        INSERT INTO inventory_report_details (
+            report_id,
+            product_id,
+            begin_stock,
+            buy_quantity,
+            sell_quantity,
+            end_stock
+        )
+        VALUES (
+            current_report_id,
+            NEW.product_id,
+            available_stock,
+            0,
+            0,
+            available_stock
+        );
+    END IF;
+
+    IF CAST(NEW.quantity AS INTEGER) > available_stock THEN
+        RAISE EXCEPTION 'Số lượng bán (%) vượt quá số lượng tồn kho hiện có (%)', 
+            NEW.quantity, available_stock;
+    END IF;
+
+    UPDATE inventory_report_details
+    SET 
+        sell_quantity = sell_quantity + CAST(NEW.quantity AS INTEGER),
+        end_stock = begin_stock + buy_quantity - (sell_quantity + CAST(NEW.quantity AS INTEGER))
+    WHERE report_id = current_report_id
+    AND product_id = NEW.product_id;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 
 CREATE TRIGGER trg_update_end_stock
 BEFORE INSERT OR UPDATE ON inventory_report_details
@@ -489,17 +569,25 @@ RETURNS TRIGGER AS $$
 DECLARE
     current_report_id TEXT;
     available_stock INTEGER;
+    sales_orders_created_at TIMESTAMP(3) WITH TIME ZONE;
 BEGIN
+    SELECT created_at INTO sales_orders_created_at
+    FROM sales_orders
+    WHERE sales_orders.sales_order_id = NEW.sales_order_id;
+
     SELECT report_id INTO current_report_id
     FROM inventory_reports
-    WHERE month = EXTRACT(MONTH FROM CURRENT_DATE)
-    AND year = EXTRACT(YEAR FROM CURRENT_DATE);
+    WHERE month = EXTRACT(MONTH FROM sales_orders_created_at)
+    AND year = EXTRACT(YEAR FROM sales_orders_created_at);
 
     IF current_report_id IS NULL THEN
-        current_report_id := gen_random_uuid()::TEXT;
-        INSERT INTO inventory_reports (report_id, month, year)
-        VALUES (current_report_id, EXTRACT(MONTH FROM CURRENT_DATE), EXTRACT(YEAR FROM CURRENT_DATE));
+        INSERT INTO inventory_reports (month, year)
+        VALUES (EXTRACT(MONTH FROM sales_orders_created_at), EXTRACT(YEAR FROM sales_orders_created_at));
     END IF;
+    
+    SELECT report_id INTO current_report_id
+    FROM inventory_reports
+    WHERE month = EXTRACT(MONTH FROM sales_orders_created_at) AND year = EXTRACT(YEAR FROM sales_orders_created_at);
 
     SELECT end_stock INTO available_stock
     FROM inventory_report_details
@@ -513,8 +601,8 @@ BEGIN
         AND report_id IN (
             SELECT report_id
             FROM inventory_reports
-            WHERE (year < EXTRACT(YEAR FROM CURRENT_DATE))
-            OR (year = EXTRACT(YEAR FROM CURRENT_DATE) AND month < EXTRACT(MONTH FROM CURRENT_DATE))
+            WHERE (year < EXTRACT(YEAR FROM sales_orders_created_at))
+            OR (year = EXTRACT(YEAR FROM sales_orders_created_at) AND month < EXTRACT(MONTH FROM sales_orders_created_at))
             ORDER BY year DESC, month DESC
             LIMIT 1
         );
@@ -539,15 +627,15 @@ BEGIN
         );
     END IF;
 
-    IF CAST(NEW.quantity AS INTEGER) > available_stock THEN
+    IF NEW.quantity > available_stock THEN
         RAISE EXCEPTION 'Số lượng bán (%) vượt quá số lượng tồn kho hiện có (%)', 
             NEW.quantity, available_stock;
     END IF;
 
     UPDATE inventory_report_details
     SET 
-        sell_quantity = sell_quantity + CAST(NEW.quantity AS INTEGER),
-        end_stock = begin_stock + buy_quantity - (sell_quantity + CAST(NEW.quantity AS INTEGER))
+        sell_quantity = sell_quantity + NEW.quantity,
+        end_stock = begin_stock + buy_quantity - (sell_quantity + NEW.quantity)
     WHERE report_id = current_report_id
     AND product_id = NEW.product_id;
 
@@ -555,10 +643,174 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trg_validate_sales_quantity
+CREATE OR REPLACE FUNCTION validate_sales_quantity_on_update()
+RETURNS TRIGGER AS $$
+DECLARE
+    current_report_id TEXT;
+    available_stock INTEGER;
+    sales_orders_created_at TIMESTAMP(3) WITH TIME ZONE;
+BEGIN
+    SELECT created_at INTO sales_orders_created_at
+    FROM sales_orders
+    WHERE sales_orders.sales_order_id = NEW.sales_order_id;
+
+    SELECT report_id INTO current_report_id
+    FROM inventory_reports
+    WHERE month = EXTRACT(MONTH FROM sales_orders_created_at)
+    AND year = EXTRACT(YEAR FROM sales_orders_created_at);
+
+    IF current_report_id IS NULL THEN
+        INSERT INTO inventory_reports (month, year)
+        VALUES (EXTRACT(MONTH FROM sales_orders_created_at), EXTRACT(YEAR FROM sales_orders_created_at));
+    END IF;
+    
+    SELECT report_id INTO current_report_id
+    FROM inventory_reports
+    WHERE month = EXTRACT(MONTH FROM sales_orders_created_at) AND year = EXTRACT(YEAR FROM sales_orders_created_at);
+
+    SELECT end_stock INTO available_stock
+    FROM inventory_report_details
+    WHERE report_id = current_report_id
+    AND product_id = NEW.product_id;
+
+    IF available_stock IS NULL THEN
+        SELECT end_stock INTO available_stock
+        FROM inventory_report_details
+        WHERE product_id = NEW.product_id
+        AND report_id IN (
+            SELECT report_id
+            FROM inventory_reports
+            WHERE (year < EXTRACT(YEAR FROM sales_orders_created_at))
+            OR (year = EXTRACT(YEAR FROM sales_orders_created_at) AND month < EXTRACT(MONTH FROM sales_orders_created_at))
+            ORDER BY year DESC, month DESC
+            LIMIT 1
+        );
+
+        available_stock := COALESCE(available_stock, 0);
+
+        INSERT INTO inventory_report_details (
+            report_id,
+            product_id,
+            begin_stock,
+            buy_quantity,
+            sell_quantity,
+            end_stock
+        )
+        VALUES (
+            current_report_id,
+            NEW.product_id,
+            available_stock,
+            0,
+            0,
+            available_stock
+        );
+    END IF;
+
+    IF NEW.quantity - OLD.quantity > available_stock THEN
+        RAISE EXCEPTION 'Số lượng bán vượt quá số lượng tồn kho hiện có';
+    END IF;
+
+    UPDATE inventory_report_details
+    SET 
+        sell_quantity = sell_quantity + NEW.quantity - OLD.quantity,
+        end_stock = begin_stock + buy_quantity - (sell_quantity + NEW.quantity - OLD.quantity)
+    WHERE report_id = current_report_id
+    AND product_id = NEW.product_id;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION validate_sales_quantity_on_delete()
+RETURNS TRIGGER AS $$
+DECLARE
+    current_report_id TEXT;
+    available_stock INTEGER;
+    sales_orders_created_at TIMESTAMP(3) WITH TIME ZONE;
+BEGIN
+    SELECT created_at INTO sales_orders_created_at
+    FROM sales_orders
+    WHERE sales_orders.sales_order_id = NEW.sales_order_id;
+
+    SELECT report_id INTO current_report_id
+    FROM inventory_reports
+    WHERE month = EXTRACT(MONTH FROM sales_orders_created_at)
+    AND year = EXTRACT(YEAR FROM sales_orders_created_at);
+
+    IF current_report_id IS NULL THEN
+        INSERT INTO inventory_reports (month, year)
+        VALUES (EXTRACT(MONTH FROM sales_orders_created_at), EXTRACT(YEAR FROM sales_orders_created_at));
+    END IF;
+    
+    SELECT report_id INTO current_report_id
+    FROM inventory_reports
+    WHERE month = EXTRACT(MONTH FROM sales_orders_created_at) AND year = EXTRACT(YEAR FROM sales_orders_created_at);
+
+    SELECT end_stock INTO available_stock
+    FROM inventory_report_details
+    WHERE report_id = current_report_id
+    AND product_id = NEW.product_id;
+
+    IF available_stock IS NULL THEN
+        SELECT end_stock INTO available_stock
+        FROM inventory_report_details
+        WHERE product_id = NEW.product_id
+        AND report_id IN (
+            SELECT report_id
+            FROM inventory_reports
+            WHERE (year < EXTRACT(YEAR FROM sales_orders_created_at))
+            OR (year = EXTRACT(YEAR FROM sales_orders_created_at) AND month < EXTRACT(MONTH FROM sales_orders_created_at))
+            ORDER BY year DESC, month DESC
+            LIMIT 1
+        );
+
+        available_stock := COALESCE(available_stock, 0);
+
+        INSERT INTO inventory_report_details (
+            report_id,
+            product_id,
+            begin_stock,
+            buy_quantity,
+            sell_quantity,
+            end_stock
+        )
+        VALUES (
+            current_report_id,
+            NEW.product_id,
+            available_stock,
+            0,
+            0,
+            available_stock
+        );
+    END IF;
+
+    UPDATE inventory_report_details
+    SET 
+        sell_quantity = sell_quantity - OLD.quantity,
+        end_stock = begin_stock + buy_quantity - (sell_quantity - OLD.quantity)
+    WHERE report_id = current_report_id
+    AND product_id = NEW.product_id;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER validate_sales_quantity
 BEFORE INSERT ON sales_order_details
 FOR EACH ROW
 EXECUTE FUNCTION validate_sales_quantity();
+
+CREATE TRIGGER validate_sales_quantity_on_update
+BEFORE UPDATE ON sales_order_details
+FOR EACH ROW
+EXECUTE FUNCTION validate_sales_quantity_on_update();
+
+CREATE TRIGGER validate_sales_quantity_on_delete
+BEFORE DELETE ON sales_order_details
+FOR EACH ROW
+EXECUTE FUNCTION validate_sales_quantity_on_delete();
 
 -- Trigger function cập nhật total_price khi quantity thay đổi
 CREATE OR REPLACE FUNCTION update_purchase_order_total_price()
