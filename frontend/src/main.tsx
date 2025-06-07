@@ -10,6 +10,8 @@ import Auth from "./pages/Client/AuthPage/Auth.tsx";
 import { UserProvider } from "./contexts/userContext.tsx";
 import Products from "./pages/Client/ProductsPage/Products.tsx";
 import ProductDetailsPage from "./pages/Client/ProductDetailsPage/ProductDetails.tsx";
+import Layout from "./components/Admin/Layout.tsx";
+import Dashboard from "./pages/Admin/Dashboard/Dashboard.tsx";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +35,10 @@ createRoot(document.getElementById("root")!).render(
 
             <Route path="/product/:id" element={<App />}>
               <Route index element={<ProductDetailsPage />} />
+            </Route>
+
+            <Route path="/admin" element={<Layout />}>
+              <Route index element={<Dashboard />} />
             </Route>
           </Routes>
         </BrowserRouter>
