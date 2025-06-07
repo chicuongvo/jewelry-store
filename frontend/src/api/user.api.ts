@@ -81,3 +81,8 @@ export const resetPassword = async (
 
   return response.data.message;
 };
+
+export const getAllUsers = async (): Promise<UserProfile[]> => {
+  const response = await axiosClient.get("/auth/");
+  return response.data.data;
+};

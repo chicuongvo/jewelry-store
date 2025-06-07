@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -37,7 +39,7 @@ export default function UsersPage() {
   });
 
   const { mutate, isPending } = useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: async (_id: string) => {
       // Call api delete user
     },
     onSuccess: () => {
@@ -83,7 +85,7 @@ export default function UsersPage() {
                 placeholder="Search users..."
                 className="h-9"
                 value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
             <div className="flex items-center gap-2 ml-auto">
@@ -112,8 +114,8 @@ export default function UsersPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredUsers.length > 0 ? (
-                    filteredUsers.map((user: any) => (
+                  {(filteredUsers?.length ?? 0) > 0 ? (
+                    (filteredUsers ?? []).map((user: any) => (
                       <TableRow key={user.user_id}>
                         <TableCell className="font-medium">
                           {user.username}
@@ -145,7 +147,7 @@ export default function UsersPage() {
                             {!user.is_banned && (
                               <AlertDialog
                                 open={openDialogId === user.user_id}
-                                onOpenChange={isOpen => {
+                                onOpenChange={(isOpen) => {
                                   if (isOpen) {
                                     setOpenDialogId(user.user_id);
                                   } else {
