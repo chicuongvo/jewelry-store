@@ -9,6 +9,7 @@ import {
   getVerificationToken,
   getResetPasswordToken,
   resetPassword,
+  updateUser,
 } from "../controllers/authController.js";
 import { verifyToken } from "../middleware/verifyToken.js";
 import { verifyAdmin } from "../middleware/verifyAdmin.js";
@@ -19,6 +20,7 @@ const router = express.Router();
 
 router.get("/me", verifyToken, getUser);
 router.get("/", verifyToken, verifyAdmin, getAllUsers);
+router.put("/me", verifyToken, updateUser);
 router.post("/sign-up", signUp);
 router.post("/sign-in", signIn);
 router.post("/sign-out", signOut);
@@ -43,7 +45,7 @@ router.get("/google/callback", (req, res, next) => {
     signInGoogle(req, res, next, user);
   })(req, res, next);
 });
-router.get("/verification-token/:id", getVerificationToken);
+router.get("/verification-token", verifyToken, getVerificationToken);
 router.post("/verify", verifyEmail);
 
 router.post("/reset-password-token", getResetPasswordToken);

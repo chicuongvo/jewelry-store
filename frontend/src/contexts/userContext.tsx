@@ -7,16 +7,7 @@ import {
   useEffect,
   type ReactNode,
 } from "react";
-
-interface UserProfile {
-  user_id: string;
-  username: string;
-  email: string;
-  phone_number: string;
-  role: string;
-  fullname: string | null;
-  profile_pic: string | null;
-}
+import type { UserProfile } from "../types/User/User";
 
 interface UserContextType {
   userProfile: UserProfile | null;
