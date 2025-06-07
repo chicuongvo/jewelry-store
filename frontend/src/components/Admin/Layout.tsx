@@ -8,7 +8,6 @@ export default function Layout() {
       <Sidebar />
       <div>
         <Header />
-
         <Outlet />
       </div>
     </div>

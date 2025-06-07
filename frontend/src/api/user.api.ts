@@ -17,6 +17,11 @@ export const getCurrentUser = async () => {
   return axiosClient.get("/auth/me");
 };
 
+export const getAllUsers = async () => {
+  const res = await axiosClient.get("/auth");
+  return res?.data.data;
+};
+
 export const updateUser = async (updateUserData: Partial<UserProfile>) => {
   return axiosClient.put("/auth/update-profile", updateUserData);
 };

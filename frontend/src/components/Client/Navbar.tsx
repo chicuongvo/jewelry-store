@@ -39,7 +39,7 @@ export default function Navbar() {
   ];
 
   const renderOptions = (options: option[]) => {
-    return options.map((option) => (
+    return options.map(option => (
       <Link
         to={option.page}
         className="w-max font-bold text-center hover:text-primary ease-in-out duration-500"
