@@ -1,10 +1,10 @@
 import { Menu, ShoppingBag, UserRound, X } from "lucide-react";
-import Sidebar from "./Sidebar";
+import Sidebar from "../Client/Sidebar";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import Logo from "./Logo";
-import { useUser } from "../contexts/userContext";
-import { signOut } from "../api/user.api";
+import { useUser } from "../../contexts/userContext";
+import { signOut } from "../../api/user.api";
 
 interface option {
   name: string;
