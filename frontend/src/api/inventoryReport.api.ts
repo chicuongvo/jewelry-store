@@ -65,7 +65,7 @@ export const createInventoryReportDetail = async (
   productId: string,
   data: InventoryReportDetailCreateData
 ): Promise<InventoryReportDetail> => {
-  const res = await axiosClient.put(
+  const res = await axiosClient.post(
     `/inventory-reports-details/${reportId}/${productId}`,
     data
   );
