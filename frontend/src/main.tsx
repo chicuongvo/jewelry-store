@@ -5,11 +5,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import "./index.css";
 import App from "./App.tsx";
-import Home from "./pages/HomePage/Home.tsx";
-import Auth from "./pages/AuthPage/Auth.tsx";
+import Home from "./pages/Client/HomePage/Home.tsx";
+import Auth from "./pages/Client/AuthPage/Auth.tsx";
 import { UserProvider } from "./contexts/userContext.tsx";
-import Products from "./pages/ProductsPage/Products.tsx";
-import ProductDetailsPage from "./pages/ProductDetailsPage/ProductDetails.tsx";
+import Products from "./pages/Client/ProductsPage/Products.tsx";
+import ProductDetailsPage from "./pages/Client/ProductDetailsPage/ProductDetails.tsx";
 
 const queryClient = new QueryClient();
 
