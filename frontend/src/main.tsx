@@ -12,6 +12,7 @@ import Products from "./pages/Client/ProductsPage/Products.tsx";
 import ProductDetailsPage from "./pages/Client/ProductDetailsPage/ProductDetails.tsx";
 import Layout from "./components/Admin/Layout.tsx";
 import Dashboard from "./pages/Admin/Dashboard/Dashboard.tsx";
+import Login from "./pages/Admin/LoginPage/Login.tsx";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,10 @@ createRoot(document.getElementById("root")!).render(
 
             <Route path="/admin" element={<Layout />}>
               <Route index element={<Dashboard />} />
+            </Route>
+
+            <Route path="/admin/login">
+              <Route index element={<Login />} />
             </Route>
           </Routes>
         </BrowserRouter>
