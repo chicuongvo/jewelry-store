@@ -1,5 +1,5 @@
-import slider1 from "../../../../assets/slider1.webp";
-import slider2 from "../../../../assets/slider2.webp";
+import slider1 from "../../../../../assets/slider1.webp";
+import slider2 from "../../../../../assets/slider2.webp";
 import { Carousel } from "antd";
 
 const contentStyle: React.CSSProperties = {

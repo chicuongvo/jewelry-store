@@ -1,9 +1,9 @@
-import ProductTypeCard from "../../../components/ProductTypeCard";
-import charms from "../../../../assets/charms.webp";
-import rings from "../../../../assets/ring.webp";
-import bracelet from "../../../../assets/bracelet.webp";
-import necklace from "../../../../assets/necklace.webp";
-import earrings from "../../../../assets/earings.webp";
+import ProductTypeCard from "../../../../components/Client/ProductTypeCard";
+import charms from "../../../../../assets/charms.webp";
+import rings from "../../../../../assets/ring.webp";
+import bracelet from "../../../../../assets/bracelet.webp";
+import necklace from "../../../../../assets/necklace.webp";
+import earrings from "../../../../../assets/earings.webp";
 
 interface ProductType {
   name: string;

@@ -1,5 +1,5 @@
-import useProducts from "../../hooks/useProducts";
-import productBanner from "../../../assets/productbanner.jpg";
+import useProducts from "../../../hooks/useProducts";
+import productBanner from "../../../../assets/productbanner.jpg";
 import ProductTypes from "./components/ProductTypes";
 import SearchBar from "./components/SearchBar";
 import ProductList from "./components/ProductList";

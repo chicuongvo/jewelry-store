@@ -1,5 +1,5 @@
 import { Sparkles } from "lucide-react";
-import ProductCard from "../../../components/ProductCard";
+import ProductCard from "../../../../components/Client/ProductCard";
 
 interface product {
   product_id: string;

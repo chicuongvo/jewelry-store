@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { EyeClosed, EyeIcon } from "lucide-react";
 import { useState } from "react";
-import { signUp } from "../../../api/user.api";
+import { signUp } from "../../../../api/user.api";
 import Alert from "@mui/material/Alert";
 import { useNavigate } from "react-router";
 
