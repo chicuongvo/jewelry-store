@@ -47,7 +47,7 @@ export const createSalesOrder = async (req, res) => {
     }
 
     const [checkClient] = await Promise.all([
-      prisma.suppliers.findUnique({ where: { client_id } }),
+      prisma.users.findUnique({ where: { user_id: client_id } }),
     ]);
 
     if (!checkClient)
@@ -66,7 +66,7 @@ export const createSalesOrder = async (req, res) => {
     if (error.isJoi) {
       return res.status(400).json({
         success: false,
-        message: error.details.map((err) => err.message),
+        message: error.details.map(err => err.message),
       });
     }
 
@@ -144,7 +144,7 @@ export const updateSalesOrder = async (req, res) => {
     if (error.isJoi) {
       return res.status(400).json({
         success: false,
-        message: error.details.map((err) => err.message),
+        message: error.details.map(err => err.message),
       });
     }
 

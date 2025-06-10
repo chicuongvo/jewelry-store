@@ -5,9 +5,7 @@ import Sidebar from "./Sidebar";
 export default function Layout() {
   return (
     <div className="flex font-admin w-min-screen relative">
-      <div className="sticky left-0 top-0 h-min-screen">
-        <Sidebar />
-      </div>
+      <Sidebar />
       <div className="w-full">
         <div className="sticky left-0 top-0 w-full z-500">
           <Header />

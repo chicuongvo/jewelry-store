@@ -5,11 +5,16 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import "./index.css";
 import App from "./App.tsx";
-import Home from "./pages/HomePage/Home.tsx";
-import Auth from "./pages/AuthPage/Auth.tsx";
+import Home from "./pages/Client/HomePage/Home.tsx";
+import Auth from "./pages/Client/AuthPage/Auth.tsx";
 import { UserProvider } from "./contexts/userContext.tsx";
-import Products from "./pages/ProductsPage/Products.tsx";
-import ProductDetailsPage from "./pages/ProductDetailsPage/ProductDetails.tsx";
+import Products from "./pages/Client/ProductsPage/Products.tsx";
+import ProductDetailsPage from "./pages/Client/ProductDetailsPage/ProductDetails.tsx";
+import Layout from "./components/Admin/Layout.tsx";
+import Dashboard from "./pages/Admin/Dashboard/Dashboard.tsx";
+import Login from "./pages/Admin/LoginPage/Login.tsx";
+import UsersPage from "./pages/Admin/UserPage/User.tsx";
+import Supplier from "./pages/Admin/SupplierPage/Supplier.tsx";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +38,16 @@ createRoot(document.getElementById("root")!).render(
 
             <Route path="/product/:id" element={<App />}>
               <Route index element={<ProductDetailsPage />} />
+            </Route>
+
+            <Route path="/admin" element={<Layout />}>
+              <Route index element={<Dashboard />} />
+              <Route path="/admin/users" element={<UsersPage />} />
+              <Route path="/admin/suppliers" element={<Supplier />} />
+            </Route>
+
+            <Route path="/admin/login">
+              <Route index element={<Login />} />
             </Route>
           </Routes>
         </BrowserRouter>

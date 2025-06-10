@@ -1,28 +1,46 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-hooks/exhaustive-deps */
 
 import { useMutation } from "@tanstack/react-query";
-import { Package, Users, ShoppingCart, DollarSign } from "lucide-react";
+import { Package, Users, ShoppingCart } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { StatsCardProps } from "../../../../components/Admin/StatsCard";
+import StatsCard from "../../../../components/Admin/StatsCard";
 import { getAllUsers } from "../../../../api/user.api";
+import type { UserProfile } from "@/types/User/User";
+import { getAllProducts } from "@/api/product.api";
+import type { Product } from "@/types/Product/product";
 
 export default function StatsCards() {
   const [totalUsers, setTotalUsers] = useState(0);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [totalSalesOrders, setTotalSalesOrders] = useState(0);
 
-  const mutation = useMutation({
+  const getUsers = useMutation({
     mutationKey: ["getAllUsers"],
     mutationFn: getAllUsers,
-    onSuccess: (data) => {
-      setTotalUsers(data.length);
-    },
-    onError: (error: unknown) => {
-      console.error("Error getting all users:", error);
-    },
+    onSuccess: (data: UserProfile[]) => setTotalUsers(data.length),
+    onError: (error: any) => console.error("Error getting users:", error),
   });
 
+  const getProducts = useMutation({
+    mutationKey: ["getAllProducts"],
+    mutationFn: getAllProducts,
+    onSuccess: (data: Product[]) => setTotalProducts(data.length),
+    onError: (error: any) => console.error("Error getting products:", error),
+  });
+
+  //   const getOrders = useMutation({
+  //     mutationKey: ["getAllSalesOrders"],
+  //     mutationFn: getAllSalesOrders,
+  //     onSuccess: (data: SalesOrder[]) => setTotalSalesOrders(data.length),
+  //     onError: (error: any) => console.error("Error getting orders:", error),
+  //   });
+
   useEffect(() => {
-    mutation.mutate();
+    getUsers.mutate();
+    getProducts.mutate();
+    // getOrders.mutate();
   }, []);
 
   const statsData: StatsCardProps[] = [
@@ -50,20 +68,12 @@ export default function StatsCards() {
       icon: ShoppingCart,
       color: "amber",
     },
-    {
-      title: "Doanh thu",
-      value: "$24,389",
-      change: "+5%",
-      changeType: "positive",
-      icon: DollarSign,
-      color: "rose",
-    },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {statsData.map((stat, idx) => (
-        <StatsCards key={idx} {...stat} />
+        <StatsCard key={idx} {...stat} />
       ))}
     </div>
   );

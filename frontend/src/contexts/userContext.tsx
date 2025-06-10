@@ -33,14 +33,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const response = await getCurrentUser();
-        const data = response.data;
-
-        if (data.success) {
-          setUserProfile(data.data);
-        } else {
-          setUserProfile(null);
-        }
+        const data = await getCurrentUser();
+        setUserProfile(data);
       } catch (error) {
         console.error("Error fetching user profile:", error);
         setUserProfile(null);

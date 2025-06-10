@@ -191,6 +191,7 @@ export const signIn = async (req, res) => {
         email: user.email,
         phone_number: user.phone_number,
         profile_pic: user.profile_pic,
+        role: user.role,
       },
     });
   } catch (error) {
@@ -244,7 +245,9 @@ export const getVerificationToken = async (req, res) => {
           where: { user_id },
           data: {
             verification_token: verification_token,
-            verification_token_expires_at: new Date(Date.now() + 5 * 60 * 1000),
+            verification_token_expires_at: new Date(
+              Date.now() + 20 * 60 * 1000
+            ),
           },
         });
 
@@ -271,7 +274,14 @@ export const verifyEmail = async (req, res) => {
   const { verification_token } = req.body;
 
   try {
-    const user = await prisma.users.findUnique({
+    if (verification_token == null) {
+      return res.status(400).json({
+        success: false,
+        message: "Vui lòng cung cấp đủ thông tin.",
+      });
+    }
+
+    const user = await prisma.users.findFirst({
       where: {
         verification_token,
         verification_token_expires_at: { gt: new Date() },
