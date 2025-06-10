@@ -10,6 +10,7 @@ import { getAllUsers } from "../../../../api/user.api";
 import type { UserProfile } from "@/types/User/User";
 import { getAllProducts } from "@/api/product.api";
 import type { Product } from "@/types/Product/product";
+import { getAllSalesOrder, type SalesOrderData } from "@/api/sales_order.api";
 
 export default function StatsCards() {
   const [totalUsers, setTotalUsers] = useState(0);
@@ -30,23 +31,23 @@ export default function StatsCards() {
     onError: (error: any) => console.error("Error getting products:", error),
   });
 
-  //   const getOrders = useMutation({
-  //     mutationKey: ["getAllSalesOrders"],
-  //     mutationFn: getAllSalesOrders,
-  //     onSuccess: (data: SalesOrder[]) => setTotalSalesOrders(data.length),
-  //     onError: (error: any) => console.error("Error getting orders:", error),
-  //   });
+  const getOrders = useMutation({
+    mutationKey: ["getAllSalesOrders"],
+    mutationFn: getAllSalesOrder,
+    onSuccess: (data: SalesOrderData[]) => setTotalSalesOrders(data.length),
+    onError: (error: any) => console.error("Error getting orders:", error),
+  });
 
   useEffect(() => {
     getUsers.mutate();
     getProducts.mutate();
-    // getOrders.mutate();
+    getOrders.mutate();
   }, []);
 
   const statsData: StatsCardProps[] = [
     {
       title: "Tổng số sản phẩm",
-      value: "1,247",
+      value: totalProducts.toString(),
       change: "+12%",
       changeType: "positive",
       icon: Package,
@@ -62,7 +63,7 @@ export default function StatsCards() {
     },
     {
       title: "Tổng số đơn hàng",
-      value: "932",
+      value: totalSalesOrders.toString(),
       change: "-4%",
       changeType: "negative",
       icon: ShoppingCart,

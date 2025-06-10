@@ -15,43 +15,46 @@ import Dashboard from "./pages/Admin/Dashboard/Dashboard.tsx";
 import Login from "./pages/Admin/LoginPage/Login.tsx";
 import UsersPage from "./pages/Admin/UserPage/User.tsx";
 import Supplier from "./pages/Admin/SupplierPage/Supplier.tsx";
+import { NotificationProvider } from "./contexts/notificationContext.tsx";
 
 const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <UserProvider>
-      <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<App />}>
-              <Route index element={<Home />} />
-            </Route>
+    <NotificationProvider>
+      <UserProvider>
+        <QueryClientProvider client={queryClient}>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<App />}>
+                <Route index element={<Home />} />
+              </Route>
 
-            <Route path="/auth" element={<App />}>
-              <Route index element={<Auth />} />
-            </Route>
+              <Route path="/auth" element={<App />}>
+                <Route index element={<Auth />} />
+              </Route>
 
-            <Route path="/products" element={<App />}>
-              <Route index element={<Products />} />
-            </Route>
+              <Route path="/products" element={<App />}>
+                <Route index element={<Products />} />
+              </Route>
 
-            <Route path="/product/:id" element={<App />}>
-              <Route index element={<ProductDetailsPage />} />
-            </Route>
+              <Route path="/product/:id" element={<App />}>
+                <Route index element={<ProductDetailsPage />} />
+              </Route>
 
-            <Route path="/admin" element={<Layout />}>
-              <Route index element={<Dashboard />} />
-              <Route path="/admin/users" element={<UsersPage />} />
-              <Route path="/admin/suppliers" element={<Supplier />} />
-            </Route>
+              <Route path="/admin" element={<Layout />}>
+                <Route index element={<Dashboard />} />
+                <Route path="/admin/users" element={<UsersPage />} />
+                <Route path="/admin/suppliers" element={<Supplier />} />
+              </Route>
 
-            <Route path="/admin/login">
-              <Route index element={<Login />} />
-            </Route>
-          </Routes>
-        </BrowserRouter>
-      </QueryClientProvider>
-    </UserProvider>
+              <Route path="/admin/login">
+                <Route index element={<Login />} />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </QueryClientProvider>
+      </UserProvider>
+    </NotificationProvider>
   </StrictMode>
 );

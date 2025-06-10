@@ -20,6 +20,16 @@ export const getInventoryReportById = async (
   return res?.data.data;
 };
 
+export const getInventoryReportByMonthAndYear = async (
+  month: number,
+  year: number
+): Promise<InventoryReport> => {
+  const res = await axiosClient.get(
+    `/inventory-reports/month/${month}/year/${year}`
+  );
+  return res?.data.data;
+};
+
 export const createInventoryReport = async (
   data: InventoryReportCreateData
 ) => {

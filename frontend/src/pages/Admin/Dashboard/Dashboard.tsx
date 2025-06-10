@@ -1,101 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// import {
-//   BarChart,
-//   Bar,
-//   XAxis,
-//   YAxis,
-//   CartesianGrid,
-//   Tooltip,
-//   ResponsiveContainer,
-//   PieChart,
-//   Pie,
-//   Cell,
-// } from "recharts";
-// import { Package, Users, ShoppingCart, Eye } from "lucide-react";
+
 import StatsCards from "./components/StatsCards";
-
-// const revenueData = [
-//   { month: "Jan", revenue: 45000, profit: 12000 },
-//   { month: "Feb", revenue: 52000, profit: 15000 },
-//   { month: "Mar", revenue: 48000, profit: 13500 },
-//   { month: "Apr", revenue: 61000, profit: 18000 },
-//   { month: "May", revenue: 55000, profit: 16500 },
-//   { month: "Jun", revenue: 67000, profit: 20000 },
-// ];
-
-// const salesData = [
-//   { name: "Electronics", value: 400, color: "#3B82F6" },
-//   { name: "Clothing", value: 300, color: "#10B981" },
-//   { name: "Home & Garden", value: 200, color: "#F59E0B" },
-//   { name: "Sports", value: 100, color: "#EF4444" },
-// ];
-
-// const recentActivity = [
-//   {
-//     id: 1,
-//     type: "order",
-//     message: "New purchase order #PO-2024-001 created",
-//     time: "2 minutes ago",
-//   },
-//   {
-//     id: 2,
-//     type: "user",
-//     message: "New user John Doe registered",
-//     time: "15 minutes ago",
-//   },
-//   {
-//     id: 3,
-//     type: "product",
-//     message: 'Product "Wireless Headphones" stock updated',
-//     time: "1 hour ago",
-//   },
-//   {
-//     id: 4,
-//     type: "order",
-//     message: "Sales order #SO-2024-045 completed",
-//     time: "2 hours ago",
-//   },
-// ];
-
-// interface QuickActionButtonProps {
-//   title: string;
-//   description: string;
-//   icon: React.ComponentType<any>;
-//   color: string;
-// }
-
-// function QuickActionButton({
-//   title,
-//   description,
-//   icon: Icon,
-//   color,
-// }: QuickActionButtonProps) {
-//   const colorClasses = {
-//     blue: "bg-blue-50 text-blue-600 group-hover:bg-blue-100",
-//     emerald: "bg-emerald-50 text-emerald-600 group-hover:bg-emerald-100",
-//     amber: "bg-amber-50 text-amber-600 group-hover:bg-amber-100",
-//     rose: "bg-rose-50 text-rose-600 group-hover:bg-rose-100",
-//   };
-
-//   return (
-//     <button className="group p-4 text-left rounded-lg border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all duration-200">
-//       <div
-//         className={`w-10 h-10 rounded-lg ${
-//           colorClasses[color as keyof typeof colorClasses]
-//         } flex items-center justify-center mb-3`}
-//       >
-//         <Icon className="h-5 w-5" />
-//       </div>
-//       <h3 className="font-medium text-gray-900 group-hover:text-gray-700">
-//         {title}
-//       </h3>
-//       <p className="text-sm text-gray-500 mt-1">{description}</p>
-//     </button>
-//   );
-// }
+import ChartSection from "./components/ChartSection";
+import RecentActivity from "./components/RecentActivity";
+import QuickAction from "./components/QuickAction";
 
 export default function Dashboard() {
-  console.log("abc");
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -106,7 +16,12 @@ export default function Dashboard() {
           </p>
         </div>
       </div>
-      <StatsCards />{" "}
+      <StatsCards />
+      <ChartSection />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <RecentActivity />
+        <QuickAction />
+      </div>
     </div>
   );
 }

@@ -18,6 +18,7 @@ import {
   getAllSuppliers,
   updateSupplier,
 } from "@/api/supplier.api";
+import { useNotification } from "@/contexts/notificationContext";
 
 export default function Suppliers() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -28,6 +29,8 @@ export default function Suppliers() {
   const [editingSupplier, setEditingSupplier] = useState<SupplierResponse>(
     {} as unknown as SupplierResponse
   );
+
+  // const { addNotification } = useNotification();
 
   const { data: suppliersData } = useQuery({
     queryKey: ["suppliers"],
@@ -207,6 +210,7 @@ function SupplierModal({
   });
 
   const queryClient = useQueryClient();
+  const { addNotification } = useNotification();
   const { mutate, isPending } = useMutation({
     mutationFn: supplierData.supplier_id
       ? (data: Supplier) => updateSupplier(supplierData.supplier_id, data)
@@ -216,6 +220,11 @@ function SupplierModal({
         queryKey: ["suppliers"],
       });
       setShowModal(false);
+      addNotification(
+        supplierData.supplier_id
+          ? `Nhà cung cấp ${supplierData.name} vừa được cập nhật`
+          : `Nhà cung cấp vừa được thêm mới`
+      );
     },
   });
 
@@ -316,6 +325,7 @@ function ConfirmModal({
   setDeleting: React.Dispatch<React.SetStateAction<SupplierResponse>>;
 }) {
   const queryClient = useQueryClient();
+  const { addNotification } = useNotification();
   const { mutate, isPending } = useMutation({
     mutationFn: deleteSupplier,
     onSuccess() {
@@ -323,6 +333,7 @@ function ConfirmModal({
         queryKey: ["suppliers"],
       });
       setDeleting({} as unknown as SupplierResponse);
+      addNotification(`Nhà cung cấp ${deleting.name} vừa được xóa.`);
     },
   });
 

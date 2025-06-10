@@ -27,6 +27,8 @@ export type InventoryReport = {
   month: number;
   year: number;
   inventory_report_details: InventoryReportDetail[];
+  total_begin_stock?: number;
+  total_end_stock?: number;
 };
 
 export type InventoryReportCreateData = {
