@@ -36,3 +36,8 @@ export const geytPasswordResetToken = async (email: string) => {
 export const resetPassword = async (token: string, newPassword: string) => {
   return axiosClient.post(`/auth/reset-password/${token}`, { newPassword });
 };
+
+export const getAllUsers = async (): Promise<UserProfile[]> => {
+  const response = await axiosClient.get("/auth/");
+  return response.data.data;
+};
