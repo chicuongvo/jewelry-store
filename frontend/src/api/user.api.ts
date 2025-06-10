@@ -1,30 +1,88 @@
 import { axiosClient } from "../lib/axios";
+import type { SignInData, UserProfile } from "../types/User/User";
 
-export interface SignInData {
-  identifier: string;
-  password: string;
-}
+export const signIn = async (
+  signInData: SignInData
+): Promise<Partial<UserProfile>> => {
+  const response = await axiosClient.post("/auth/sign-in", signInData);
 
-export interface SignUpData {
-  username: string;
-  phone_number: string;
-  email: string;
-  password: string;
-  confirm_password: string;
-}
-
-export const signIn = (signInData: SignInData) => {
-  return axiosClient.post("/auth/sign-in", signInData);
+  return response.data.data;
 };
 
-export const signUp = (signUpData: SignUpData) => {
-  return axiosClient.post("/auth/sign-up", signUpData);
+export const signUp = async (
+  signUpData: Partial<UserProfile>
+): Promise<UserProfile> => {
+  const response = await axiosClient.post("/auth/sign-up", signUpData);
+
+  return response.data.data;
 };
 
-export const signOut = () => {
-  return axiosClient.post("/auth/sign-out");
+export const signOut = async (): Promise<string> => {
+  const response = await axiosClient.post("/auth/sign-out");
+
+  return response.data.message;
 };
 
-export const getCurrentUser = async () => {
-  return axiosClient.get("/auth/me");
+export const getCurrentUser = async (): Promise<UserProfile> => {
+  const response = await axiosClient.get("/auth/me");
+
+  return response.data.data;
+};
+
+export const updateUser = async (
+  updateUserData: Partial<UserProfile>
+): Promise<UserProfile> => {
+  const response = await axiosClient.put(
+    "/auth/update-profile",
+    updateUserData
+  );
+
+  return response.data.data;
+};
+
+export const getVerificationToken = async (): Promise<string> => {
+  const response = await axiosClient.get("/auth/verification-token");
+
+  return response.data.message;
+};
+
+export const verifyEmail = async (
+  verification_token: string
+): Promise<string> => {
+  const response = await axiosClient.post("/auth/verify", {
+    verification_token,
+  });
+
+  return response.data.message;
+};
+
+export const geytPasswordResetToken = async (
+  email: string
+): Promise<string> => {
+  const response = await axiosClient.post("/auth/reset-password-token", {
+    email,
+  });
+
+  return response.data.message;
+};
+
+export const resetPassword = async (
+  reset_password_token: string,
+  new_password: string,
+  confirm_new_password: string
+): Promise<string> => {
+  const response = await axiosClient.post(
+    `/auth/reset-password/${reset_password_token}`,
+    {
+      new_password,
+      confirm_new_password,
+    }
+  );
+
+  return response.data.message;
+};
+
+export const getAllUsers = async (): Promise<UserProfile[]> => {
+  const response = await axiosClient.get("/auth/");
+  return response.data.data;
 };

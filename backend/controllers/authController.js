@@ -46,6 +46,40 @@ export const getUser = async (req, res) => {
   }
 };
 
+export const updateUser = async (req, res) => {
+  const user_id = req.user_id;
+  const data = req.body;
+
+  try {
+    if (!data || Object.keys(data).length === 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Vui lòng cung cấp đủ thông tin." });
+    }
+
+    const updatedUser = await prisma.users.update({
+      where: { user_id },
+      data: {
+        username: data.username,
+        fullname: data.fullname,
+        phone_number: data.phone_number,
+        email: data.email,
+        profile_pic: data.profile_pic,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: updatedUser,
+    });
+  } catch (error) {
+    console.log("Error update user:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error" });
+  }
+};
+
 export const signUp = async (req, res) => {
   const data = req.body;
   console.log(data);
@@ -157,6 +191,7 @@ export const signIn = async (req, res) => {
         email: user.email,
         phone_number: user.phone_number,
         profile_pic: user.profile_pic,
+        role: user.role,
       },
     });
   } catch (error) {
@@ -198,7 +233,7 @@ export const signOut = async (req, res) => {
 };
 
 export const getVerificationToken = async (req, res) => {
-  const user_id = req.params.id;
+  const { user_id } = req;
   try {
     const user = await prisma.users.findUnique({ where: { user_id } });
 
@@ -210,7 +245,9 @@ export const getVerificationToken = async (req, res) => {
           where: { user_id },
           data: {
             verification_token: verification_token,
-            verification_token_expires_at: new Date(Date.now() + 5 * 60 * 1000),
+            verification_token_expires_at: new Date(
+              Date.now() + 20 * 60 * 1000
+            ),
           },
         });
 
@@ -237,7 +274,14 @@ export const verifyEmail = async (req, res) => {
   const { verification_token } = req.body;
 
   try {
-    const user = await prisma.users.findUnique({
+    if (verification_token == null) {
+      return res.status(400).json({
+        success: false,
+        message: "Vui lòng cung cấp đủ thông tin.",
+      });
+    }
+
+    const user = await prisma.users.findFirst({
       where: {
         verification_token,
         verification_token_expires_at: { gt: new Date() },

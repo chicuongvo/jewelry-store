@@ -7,16 +7,7 @@ import {
   useEffect,
   type ReactNode,
 } from "react";
-
-interface UserProfile {
-  user_id: string;
-  username: string;
-  email: string;
-  phone_number: string;
-  role: string;
-  fullname: string | null;
-  profile_pic: string | null;
-}
+import type { UserProfile } from "../types/User/User";
 
 interface UserContextType {
   userProfile: UserProfile | null;
@@ -42,14 +33,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const response = await getCurrentUser();
-        const data = response.data;
-
-        if (data.success) {
-          setUserProfile(data.data);
-        } else {
-          setUserProfile(null);
-        }
+        const data = await getCurrentUser();
+        setUserProfile(data);
       } catch (error) {
         console.error("Error fetching user profile:", error);
         setUserProfile(null);
