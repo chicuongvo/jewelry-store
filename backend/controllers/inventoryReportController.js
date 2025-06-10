@@ -70,7 +70,23 @@ export const getInventoryReportByMonthYear = async (req, res) => {
     });
 
     if (report) {
-      return res.status(200).json({ success: true, data: report });
+      const totalBeginStock = report.inventory_report_details.reduce(
+        (sum, detail) => sum + (detail.begin_stock || 0),
+        0
+      );
+      const totalEndStock = report.inventory_report_details.reduce(
+        (sum, detail) => sum + (detail.end_stock || 0),
+        0
+      );
+
+      return res.status(200).json({
+        success: true,
+        data: {
+          ...report,
+          total_begin_stock,
+          total_end_stock,
+        },
+      });
     }
 
     return res.status(404).json({
