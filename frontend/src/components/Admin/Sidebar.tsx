@@ -41,7 +41,8 @@ export default function Sidebar() {
       <nav className="mt-8 px-4 space-y-2">
         {navigation.map((item) => {
           const Icon = item.icon;
-          const isActive = location.pathname === item.href;
+          const isActive = location.pathname == item.href;
+          console.log(location.pathname);
           return (
             <Link
               key={item.name}

@@ -3,7 +3,11 @@ import { prisma } from "../config/db.js";
 // Get all services
 export const getAllServices = async (req, res) => {
   try {
-    const services = await prisma.services.findMany();
+    const services = await prisma.services.findMany({
+      include: {
+        service_order_details: true,
+      },
+    });
     return res.status(200).json({ success: true, data: services });
   } catch (error) {
     console.log("Error get all services:", error);
