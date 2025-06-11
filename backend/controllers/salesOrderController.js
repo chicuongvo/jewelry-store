@@ -3,7 +3,8 @@ import { prisma } from "../config/db.js";
 
 export const getAllSalesOrders = async (req, res) => {
   try {
-    const products = await prisma.sales_orders.findMany();
+    const products = await prisma.sales_orders.findMany(
+    );
 
     return res.status(200).json({ success: true, data: products });
   } catch (error) {
@@ -15,11 +16,15 @@ export const getAllSalesOrders = async (req, res) => {
 };
 
 export const getSalesOrder = async (req, res) => {
-  const sales_order_id = req.params.id;
+  const sales_order_id = req.params.sales_order_id;
 
   try {
     const salesOrder = await prisma.sales_orders.findMany({
       where: { sales_order_id },
+      include: {
+        client: true,
+        sales_order_details: true,
+      }
     });
 
     if (salesOrder) {
@@ -77,7 +82,7 @@ export const createSalesOrder = async (req, res) => {
 };
 
 export const deleteSalesOrder = async (req, res) => {
-  const sales_order_id = req.params.id;
+  const sales_order_id = req.params.sales_order_id;
   try {
     const checkSalesOrder = await prisma.sales_orders.findMany({
       where: { sales_order_id },

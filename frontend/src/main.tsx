@@ -14,6 +14,8 @@ import Layout from "./components/Admin/Layout.tsx";
 import Dashboard from "./pages/Admin/Dashboard/Dashboard.tsx";
 import Login from "./pages/Admin/LoginPage/Login.tsx";
 import UsersPage from "./pages/Admin/UserPage/User.tsx";
+import PurchaseOrder from "@/pages/Admin/PurchaseOrderPage/PurchaseOrder.tsx";
+import SalesOrder from "@/pages/Admin/SalesOrderPage/SalesOrder.tsx";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +39,14 @@ createRoot(document.getElementById("root")!).render(
 
             <Route path="/product/:id" element={<App />}>
               <Route index element={<ProductDetailsPage />} />
+            </Route>
+
+            <Route path="/purchaseOrder" element={<App />}>
+              <Route index element={<PurchaseOrder />} />
+            </Route>
+
+            <Route path="/salesOrder" element={<App />}>
+              <Route index element={<SalesOrder />} />
             </Route>
 
             <Route path="/admin" element={<Layout />}>
