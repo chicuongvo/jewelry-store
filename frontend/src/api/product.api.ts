@@ -1,4 +1,5 @@
-import { axiosClient } from "../lib/axios";
+import { axiosClient, axiosClientFormData } from "../lib/axios";
+
 import type {
   Product,
   ProductCreateData,
@@ -18,15 +19,15 @@ export const getProduct = async (id: string): Promise<Product> => {
 export const createProduct = async (
   data: ProductCreateData
 ): Promise<Product> => {
-  const res = await axiosClient.post("/products", data);
+  const res = await axiosClientFormData.post("/products", data);
   return res?.data.data;
 };
 
 export const updateProduct = async (
   id: string,
-  data: ProductUpdateData
+  data: any
 ): Promise<Product> => {
-  const res = await axiosClient.put(`/products/${id}`, data);
+  const res = await axiosClientFormData.put(`/products/${id}`, data);
   return res?.data.data;
 };
 
