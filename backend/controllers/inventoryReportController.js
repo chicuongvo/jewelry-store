@@ -70,11 +70,11 @@ export const getInventoryReportByMonthYear = async (req, res) => {
     });
 
     if (report) {
-      const totalBeginStock = report.inventory_report_details.reduce(
+      const total_begin_stock = report.inventory_report_details.reduce(
         (sum, detail) => sum + (detail.begin_stock || 0),
         0
       );
-      const totalEndStock = report.inventory_report_details.reduce(
+      const total_end_stock = report.inventory_report_details.reduce(
         (sum, detail) => sum + (detail.end_stock || 0),
         0
       );
