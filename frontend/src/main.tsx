@@ -15,6 +15,8 @@ import Dashboard from "./pages/Admin/Dashboard/Dashboard.tsx";
 import Login from "./pages/Admin/LoginPage/Login.tsx";
 import UsersPage from "./pages/Admin/UserPage/User.tsx";
 import Supplier from "./pages/Admin/SupplierPage/Supplier.tsx";
+import Services from "./pages/Admin/ServicePage/Service.tsx";
+import ServiceOrders from "./pages/Admin/ServiceOrderPage/ServiceOrder.tsx";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +46,8 @@ createRoot(document.getElementById("root")!).render(
               <Route index element={<Dashboard />} />
               <Route path="/admin/users" element={<UsersPage />} />
               <Route path="/admin/suppliers" element={<Supplier />} />
+              <Route path="/admin/services" element={<Services />} />
+              <Route path="/admin/service-orders" element={<ServiceOrders />} />
             </Route>
 
             <Route path="/admin/login">
