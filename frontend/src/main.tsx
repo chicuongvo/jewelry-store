@@ -14,6 +14,7 @@ import Layout from "./components/Admin/Layout.tsx";
 import Dashboard from "./pages/Admin/Dashboard/Dashboard.tsx";
 import Login from "./pages/Admin/LoginPage/Login.tsx";
 import UsersPage from "./pages/Admin/UserPage/User.tsx";
+import Supplier from "./pages/Admin/SupplierPage/Supplier.tsx";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,7 @@ createRoot(document.getElementById("root")!).render(
             <Route path="/admin" element={<Layout />}>
               <Route index element={<Dashboard />} />
               <Route path="/admin/users" element={<UsersPage />} />
+              <Route path="/admin/suppliers" element={<Supplier />} />
             </Route>
 
             <Route path="/admin/login">
