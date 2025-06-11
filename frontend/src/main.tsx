@@ -14,6 +14,8 @@ import Layout from "./components/Admin/Layout.tsx";
 import Dashboard from "./pages/Admin/Dashboard/Dashboard.tsx";
 import Login from "./pages/Admin/LoginPage/Login.tsx";
 import UsersPage from "./pages/Admin/UserPage/User.tsx";
+import PurchaseOrder from "@/pages/Admin/PurchaseOrderPage/PurchaseOrder.tsx";
+import SalesOrder from "@/pages/Admin/SalesOrderPage/SalesOrder.tsx";
 import Supplier from "./pages/Admin/SupplierPage/Supplier.tsx";
 import AdminProducts from "./pages/Admin/ProductPage/ProductPage";
 import ProductType from "./pages/Admin/ProductTypePage/ProductType";
@@ -50,6 +52,11 @@ createRoot(document.getElementById("root")!).render(
                 <Route path="/admin/suppliers" element={<Supplier />} />
                 <Route path="/admin/products" element={<AdminProducts />} />
                 <Route path="/admin/product-types" element={<ProductType />} />
+                <Route
+                  path="/admin/purchase-orders"
+                  element={<PurchaseOrder />}
+                />
+                <Route path="/admin/sales-orders" element={<SalesOrder />} />
               </Route>
 
               <Route path="/admin/login">
