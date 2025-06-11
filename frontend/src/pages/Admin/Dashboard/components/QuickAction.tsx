@@ -13,24 +13,28 @@ export default function QuickAction() {
           description="Tạo sản phẩm"
           icon={Package}
           color="blue"
+          link="/admin/products"
         />
         <QuickActionButton
           title="Đơn hàng mới"
           description="Tạo đơn hàng mới"
           icon={ShoppingCart}
           color="emerald"
+          link="/admin/sales_orders"
         />
         <QuickActionButton
           title="Người dùng mới"
           description="Tạo người dùng"
           icon={Users}
           color="amber"
+          link="/admin/users"
         />
         <QuickActionButton
           title="Báo cáo"
           description="Xem báo cáo tồn kho"
           icon={Eye}
           color="rose"
+          link="/admin/inventory_reports"
         />
       </div>
     </div>
