@@ -6,7 +6,12 @@ import { prisma } from "../config/db.js";
 
 export const getAllSuppliers = async (req, res) => {
   try {
-    const suppliers = await prisma.suppliers.findMany();
+    const suppliers = await prisma.suppliers.findMany({
+      include: {
+        products: true,
+        purchase_orders: true,
+      },
+    });
 
     return res.status(200).json({ success: true, data: suppliers });
   } catch (error) {
@@ -57,7 +62,7 @@ export const createSupplier = async (req, res) => {
     if (error.isJoi) {
       return res.status(400).json({
         success: false,
-        message: error.details.map((err) => err.message),
+        message: error.details.map(err => err.message),
       });
     }
 
@@ -140,7 +145,7 @@ export const updateSupplier = async (req, res) => {
     if (error.isJoi) {
       return res.status(400).json({
         success: false,
-        message: error.details.map((err) => err.message),
+        message: error.details.map(err => err.message),
       });
     } else {
       console.log("Error update supplier:", error);

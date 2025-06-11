@@ -13,7 +13,12 @@ import {
 
 export const getAllUsers = async (req, res) => {
   try {
-    const users = await prisma.users.findMany();
+    const users = await prisma.users.findMany({
+      include: {
+        sales_orders: true,
+        service_orders: true,
+      },
+    });
 
     return res.status(200).json({ success: true, data: users });
   } catch (error) {
@@ -140,7 +145,7 @@ export const signUp = async (req, res) => {
     if (error.isJoi) {
       return res.status(400).json({
         success: false,
-        message: error.details.map((err) => err.message),
+        message: error.details.map(err => err.message),
       });
     }
     console.log("Error signing up: ", error);
@@ -385,7 +390,7 @@ export const resetPassword = async (req, res) => {
     if (error.isJoi) {
       return res.status(400).json({
         success: false,
-        message: error.details.map((err) => err.message),
+        message: error.details.map(err => err.message),
       });
     }
     console.log("Error reset password: ", error);
