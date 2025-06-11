@@ -59,9 +59,9 @@ export default function Suppliers() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Suppliers</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Nhà cung cấp</h1>
           <p className="text-gray-600">
-            Manage your supplier information and relationships
+            Quản lý thông tin và mối quan hệ với nhà cung cấp
           </p>
         </div>
         <button
@@ -69,7 +69,7 @@ export default function Suppliers() {
           className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Add Supplier
+          Thêm nhà cung cấp
         </button>
       </div>
 
@@ -80,7 +80,7 @@ export default function Suppliers() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <input
               type="text"
-              placeholder="Search suppliers..."
+              placeholder="Tìm kiếm nhà cung cấp..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -96,16 +96,16 @@ export default function Suppliers() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Supplier
+                  Nhà cung cấp
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Contact
+                  Liên hệ
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Products
+                  Sản phẩm
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
+                  Thao tác
                 </th>
               </tr>
             </thead>
@@ -136,7 +136,7 @@ export default function Suppliers() {
                     <div className="flex items-center text-sm text-gray-900">
                       <Package className="h-4 w-4 mr-2 text-gray-400" />
                       {/* REFERENCE LATER */}
-                      {0} products
+                      {0} sản phẩm
                     </div>
                   </td>
 
@@ -214,7 +214,6 @@ function SupplierModal({
   const handleSubmit = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
     if (!supplier.name || !supplier.address || !supplier.phone_number) return;
-    console.log(supplier);
     mutate(supplier);
   };
 
@@ -223,13 +222,13 @@ function SupplierModal({
       <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            {supplier ? "Edit Supplier" : "Add New Supplier"}
+            {supplier ? "Chỉnh sửa nhà cung cấp" : "Thêm nhà cung cấp mới"}
           </h2>
 
           <form className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Supplier Name
+                Tên nhà cung cấp
               </label>
               <input
                 disabled={isPending}
@@ -239,13 +238,13 @@ function SupplierModal({
                   setSupplier({ ...supplier, name: e.target.value })
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter supplier name"
+                placeholder="Nhập tên nhà cung cấp"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Phone
+                Số điện thoại
               </label>
               <input
                 type="tel"
@@ -255,13 +254,13 @@ function SupplierModal({
                   setSupplier({ ...supplier, phone_number: e.target.value })
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter phone number"
+                placeholder="Nhập số điện thoại"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Address
+                Địa chỉ
               </label>
               <textarea
                 rows={3}
@@ -271,7 +270,7 @@ function SupplierModal({
                   setSupplier({ ...supplier, address: e.target.value })
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter full address"
+                placeholder="Nhập địa chỉ đầy đủ"
               />
             </div>
           </form>
@@ -280,7 +279,7 @@ function SupplierModal({
               onClick={() => setShowModal(false)}
               className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
             >
-              Cancel
+              Hủy
             </button>
             <button
               onClick={handleSubmit}
@@ -288,10 +287,10 @@ function SupplierModal({
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:bg-gray-600"
             >
               {isPending
-                ? "Updating ..."
+                ? "Đang cập nhật..."
                 : supplierData.supplier_id
-                ? "Update"
-                : "Create"}{" "}
+                ? "Cập nhật"
+                : "Tạo mới"}{" "}
             </button>
           </div>
         </div>
@@ -335,14 +334,14 @@ function ConfirmModal({
               onClick={() => setDeleting({} as unknown as SupplierResponse)}
               className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
             >
-              Cancel
+              Hủy
             </button>
             <button
               onClick={handleSubmit}
               disabled={isPending}
               className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:bg-gray-600"
             >
-              {isPending ? "Deleting ..." : "Delete"}
+              {isPending ? "Đang xóa..." : "Xóa"}
             </button>
           </div>
         </div>
