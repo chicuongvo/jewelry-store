@@ -33,9 +33,9 @@ export default function Navbar() {
   const options = [
     { name: "Trang chủ", page: "/" },
     { name: "Bộ sưu tập", page: "/products" },
-    { name: "Dịch vụ", page: "/service" },
+    { name: "Dịch vụ", page: "/services" },
     { name: "Tài khoản", page: userProfile ? "/profile" : "/auth" },
-    { name: "Yêu thích", page: "/wishlist" },
+    { name: "Giỏ hàng", page: "/cart" },
   ];
 
   const location = useLocation();

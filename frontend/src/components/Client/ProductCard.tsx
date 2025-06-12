@@ -15,9 +15,9 @@ interface product {
 
 export default function ProductCard({ product }: { product: product }) {
   return (
-    <div className="bg-white font-primary rounded-md  overflow-hidden transition-all hover:shadow-xl border border-primary group transition-all duration-500">
+    <div className="bg-white font-primary overflow-hidden transition-all  group transition-all duration-500">
       <div className="relative">
-        <div className="w-full h-70 overflow-hidden">
+        <div className="w-full h-70 overflow-hidden bg-zinc-100">
           <img
             src={product.image}
             alt={product.name}
@@ -39,20 +39,20 @@ export default function ProductCard({ product }: { product: product }) {
       </div>
 
       <div className="p-6">
-        <h3 className="text-lg font-semibold text-gray-700 mb-2 font-primary line-clamp-2">
+        <h3 className="text-md font-semibold text-gray-700 mb-2 font-primary line-clamp-2 h-[55px]">
           {product.name}
         </h3>
 
         <div className="flex items-center justify-between mt-4">
           <div className="flex flex-col">
             <span className="text-sm text-primary font-medium">Price</span>
-            <span className="text-md font-bold text-gray-800 text-gray-700">
-              {product.sell_price.split(".")[0]}
+            <span className="text-sm font-bold text-gray-800 text-gray-700">
+              {Number(product.sell_price).toLocaleString("vi-VN")}đ
             </span>
           </div>
 
           <button
-            className="flex items-center gap-2 bg-primary border border-primary text-white px-5 py-2.5 rounded-full hover:text-primary hover:bg-white hover:border hover:border-primary transition-all duration-300 font-medium shadow-md hover:shadow-lg "
+            className="flex items-center gap-2 bg-primary border border-primary text-white px-5 py-2.5 rounded-2xl hover:text-primary hover:bg-white hover:border hover:border-primary transition-all duration-300 font-medium shadow-md text:md cursor-pointer "
             onClick={() => console.log(`Added ${product.name} to cart`)}
           >
             <ShoppingBag size={18} />

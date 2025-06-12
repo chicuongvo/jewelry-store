@@ -117,7 +117,7 @@ export default function FeaturedProducts() {
         Sản phẩm nổi bật
         <Sparkles />
       </div>
-      <div className="bg-white flex flex-col gap-5 px-3 md:px-8 py-8 md:grid md:grid-cols-2 lg:grid-cols-4 ">
+      <div className="bg-white flex flex-col gap-5 px-3 md:px-15 py-8 md:grid md:grid-cols-2 lg:grid-cols-4 ">
         {renderProducts(products)}
       </div>
     </div>
