@@ -12,7 +12,25 @@ export const getAllInventoryReports = async (req, res) => {
         },
       },
     });
-    return res.status(200).json({ success: true, data: reports });
+
+    // Calculate totalBuy and totalSell for each report
+    const result = reports.map((report) => {
+      const totalBuy = report.inventory_report_details.reduce(
+        (sum, detail) => sum + (detail.buy_quantity || 0),
+        0
+      );
+      const totalSell = report.inventory_report_details.reduce(
+        (sum, detail) => sum + (detail.sell_quantity || 0),
+        0
+      );
+      return {
+        ...report,
+        total_buy: totalBuy,
+        ttotal_sell: totalSell,
+      };
+    });
+
+    return res.status(200).json({ success: true, data: result });
   } catch (error) {
     console.log("Error get all inventory reports:", error);
     return res
