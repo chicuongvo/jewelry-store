@@ -25,7 +25,7 @@ import { toast } from "react-hot-toast";
 import { getAllUsers } from "../../../api/user.api";
 import type { UserProfile } from "../../../types/User/User";
 
-export default function ServiceOrders() {
+export default function AdminServiceOrders() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [selectedOrder, setSelectedOrder] =
