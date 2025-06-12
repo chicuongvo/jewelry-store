@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getAllInventoryReports } from "@/api/inventoryReport.api";
 import InventoryReportCard from "@/pages/Admin/InventoryReportPage/components/InventoryReportCard";
-import CreateReportModal from "./components/CreateReportModal";
+import CreateReportModal from "./components/ReportModal";
 import { Pagination } from "antd";
 import InventoryReportSkeleton from "./components/Skeleton";
 import FilterControl from "./components/FilterControl";
 
 export default function InventoryReports() {
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   const [page, setPage] = useState(1);
   const [month, setMonth] = useState<number | undefined>(undefined);
@@ -23,15 +23,26 @@ export default function InventoryReports() {
     ...(year && { year }),
   };
 
-  const { data: reportData, isLoading } = useQuery({
+  const {
+    data: reportData,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["inventoryReports", params],
     queryFn: () => getAllInventoryReports(params),
   });
 
-  const { data: totalReportData } = useQuery({
+  const { data: totalReportData, refetch: refetchTotal } = useQuery({
     queryKey: ["totalReports", month, year],
     queryFn: () => getAllInventoryReports({ month, year }),
   });
+
+  const [updateData, setUpdateData] = useState(false);
+
+  useEffect(() => {
+    refetch();
+    refetchTotal();
+  }, [updateData, refetch, refetchTotal]);
 
   return (
     <div className="space-y-6 h-full">
@@ -50,7 +61,7 @@ export default function InventoryReports() {
           />
         </div>
         <button
-          onClick={() => setShowCreateModal(true)}
+          onClick={() => setShowModal(true)}
           className="flex cursor-pointer items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
         >
           <Plus className="h-4 w-4 mr-2" />
@@ -64,7 +75,11 @@ export default function InventoryReports() {
               <InventoryReportSkeleton key={index} index={index} />
             ))
           : reportData?.map((report: any) => (
-              <InventoryReportCard key={report.id} report={report} />
+              <InventoryReportCard
+                key={report.id}
+                report={report}
+                setUpdateData={setUpdateData}
+              />
             ))}
       </div>
 
@@ -78,8 +93,11 @@ export default function InventoryReports() {
         }}
       />
 
-      {showCreateModal && (
-        <CreateReportModal setShowCreateModal={setShowCreateModal} />
+      {showModal && (
+        <CreateReportModal
+          onClose={() => setShowModal(false)}
+          setUpdateData={setUpdateData}
+        />
       )}
     </div>
   );

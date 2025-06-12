@@ -45,14 +45,8 @@ export const getInventoryReportByMonthAndYear = async (
 export const createInventoryReport = async (
   data: InventoryReportCreateData
 ) => {
-  try {
-    const res = await axiosClient.post("/inventory-reports", data);
-    return res?.data.data;
-  } catch (error: unknown) {
-    console.error("Error creating inventory report:", error);
-
-    throw error;
-  }
+  const res = await axiosClient.post("/inventory-reports", data);
+  return res?.data.data;
 };
 
 export const updateInventoryReport = async (

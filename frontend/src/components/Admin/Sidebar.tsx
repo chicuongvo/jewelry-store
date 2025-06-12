@@ -45,8 +45,9 @@ export default function Sidebar() {
       <nav className="mt-8 px-4 space-y-2">
         {navigation.map((item) => {
           const Icon = item.icon;
-          const isActive = location.pathname == item.href;
-          console.log(location.pathname);
+          const isActive =
+            location.pathname === item.href ||
+            (item.href !== "/admin" && location.pathname.startsWith(item.href));
           return (
             <Link
               key={item.name}
