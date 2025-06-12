@@ -245,7 +245,7 @@ export const updateInventoryReport = async (req, res) => {
     if (!req.body || Object.keys(req.body).length === 0) {
       return res
         .status(400)
-        .json({ success: false, message: "No data provided" });
+        .json({ success: false, message: "Vui lòng cung cấp đủ thông tin." });
     }
 
     // Check if report exists
@@ -256,7 +256,21 @@ export const updateInventoryReport = async (req, res) => {
     if (!report) {
       return res
         .status(404)
-        .json({ success: false, message: "Inventory report not found" });
+        .json({ success: false, message: "Không tìm thấy báo cáo" });
+    }
+
+    const existingReport = await prisma.inventory_reports.findFirst({
+      where: {
+        month: parseInt(month),
+        year: parseInt(year),
+      },
+    });
+
+    if (existingReport) {
+      return res.status(400).json({
+        success: false,
+        message: `Báo cáo tháng ${month}/${year} đã tồn tại.`,
+      });
     }
 
     const updatedInventoryReports = await prisma.inventory_reports.update({
