@@ -3,7 +3,46 @@ import { prisma } from "../config/db.js";
 // Get all inventory reports
 export const getAllInventoryReports = async (req, res) => {
   try {
+    const { month, year, page = 1, limit = 10 } = req.query;
+
+    const whereClause = {};
+
+    // Validate month
+    if (month) {
+      const monthNum = parseInt(month);
+      if (isNaN(monthNum) || monthNum < 1 || monthNum > 12) {
+        return res
+          .status(400)
+          .json({ success: false, error: "Tháng không hợp lệ" });
+      }
+      whereClause.month = monthNum;
+    }
+
+    // Validate year
+    if (year) {
+      const yearNum = parseInt(year);
+      if (isNaN(yearNum) || yearNum < 2000 || yearNum > 2100) {
+        return res
+          .status(400)
+          .json({ success: false, error: "Năm không hợp lệ" });
+      }
+      whereClause.year = yearNum;
+    }
+
+    // Parse pagination params
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+    const skip = (pageNumber - 1) * limitNumber;
+
+    // Get total count
+    const totalItems = await prisma.inventory_reports.count({
+      where: whereClause,
+    });
+
     const reports = await prisma.inventory_reports.findMany({
+      where: whereClause,
+      skip,
+      take: limitNumber,
       include: {
         inventory_report_details: {
           include: {
@@ -32,12 +71,21 @@ export const getAllInventoryReports = async (req, res) => {
       };
     });
 
-    return res.status(200).json({ success: true, data: result });
+    return res.status(200).json({
+      success: true,
+      data: result,
+      pagination: {
+        totalItems,
+        totalPages: Math.ceil(totalItems / limitNumber),
+        currentPage: pageNumber,
+      },
+    });
   } catch (error) {
-    console.log("Error get all inventory reports:", error);
-    return res
-      .status(500)
-      .json({ success: false, error: "Internal Server Error" });
+    console.error("Error get all inventory reports:", error);
+    return res.status(500).json({
+      success: false,
+      error: "Lỗi server khi lấy danh sách báo cáo tồn kho",
+    });
   }
 };
 
