@@ -8,8 +8,20 @@ import type {
   InventoryReportDetailCreateData,
 } from "../types/InventoryReport/inventoryReport";
 
-export const getAllInventoryReports = async (): Promise<InventoryReport[]> => {
-  const res = await axiosClient.get("/inventory-reports");
+export interface GetReportsParams {
+  month?: number;
+  year?: number;
+  page?: number;
+  limit?: number;
+}
+
+export const getAllInventoryReports = async (
+  params: GetReportsParams = {}
+): Promise<InventoryReport[]> => {
+  const res = await axiosClient.get("/inventory-reports", {
+    params,
+  });
+  console.log(res.data.data, " ", res.data.data.length);
   return res?.data.data;
 };
 

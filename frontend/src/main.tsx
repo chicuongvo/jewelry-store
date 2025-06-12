@@ -22,6 +22,8 @@ import ServiceOrders from "./pages/Admin/ServiceOrderPage/ServiceOrder.tsx";
 import AdminProducts from "./pages/Admin/ProductPage/ProductPage";
 import ProductType from "./pages/Admin/ProductTypePage/ProductType";
 import { NotificationProvider } from "./contexts/notificationContext.tsx";
+import InventoryReports from "./pages/Admin/InventoryReportPage/InventoryReport.tsx";
+import InventoryReportDetails from "./pages/Admin/InventoryReportDetailsPage/InventoryReportDetails.tsx";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +54,14 @@ createRoot(document.getElementById("root")!).render(
                 <Route index element={<Dashboard />} />
                 <Route path="/admin/users" element={<UsersPage />} />
                 <Route path="/admin/suppliers" element={<Supplier />} />
+                <Route
+                  path="/admin/inventory-reports"
+                  element={<InventoryReports />}
+                />
+                <Route
+                  path="/admin/inventory-reports/:month/:year"
+                  element={<InventoryReportDetails />}
+                />
                 <Route path="/admin/products" element={<AdminProducts />} />
                 <Route path="/admin/product-types" element={<ProductType />} />
                 <Route

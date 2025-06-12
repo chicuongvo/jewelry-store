@@ -1,4 +1,4 @@
-import QuickActionButton from "@/components/Admin/QuickActionButton";
+import QuickActionButton from "@/pages/Admin/Dashboard/components/QuickActionButton";
 import { Package, Users, ShoppingCart, Eye } from "lucide-react";
 
 export default function QuickAction() {
