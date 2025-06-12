@@ -5,7 +5,15 @@ export const getAllServices = async (req, res) => {
   try {
     const services = await prisma.services.findMany({
       include: {
-        service_order_details: true,
+        service_order_details: {
+          include: {
+            service_order: {
+              include: {
+                client: true,
+              },
+            },
+          },
+        },
       },
     });
     return res.status(200).json({ success: true, data: services });
@@ -23,6 +31,17 @@ export const getServiceById = async (req, res) => {
   try {
     const service = await prisma.services.findUnique({
       where: { service_id },
+      include: {
+        service_order_details: {
+          include: {
+            service_order: {
+              include: {
+                client: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (service) {
