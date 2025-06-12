@@ -15,20 +15,22 @@ interface product {
 
 export default function ProductCard({ product }: { product: product }) {
   return (
-    <Link
-      to={`/product/${product.product_id}`}
-      className="bg-white font-primary rounded-3xl shadow-lg overflow-hidden transition-all hover:shadow-xl border border-primary group"
-    >
+    <div className="bg-white font-primary rounded-md  overflow-hidden transition-all hover:shadow-xl border border-primary group transition-all duration-500">
       <div className="relative">
-        <img
-          src={product.image}
-          alt={product.name}
-          className="w-full h-70 object-cover relative"
-        />
+        <div className="w-full h-70 overflow-hidden">
+          <img
+            src={product.image}
+            alt={product.name}
+            className="w-full h-70 object-cover relative hover:scale-[1.3] transition-all duration-1300"
+          />
+        </div>
         <div className="w-full flex items-center justify-center absolute bottom-4 ">
-          <div className=" w-1/2 px-2 py-2 bg-black/70 text-white hover:bg-black text-center hidden group-hover:block transition-all duration-300 cursor-pointer">
+          <Link
+            to={`/product/${product.product_id}`}
+            className=" w-1/2 px-2 py-2 bg-black/70 text-white hover:bg-black text-center hidden group-hover:block transition-all duration-300 cursor-pointer"
+          >
             XEM NHANH
-          </div>
+          </Link>
         </div>
         <span className="absolute top-3 left-3 bg-pink-50 px-3 py-1.5 rounded-full flex items-center gap-1.5 text-sm font-medium text-primary border border-primary">
           <Tag size={14} className="text-primary" />
@@ -37,7 +39,7 @@ export default function ProductCard({ product }: { product: product }) {
       </div>
 
       <div className="p-6">
-        <h3 className="text-lg font-semibold text-gray-700 mb-2 font-primary">
+        <h3 className="text-lg font-semibold text-gray-700 mb-2 font-primary line-clamp-2">
           {product.name}
         </h3>
 
@@ -50,14 +52,14 @@ export default function ProductCard({ product }: { product: product }) {
           </div>
 
           <button
-            className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-full hover:text-primary hover:bg-white hover:border hover:border-primary transition-all duration-300 font-medium shadow-md hover:shadow-lg active:scale-95"
-            onClick={() => console.log(`Added ${name} to cart`)}
+            className="flex items-center gap-2 bg-primary border border-primary text-white px-5 py-2.5 rounded-full hover:text-primary hover:bg-white hover:border hover:border-primary transition-all duration-300 font-medium shadow-md hover:shadow-lg "
+            onClick={() => console.log(`Added ${product.name} to cart`)}
           >
             <ShoppingBag size={18} />
             Thêm
           </button>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }
