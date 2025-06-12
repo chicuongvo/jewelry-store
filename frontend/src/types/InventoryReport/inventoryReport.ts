@@ -29,6 +29,9 @@ export type InventoryReport = {
   inventory_report_details: InventoryReportDetail[];
   total_begin_stock?: number;
   total_end_stock?: number;
+  total_buy?: number;
+  total_sell?: number;
+  total_products?: number;
 };
 
 export type InventoryReportCreateData = {

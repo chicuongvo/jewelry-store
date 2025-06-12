@@ -2,79 +2,30 @@
 import { useState } from "react";
 import {
   FileText,
-  Download,
   Plus,
   Calendar,
   TrendingUp,
   TrendingDown,
 } from "lucide-react";
-
-const reportsData = [
-  {
-    id: 1,
-    month: "June 2024",
-    date: "2024-06-30",
-    totalProducts: 156,
-    totalBought: 234,
-    totalSold: 189,
-    status: "Completed",
-  },
-  {
-    id: 2,
-    month: "May 2024",
-    date: "2024-05-31",
-    totalProducts: 145,
-    totalBought: 198,
-    totalSold: 167,
-    status: "Completed",
-  },
-  {
-    id: 3,
-    month: "April 2024",
-    date: "2024-04-30",
-    totalProducts: 142,
-    totalBought: 176,
-    totalSold: 154,
-    status: "Completed",
-  },
-];
-
-const inventoryData = [
-  {
-    id: 1,
-    productName: "Wireless Bluetooth Headphones",
-    beginStock: 20,
-    buyQuantity: 15,
-    sellQuantity: 11,
-    endStock: 24,
-    unit: "pcs",
-  },
-  {
-    id: 2,
-    productName: "Cotton T-Shirt",
-    beginStock: 8,
-    buyQuantity: 12,
-    sellQuantity: 15,
-    endStock: 5,
-    unit: "pcs",
-  },
-  {
-    id: 3,
-    productName: "Garden Hose",
-    beginStock: 120,
-    buyQuantity: 50,
-    sellQuantity: 20,
-    endStock: 150,
-    unit: "m",
-  },
-];
+import { useNavigate } from "react-router";
+import { useQuery } from "@tanstack/react-query";
+import { getAllInventoryReports } from "@/api/inventoryReport.api";
 
 export default function InventoryReports() {
-  const [selectedReport, setSelectedReport] = useState<any>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const nav = useNavigate();
+
+  const { data: reportData } = useQuery({
+    queryKey: ["reports"],
+    queryFn: getAllInventoryReports,
+  });
 
   const handleViewReport = (report: any) => {
-    setSelectedReport(report);
+    nav(`${report.month}/${report.year}`);
+  };
+
+  const formatId = (id: string) => {
+    return id.slice(0, 8);
   };
 
   return (
@@ -93,192 +44,70 @@ export default function InventoryReports() {
         </button>
       </div>
 
-      {!selectedReport ? (
-        <>
-          {/* Reports List */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {reportsData.map((report) => (
-              <div
-                key={report.id}
-                className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center">
-                    <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
-                      <FileText className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <div className="ml-3">
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {report.month}
-                      </h3>
-                      <p className="text-sm text-gray-500">
-                        Report for {report.date}
-                      </p>
-                    </div>
-                  </div>
-                  <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                    {report.status}
-                  </span>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {(reportData ?? []).map((report: any) => (
+          <div
+            key={report.id}
+            className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200"
+          >
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-center">
+                <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+                  <FileText className="h-5 w-5 text-blue-600" />
                 </div>
-
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Products Tracked:</span>
-                    <span className="font-medium text-gray-900">
-                      {report.totalProducts}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600 flex items-center">
-                      <TrendingUp className="h-3 w-3 mr-1 text-emerald-600" />
-                      Total Bought:
-                    </span>
-                    <span className="font-medium text-emerald-600">
-                      {report.totalBought}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600 flex items-center">
-                      <TrendingDown className="h-3 w-3 mr-1 text-red-600" />
-                      Total Sold:
-                    </span>
-                    <span className="font-medium text-red-600">
-                      {report.totalSold}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-2 mt-4 pt-4 border-t border-gray-100">
-                  <button
-                    onClick={() => handleViewReport(report)}
-                    className="flex-1 text-sm text-blue-600 hover:text-blue-700 font-medium"
-                  >
-                    View Details
-                  </button>
-                  <button className="p-2 text-gray-400 hover:text-gray-600 rounded hover:bg-gray-50 transition-colors duration-150">
-                    <Download className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </>
-      ) : (
-        <>
-          {/* Report Detail View */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-900">
-                    {selectedReport.month} Inventory Report
-                  </h2>
-                  <p className="text-gray-600">
-                    Detailed inventory movements and stock levels
+                <div className="ml-3">
+                  <h3 className="text-lg font-bold text-gray-900">
+                    Báo cáo Tháng {report.month}/{report.year}
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    Mã báo cáo: {formatId(report.report_id)}
                   </p>
                 </div>
-                <div className="flex items-center space-x-3">
-                  <button className="flex items-center px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors duration-200">
-                    <Download className="h-4 w-4 mr-2" />
-                    Export PDF
-                  </button>
-                  <button
-                    onClick={() => setSelectedReport(null)}
-                    className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
-                  >
-                    Back to Reports
-                  </button>
-                </div>
               </div>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Product Name
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Begin Stock
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Bought
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Sold
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      End Stock
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Change
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {inventoryData.map((item) => {
-                    const change = item.endStock - item.beginStock;
-                    return (
-                      <tr
-                        key={item.id}
-                        className="hover:bg-gray-50 transition-colors duration-150"
-                      >
-                        <td className="px-6 py-4">
-                          <div className="text-sm font-medium text-gray-900">
-                            {item.productName}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
-                            {item.beginStock} {item.unit}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-emerald-600 font-medium">
-                            +{item.buyQuantity} {item.unit}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-red-600 font-medium">
-                            -{item.sellQuantity} {item.unit}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900 font-medium">
-                            {item.endStock} {item.unit}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div
-                            className={`text-sm font-medium flex items-center ${
-                              change > 0
-                                ? "text-emerald-600"
-                                : change < 0
-                                ? "text-red-600"
-                                : "text-gray-600"
-                            }`}
-                          >
-                            {change > 0 ? (
-                              <TrendingUp className="h-4 w-4 mr-1" />
-                            ) : change < 0 ? (
-                              <TrendingDown className="h-4 w-4 mr-1" />
-                            ) : null}
-                            {change > 0 ? "+" : ""}
-                            {change} {item.unit}
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between gap-3 text-sm">
+                <span className="text-gray-600">
+                  Số sản phẩm được theo dõi:
+                </span>
+                <span className="font-medium text-gray-900">
+                  {report.total_products}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-600 flex items-center">
+                  <TrendingUp className="h-3 w-3 mr-1 text-emerald-600" />
+                  Tổng số lượng mua vào:
+                </span>
+                <span className="font-medium text-emerald-600">
+                  {report.total_buy}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-600 flex items-center">
+                  <TrendingDown className="h-3 w-3 mr-1 text-red-600" />
+                  Tổng số lượng bán ra
+                </span>
+                <span className="font-medium text-red-600">
+                  {report.total_sell}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2 mt-4 pt-4 border-t border-gray-100">
+              <button
+                onClick={() => handleViewReport(report)}
+                className="flex-1 text-sm text-blue-600 hover:text-blue-700 font-medium"
+              >
+                Xem chi tiết
+              </button>
             </div>
           </div>
-        </>
-      )}
+        ))}
+      </div>
 
       {/* Create Report Modal */}
       {showCreateModal && (
