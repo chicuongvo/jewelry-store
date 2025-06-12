@@ -1,3 +1,5 @@
+import type { Product } from "../Product/product";
+
 export type InventoryReportDetail = {
   report_id: string;
   product_id: string;
@@ -5,6 +7,7 @@ export type InventoryReportDetail = {
   buy_quantity: number;
   sell_quantity: number;
   end_stock: number;
+  product: Product;
 };
 
 export type InventoryReportDetailCreateData = {
