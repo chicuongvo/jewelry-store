@@ -3,7 +3,7 @@ import { prisma } from "../config/db.js";
 // Get all inventory reports
 export const getAllInventoryReports = async (req, res) => {
   try {
-    const { month, year, page = 1, limit = 10 } = req.query;
+    const { month, year, page, limit = 10 } = req.query;
 
     const whereClause = {};
 
@@ -29,29 +29,47 @@ export const getAllInventoryReports = async (req, res) => {
       whereClause.year = yearNum;
     }
 
-    // Parse pagination params
-    const pageNumber = parseInt(page);
-    const limitNumber = parseInt(limit);
-    const skip = (pageNumber - 1) * limitNumber;
+    let reports = [];
+    let totalItems = 0;
 
-    // Get total count
-    const totalItems = await prisma.inventory_reports.count({
-      where: whereClause,
-    });
+    if (page) {
+      const pageNumber = parseInt(page);
+      const limitNumber = parseInt(limit);
+      const skip = (pageNumber - 1) * limitNumber;
 
-    const reports = await prisma.inventory_reports.findMany({
-      where: whereClause,
-      skip,
-      take: limitNumber,
-      include: {
-        inventory_report_details: {
-          include: {
-            product: true,
+      totalItems = await prisma.inventory_reports.count({
+        where: whereClause,
+      });
+
+      reports = await prisma.inventory_reports.findMany({
+        where: whereClause,
+        skip,
+        take: limitNumber,
+        include: {
+          inventory_report_details: {
+            include: {
+              product: true,
+            },
           },
         },
-      },
-      orderBy: [{ year: "desc" }, { month: "desc" }],
-    });
+        orderBy: [{ year: "desc" }, { month: "desc" }],
+      });
+    } else {
+      // Lấy tất cả nếu không có page
+      reports = await prisma.inventory_reports.findMany({
+        where: whereClause,
+        include: {
+          inventory_report_details: {
+            include: {
+              product: true,
+            },
+          },
+        },
+        orderBy: [{ year: "desc" }, { month: "desc" }],
+      });
+
+      totalItems = reports.length;
+    }
 
     const result = reports.map((report) => {
       const totalBuy = report.inventory_report_details.reduce(
@@ -76,8 +94,8 @@ export const getAllInventoryReports = async (req, res) => {
       data: result,
       pagination: {
         totalItems,
-        totalPages: Math.ceil(totalItems / limitNumber),
-        currentPage: pageNumber,
+        totalPages: page ? Math.ceil(totalItems / parseInt(limit)) : 1,
+        currentPage: page ? parseInt(page) : 1,
       },
     });
   } catch (error) {
