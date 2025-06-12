@@ -29,7 +29,7 @@ export default function QuickAction() {
             description="Tạo đơn hàng mới"
             icon={ShoppingCart}
             color="emerald"
-            link="/admin/sales_orders"
+            link="/admin/sales-orders"
           />
           <QuickActionButton
             title="Người dùng mới"
@@ -43,7 +43,7 @@ export default function QuickAction() {
             description="Xem báo cáo tồn kho"
             icon={Eye}
             color="rose"
-            link="/admin/inventory_reports"
+            link="/admin/inventory-reports"
           />
         </div>
       )}
