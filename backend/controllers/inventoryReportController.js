@@ -11,9 +11,9 @@ export const getAllInventoryReports = async (req, res) => {
           },
         },
       },
+      orderBy: [{ year: "desc" }, { month: "desc" }],
     });
 
-    // Calculate totalBuy and totalSell for each report
     const result = reports.map((report) => {
       const totalBuy = report.inventory_report_details.reduce(
         (sum, detail) => sum + (detail.buy_quantity || 0),
@@ -23,10 +23,12 @@ export const getAllInventoryReports = async (req, res) => {
         (sum, detail) => sum + (detail.sell_quantity || 0),
         0
       );
+      const totalProducts = report.inventory_report_details.length;
       return {
         ...report,
         total_buy: totalBuy,
-        ttotal_sell: totalSell,
+        total_sell: totalSell,
+        total_products: totalProducts,
       };
     });
 
