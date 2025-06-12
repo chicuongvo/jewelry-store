@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useQuery } from "@tanstack/react-query";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
-import { getAllProductTypes } from "@/api/productType"; // đảm bảo đúng đường dẫn
+import { getAllProductTypes } from "@/api/productType";
 import { useMemo } from "react";
+import ChartSkeleton from "./ChartSkeleton";
 
 const COLORS = [
   "#3B82F6",
@@ -13,7 +15,7 @@ const COLORS = [
 ];
 
 export default function CircleChart() {
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["getAllProductTypes"],
     queryFn: getAllProductTypes,
   });
@@ -28,33 +30,35 @@ export default function CircleChart() {
     }));
   }, [data]);
 
-  if (isLoading) return <div>Đang tải dữ liệu...</div>;
-  if (error) return <div>Đã xảy ra lỗi khi tải loại sản phẩm.</div>;
-
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
       <h2 className="text-lg font-bold text-gray-900 mb-6">
         Tỉ lệ các loại sản phẩm
       </h2>
-      <ResponsiveContainer width="100%" height={300}>
-        <PieChart>
-          <Pie
-            data={salesData}
-            cx="50%"
-            cy="50%"
-            outerRadius={100}
-            dataKey="value"
-            label={({ name, percent }) =>
-              `${name} ${(percent * 100).toFixed(0)}%`
-            }
-          >
-            {salesData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color} />
-            ))}
-          </Pie>
-          <Tooltip />
-        </PieChart>
-      </ResponsiveContainer>
+
+      {isLoading ? (
+        <ChartSkeleton />
+      ) : (
+        <ResponsiveContainer width="100%" height={300}>
+          <PieChart>
+            <Pie
+              data={salesData}
+              cx="50%"
+              cy="50%"
+              outerRadius={100}
+              dataKey="value"
+              label={({ name, percent }) =>
+                `${name} ${(percent * 100).toFixed(0)}%`
+              }
+            >
+              {salesData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} />
+              ))}
+            </Pie>
+            <Tooltip />
+          </PieChart>
+        </ResponsiveContainer>
+      )}
     </div>
   );
 }

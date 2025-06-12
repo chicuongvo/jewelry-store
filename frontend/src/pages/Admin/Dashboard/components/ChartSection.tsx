@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import RevenueChart from "./RevenueChart";
 import CircleChart from "./CircleChart";
 
