@@ -129,14 +129,14 @@ export const createInventoryReport = async (req, res) => {
     if (!req.body || Object.keys(req.body).length === 0) {
       return res
         .status(400)
-        .json({ success: false, message: "No data provided" });
+        .json({ success: false, message: "Hãy cung cấp đủ thông tin." });
     }
 
     // Validate required fields
     if (!month || !year) {
       return res
         .status(400)
-        .json({ success: false, message: "Month and year are required" });
+        .json({ success: false, message: "Hãy nhập đầy đủ thông tin." });
     }
 
     // Check if report already exists for the month and year
@@ -150,7 +150,7 @@ export const createInventoryReport = async (req, res) => {
     if (existingReport) {
       return res.status(400).json({
         success: false,
-        message: "Inventory report already exists for this month and year",
+        message: `Báo cáo tháng ${month}/${year} đã tồn tại.`,
       });
     }
 
@@ -163,7 +163,7 @@ export const createInventoryReport = async (req, res) => {
 
     return res.status(201).json({ success: true, data: report });
   } catch (error) {
-    console.error("Error creating inventory report:", error);
+    console.error("Có lỗi xảy ra trong quá trình tạo báo cáo:", error);
     return res
       .status(500)
       .json({ success: false, error: "Internal Server Error" });
