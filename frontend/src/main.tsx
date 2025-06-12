@@ -24,6 +24,7 @@ import ProductType from "./pages/Admin/ProductTypePage/ProductType";
 import { NotificationProvider } from "./contexts/notificationContext.tsx";
 import InventoryReports from "./pages/Admin/InventoryReportPage/InventoryReport.tsx";
 import InventoryReportDetails from "./pages/Admin/InventoryReportDetailsPage/InventoryReportDetails.tsx";
+// import ClientServices from "./pages/Client/ServicesPage/Services.tsx";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,8 @@ createRoot(document.getElementById("root")!).render(
               <Route path="/product/:id" element={<App />}>
                 <Route index element={<ProductDetailsPage />} />
               </Route>
+
+              <Route path="/services" element={<Services />} />
 
               <Route path="/admin" element={<Layout />}>
                 <Route index element={<Dashboard />} />

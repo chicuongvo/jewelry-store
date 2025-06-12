@@ -38,27 +38,27 @@ export default function ProductCard({ product }: { product: product }) {
         </span>
       </div>
 
-      <div className="p-6">
-        <h3 className="text-md font-semibold text-gray-700 mb-2 font-primary line-clamp-2 h-[55px]">
+      <div className="py-6 flex flex-col gap-4">
+        <h3 className="text-md font-semibold text-gray-700 font-primary line-clamp-2 h-[55px]">
           {product.name}
         </h3>
 
-        <div className="flex items-center justify-between mt-4">
+        <div className="flex items-center justify-between ">
           <div className="flex flex-col">
             <span className="text-sm text-primary font-medium">Price</span>
             <span className="text-sm font-bold text-gray-800 text-gray-700">
               {Number(product.sell_price).toLocaleString("vi-VN")}đ
             </span>
           </div>
-
-          <button
-            className="flex items-center gap-2 bg-primary border border-primary text-white px-5 py-2.5 rounded-2xl hover:text-primary hover:bg-white hover:border hover:border-primary transition-all duration-300 font-medium shadow-md text:md cursor-pointer "
-            onClick={() => console.log(`Added ${product.name} to cart`)}
-          >
-            <ShoppingBag size={18} />
-            Thêm
-          </button>
         </div>
+
+        <button
+          className="flex w-full items-center justify-center gap-2 bg-primary border border-primary text-white px-5 py-2.5  font-bold hover:text-primary hover:bg-white hover:border hover:border-primary transition-all duration-300 text:md cursor-pointer "
+          onClick={() => console.log(`Added ${product.name} to cart`)}
+        >
+          <ShoppingBag size={18} />
+          THÊM VÀO GIỎ
+        </button>
       </div>
     </div>
   );
