@@ -17,8 +17,8 @@ import UsersPage from "./pages/Admin/UserPage/User.tsx";
 import PurchaseOrder from "@/pages/Admin/PurchaseOrderPage/PurchaseOrder.tsx";
 import SalesOrder from "@/pages/Admin/SalesOrderPage/SalesOrder.tsx";
 import Supplier from "./pages/Admin/SupplierPage/Supplier.tsx";
-import Services from "./pages/Admin/ServicePage/Service.tsx";
-import ServiceOrders from "./pages/Admin/ServiceOrderPage/ServiceOrder.tsx";
+import AdminServices from "./pages/Admin/ServicePage/Service.tsx";
+import AdminServiceOrders from "./pages/Admin/ServiceOrderPage/ServiceOrder.tsx";
 import AdminProducts from "./pages/Admin/ProductPage/ProductPage";
 import ProductType from "./pages/Admin/ProductTypePage/ProductType";
 import { NotificationProvider } from "./contexts/notificationContext.tsx";
@@ -69,10 +69,10 @@ createRoot(document.getElementById("root")!).render(
                   element={<PurchaseOrder />}
                 />
                 <Route path="/admin/sales-orders" element={<SalesOrder />} />{" "}
-                <Route path="/admin/services" element={<Services />} />
+                <Route path="/admin/services" element={<AdminServices />} />
                 <Route
                   path="/admin/service-orders"
-                  element={<ServiceOrders />}
+                  element={<AdminServiceOrders />}
                 />
               </Route>
 
