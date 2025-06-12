@@ -1,53 +1,37 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/exhaustive-deps */
-
-import { useMutation } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Package, Users, ShoppingCart } from "lucide-react";
-import { useEffect, useState } from "react";
-import type { StatsCardProps } from "../../../../components/Admin/StatsCard";
-import StatsCard from "../../../../components/Admin/StatsCard";
-import { getAllUsers } from "../../../../api/user.api";
-import type { UserProfile } from "@/types/User/User";
+
+import StatsCard from "./StatsCard";
+import type { StatsCardProps } from "./StatsCard";
+
+import { getAllUsers } from "@/api/user.api";
 import { getAllProducts } from "@/api/product.api";
-import type { Product } from "@/types/Product/product";
-import { getAllSalesOrder, type SalesOrderData } from "@/api/sales_order.api";
+import { getAllSalesOrder } from "@/api/sales_order.api";
+import StatsCardSkeleton from "./StatsCardSkeleton";
 
 export default function StatsCards() {
-  const [totalUsers, setTotalUsers] = useState(0);
-  const [totalProducts, setTotalProducts] = useState(0);
-  const [totalSalesOrders, setTotalSalesOrders] = useState(0);
-
-  const getUsers = useMutation({
-    mutationKey: ["getAllUsers"],
-    mutationFn: getAllUsers,
-    onSuccess: (data: UserProfile[]) => setTotalUsers(data.length),
-    onError: (error: any) => console.error("Error getting users:", error),
+  const { data: usersData = [], isPending: isUsersLoading } = useQuery({
+    queryKey: ["getAllUsers"],
+    queryFn: getAllUsers,
   });
 
-  const getProducts = useMutation({
-    mutationKey: ["getAllProducts"],
-    mutationFn: getAllProducts,
-    onSuccess: (data: Product[]) => setTotalProducts(data.length),
-    onError: (error: any) => console.error("Error getting products:", error),
+  const { data: productsData = [], isPending: isProductsLoading } = useQuery({
+    queryKey: ["getAllProducts"],
+    queryFn: getAllProducts,
   });
 
-  const getOrders = useMutation({
-    mutationKey: ["getAllSalesOrders"],
-    mutationFn: getAllSalesOrder,
-    onSuccess: (data: SalesOrderData[]) => setTotalSalesOrders(data.length),
-    onError: (error: any) => console.error("Error getting orders:", error),
+  const { data: ordersData = [], isPending: isOrdersLoading } = useQuery({
+    queryKey: ["getAllSalesOrders"],
+    queryFn: getAllSalesOrder,
   });
 
-  useEffect(() => {
-    getUsers.mutate();
-    getProducts.mutate();
-    getOrders.mutate();
-  }, []);
+  const isLoading = isUsersLoading || isProductsLoading || isOrdersLoading;
 
   const statsData: StatsCardProps[] = [
     {
       title: "Tổng số sản phẩm",
-      value: totalProducts.toString(),
+      value: productsData.length.toString(),
       change: "+12%",
       changeType: "positive",
       icon: Package,
@@ -55,7 +39,7 @@ export default function StatsCards() {
     },
     {
       title: "Tổng số người dùng",
-      value: totalUsers.toString(),
+      value: usersData.length.toString(),
       change: "+8%",
       changeType: "positive",
       icon: Users,
@@ -63,7 +47,7 @@ export default function StatsCards() {
     },
     {
       title: "Tổng số đơn hàng",
-      value: totalSalesOrders.toString(),
+      value: ordersData.length.toString(),
       change: "-4%",
       changeType: "negative",
       icon: ShoppingCart,
@@ -73,9 +57,11 @@ export default function StatsCards() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {statsData.map((stat, idx) => (
-        <StatsCard key={idx} {...stat} />
-      ))}
+      {isLoading
+        ? Array.from({ length: 3 }).map((_, idx) => (
+            <StatsCardSkeleton key={idx} />
+          ))
+        : statsData.map((stat, idx) => <StatsCard key={idx} {...stat} />)}
     </div>
   );
 }

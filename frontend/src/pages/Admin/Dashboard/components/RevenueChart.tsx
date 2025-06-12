@@ -11,6 +11,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import ChartSkeleton from "./ChartSkeleton";
 
 const MONTHS_TO_DISPLAY = [1, 2, 3, 4, 5, 6];
 
@@ -33,27 +34,21 @@ export default function InventoryChart() {
   });
 
   const chartData = data
-    ? data.map(
-        (item: {
-          month: any;
-          total_begin_stock: any;
-          total_end_stock: any;
-        }) => ({
-          label: `Tháng ${item.month}`,
-          total_begin_stock: item.total_begin_stock,
-          total_end_stock: item.total_end_stock,
-        })
-      )
+    ? data.map((item) => ({
+        label: `Tháng ${item.month}`,
+        total_begin_stock: item.total_begin_stock ?? 0,
+        total_end_stock: item.total_end_stock ?? 0,
+      }))
     : [];
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-      <h2 className="text-lg font-bold text-gray-900 mb-4 ">
+      <h2 className="text-lg font-bold text-gray-900 mb-4">
         Báo cáo tồn kho (6 tháng đầu năm)
       </h2>
 
       {isLoading ? (
-        <p>Đang tải dữ liệu...</p>
+        <ChartSkeleton />
       ) : (
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={chartData}>

@@ -1,24 +1,25 @@
 import { getInventoryReportByMonthAndYear } from "@/api/inventoryReport.api";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
-
 import { Download, TrendingUp, TrendingDown } from "lucide-react";
+
 export default function InventoryReportDetails() {
   const params = useParams();
   const month = parseInt(params.month ?? "0");
   const year = parseInt(params.year ?? "0");
   const nav = useNavigate();
 
-  const { data: reportData } = useQuery({
+  const { data: reportData, isLoading } = useQuery({
     queryKey: ["reports", month, year],
     queryFn: () => getInventoryReportByMonthAndYear(month, year),
   });
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200">
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-bold text-gray-900 ">
+            <h2 className="text-xl font-bold text-gray-900">
               Báo Cáo Tháng {reportData?.month}/{reportData?.year}
             </h2>
             <p className="text-gray-600">
@@ -65,60 +66,70 @@ export default function InventoryReportDetails() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {reportData?.inventory_report_details.map((item) => {
-              const change = item.end_stock - item.begin_stock;
-              return (
-                <tr
-                  key={item.product_id}
-                  className="hover:bg-gray-50 transition-colors duration-150"
-                >
-                  <td className="px-6 py-4">
-                    <div className="text-sm font-medium text-gray-900">
-                      {item.product.name}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">
-                      {item.begin_stock}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-emerald-600 font-medium">
-                      +{item.buy_quantity}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-red-600 font-medium">
-                      -{item.sell_quantity}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900 font-medium">
-                      {item.end_stock}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div
-                      className={`text-sm font-medium flex items-center ${
-                        change > 0
-                          ? "text-emerald-600"
-                          : change < 0
-                          ? "text-red-600"
-                          : "text-gray-600"
-                      }`}
+            {isLoading
+              ? Array.from({ length: 5 }).map((_, index) => (
+                  <tr key={index} className="animate-pulse">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <td key={i} className="px-6 py-4">
+                        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              : reportData?.inventory_report_details.map((item) => {
+                  const change = item.end_stock - item.begin_stock;
+                  return (
+                    <tr
+                      key={item.product_id}
+                      className="hover:bg-gray-50 transition-colors duration-150"
                     >
-                      {change > 0 ? (
-                        <TrendingUp className="h-4 w-4 mr-1" />
-                      ) : change < 0 ? (
-                        <TrendingDown className="h-4 w-4 mr-1" />
-                      ) : null}
-                      {change > 0 ? "+" : ""}
-                      {change}
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-medium text-gray-900">
+                          {item.product.name}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {item.begin_stock}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-emerald-600 font-medium">
+                          +{item.buy_quantity}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-red-600 font-medium">
+                          -{item.sell_quantity}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900 font-medium">
+                          {item.end_stock}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div
+                          className={`text-sm font-medium flex items-center ${
+                            change > 0
+                              ? "text-emerald-600"
+                              : change < 0
+                              ? "text-red-600"
+                              : "text-gray-600"
+                          }`}
+                        >
+                          {change > 0 ? (
+                            <TrendingUp className="h-4 w-4 mr-1" />
+                          ) : change < 0 ? (
+                            <TrendingDown className="h-4 w-4 mr-1" />
+                          ) : null}
+                          {change > 0 ? "+" : ""}
+                          {change}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
           </tbody>
         </table>
       </div>
