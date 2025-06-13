@@ -1,7 +1,6 @@
 import { useState } from "react";
 import {
   Search,
-  Edit2,
   Shield,
   Mail,
   Phone,
@@ -19,10 +18,6 @@ export default function Users() {
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [verifiedFilter, setVerifiedFilter] = useState("");
-  const [showModal, setShowModal] = useState(false);
-  const [editingUser, setEditingUser] = useState<UserProfile>(
-    {} as unknown as UserProfile
-  );
   const [deleting, setDeleting] = useState({} as unknown as UserProfile);
 
   const { data: usersData, isLoading } = useQuery({
@@ -42,11 +37,6 @@ export default function Users() {
 
     return matchesSearch && matchesRole && matchesVerified;
   });
-
-  const handleEdit = (user: UserProfile) => {
-    setEditingUser(user);
-    setShowModal(true);
-  };
 
   return (
     <div className="space-y-6">
@@ -198,18 +188,16 @@ export default function Users() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => handleEdit(user)}
-                          className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors duration-150"
-                        >
-                          <Edit2 className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => setDeleting(user)}
-                          className=" text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150"
-                        >
-                          <Ban className="h-4 w-4" />
-                        </button>
+                        {user.is_banned ? (
+                          <p>Đã bị cấm</p>
+                        ) : (
+                          <button
+                            onClick={() => setDeleting(user)}
+                            className=" text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150"
+                          >
+                            <Ban className="h-4 w-4" />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -219,95 +207,6 @@ export default function Users() {
           </table>
         </div>
       </div>
-
-      {/* Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-gray-600/50  z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                {editingUser ? "Chỉnh sửa người dùng" : "Thêm người dùng mới"}
-              </h2>
-
-              <form className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Tên đăng nhập
-                  </label>
-                  <input
-                    type="text"
-                    defaultValue={editingUser?.username || ""}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Nhập tên đăng nhập"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    defaultValue={editingUser?.email || ""}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Nhập địa chỉ email"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Số điện thoại
-                  </label>
-                  <input
-                    type="tel"
-                    defaultValue={editingUser?.phone_number || ""}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Nhập số điện thoại"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Vai trò
-                  </label>
-                  <select
-                    defaultValue={editingUser?.role || "USER"}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="USER">Người dùng</option>
-                    <option value="ADMIN">Quản trị viên</option>
-                  </select>
-                </div>
-
-                {!editingUser && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Mật khẩu
-                    </label>
-                    <input
-                      type="password"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Nhập mật khẩu"
-                    />
-                  </div>
-                )}
-              </form>
-
-              <div className="flex justify-end space-x-3 mt-6 pt-4 border-t">
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
-                >
-                  Hủy
-                </button>
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                  {editingUser ? "Cập nhật" : "Tạo"} người dùng
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {deleting.user_id && (
         <ConfirmModal deleting={deleting} setDeleting={setDeleting} />
@@ -328,7 +227,7 @@ function ConfirmModal({
     mutationFn: banUser,
     onSuccess() {
       queryClient.invalidateQueries({
-        queryKey: ["suppliers"],
+        queryKey: ["users"],
       });
       toast.success("Cấm Người dùng thành công");
       setDeleting({} as unknown as UserProfile);
