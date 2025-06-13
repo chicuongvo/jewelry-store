@@ -12,7 +12,13 @@ function Products() {
   console.log("Product respond", data);
   return (
     <div className="mb-10">
-      <img src={productBanner} alt="jewelry" />
+      <div className="h-[350px] overflow-hidden">
+        <img
+          src={productBanner}
+          alt="jewelry"
+          className="h-[350px] object-cover w-full"
+        />
+      </div>
       <div className="w-full px-4 py-4 h-max">
         <ProductTypes />
       </div>

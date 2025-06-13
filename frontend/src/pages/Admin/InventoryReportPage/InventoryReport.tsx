@@ -45,7 +45,7 @@ export default function InventoryReports() {
   }, [updateData, refetch, refetchTotal]);
 
   return (
-    <div className="space-y-6 h-full">
+    <div className="space-y-6 min-h-screen">
       <div className="flex items-center justify-between">
         <div className="flex flex-row gap-4 justify-center items-center">
           <div>
