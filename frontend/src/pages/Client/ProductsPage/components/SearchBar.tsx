@@ -12,13 +12,14 @@ interface Price {
 
 export default function SearchBar({
   setSearchPrice,
-
+  setSortBy,
   setSortOrder,
   setUpdateData,
 }: {
   setSearchPrice: any;
   setSortOrder: any;
   setUpdateData: any;
+  setSortBy: any;
 }) {
   return (
     <div className="hidden md:block font-primary">
@@ -28,9 +29,12 @@ export default function SearchBar({
             setSearchPrice={setSearchPrice}
             setUpdateData={setUpdateData}
           />
-          ;
         </div>
-        <SortBy setSortOrder={setSortOrder} setUpdateData={setUpdateData} />
+        <SortBy
+          setSortOrder={setSortOrder}
+          setUpdateData={setUpdateData}
+          setSortBy={setSortBy}
+        />
       </div>
     </div>
   );

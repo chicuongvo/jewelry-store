@@ -5,19 +5,24 @@ import { useState } from "react";
 interface SortByProps {
   setSortOrder: (value: string) => void;
   setUpdateData: any;
+  setSortBy: any;
 }
 
 export default function setSortOrder({
   setSortOrder,
   setUpdateData,
+  setSortBy,
 }: SortByProps) {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [selected, setSelected] = useState("");
 
   const handleSortChange = (value: "asc" | "desc") => {
-    if (value == selected) setSelected("");
-    else {
+    if (value == selected) {
+      setSelected("");
+      setSortBy("created_at");
+    } else {
       setSelected(value);
+      setSortBy("sell_price");
     }
     setSortOrder(value);
 
@@ -39,20 +44,20 @@ export default function setSortOrder({
               : "bg-white text-zinc-700 border-zinc-300"
           }`}
         >
-          <div className="flex flex-row justify-center w-max gap-3 cursor-pointer">
+          <div className="flex flex-row justify-center w-max gap-3 cursor-pointer font-semibold">
             <ArrowUpNarrowWide />
             Giá thấp → cao
           </div>
         </button>
         <button
           onClick={() => handleSortChange("desc")}
-          className={`px-3 py-2 rounded-md border ${
+          className={`px-3 py-2 rounded-md border  cursor-pointer ${
             selected === "desc"
               ? "bg-primary text-white border-primary"
               : "bg-white text-zinc-700 border-zinc-300"
           }`}
         >
-          <div className="flex flex-row justify-center w-max gap-3 cursor-pointer">
+          <div className="flex flex-row justify-center w-max gap-3 font-semibold">
             <ArrowDownNarrowWide />
             Giá cao → thấp
           </div>

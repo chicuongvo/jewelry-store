@@ -9,7 +9,10 @@ function Products() {
   const [searchPrice, setSearchPrice] = useState<string[]>(["0", "100"]);
   const [searchCategories, setSearchCategories] = useState<string[]>([]);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  const [updateData, setUpdateData] = useState(true);
+  const [sortBy, setSortBy] = useState<"sell_price" | "created_at">(
+    "created_at"
+  );
+  const [updateData, setUpdateData] = useState(false);
 
   return (
     <div className="mb-10">
@@ -33,6 +36,7 @@ function Products() {
             setSearchPrice={setSearchPrice}
             setSortOrder={setSortOrder}
             setUpdateData={setUpdateData}
+            setSortBy={setSortBy}
           />
         </div>
         <div className="col-span-5 xl:col-span-4">
@@ -40,7 +44,9 @@ function Products() {
             searchCategories={searchCategories}
             searchPrice={searchPrice}
             sortOrder={sortOrder}
+            sortBy={sortBy}
             updateData={updateData}
+            setUpdateData={setUpdateData}
           />
         </div>
       </div>
