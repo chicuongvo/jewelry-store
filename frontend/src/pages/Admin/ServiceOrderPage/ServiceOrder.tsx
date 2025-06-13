@@ -588,7 +588,7 @@ export default function ServiceOrders() {
                     </option>
                     {users.map((user) => (
                       <option key={user.user_id} value={user.user_id}>
-                        {user.fullname}
+                        {user.username}
                       </option>
                     ))}
                   </select>
