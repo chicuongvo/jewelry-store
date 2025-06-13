@@ -86,3 +86,8 @@ export const getAllUsers = async (): Promise<UserProfile[]> => {
   const response = await axiosClient.get("/auth/");
   return response.data.data;
 };
+
+export const banUser = async (id: string) => {
+  const response = await axiosClient.put("/auth/ban", { user_id: id });
+  return response.data.data;
+};
