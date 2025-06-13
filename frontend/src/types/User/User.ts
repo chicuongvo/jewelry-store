@@ -1,3 +1,5 @@
+import type { SalesOrderDetailData } from "../SalesOrder/salesOrder";
+
 export interface SignInData {
   identifier: string;
   password: string;
@@ -38,4 +40,5 @@ export interface UserProfile {
   verification_token: string | null;
   verification_token_expires_at: string | null;
   is_banned: boolean;
+  sales_orders: SalesOrderDetailData[];
 }
