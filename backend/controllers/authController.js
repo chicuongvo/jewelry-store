@@ -13,10 +13,58 @@ import {
 
 export const getAllUsers = async (req, res) => {
   try {
-    const users = await prisma.users.findMany();
+    const { username, email, fullname, phone_number, sortBy, sortOrder } =
+      req.query;
+
+    const filters = {};
+
+    if (username) {
+      filters.username = {
+        contains: username,
+        mode: "insensitive",
+      };
+    }
+
+    if (email) {
+      filters.email = {
+        contains: email,
+        mode: "insensitive",
+      };
+    }
+
+    if (fullname) {
+      filters.fullname = {
+        contains: fullname,
+        mode: "insensitive",
+      };
+    }
+
+    if (phone_number) {
+      filters.phone_number = {
+        contains: phone_number,
+        mode: "insensitive",
+      };
+    }
+
+    const validSortFields = ["username", "email", "created_at"];
+    const orderBy = {};
+
+    if (sortBy && validSortFields.includes(sortBy)) {
+      orderBy[sortBy] = sortOrder === "desc" ? "desc" : "asc";
+    }
+
+    const users = await prisma.users.findMany({
+      where: filters,
+      orderBy: Object.keys(orderBy).length ? orderBy : undefined,
+      include: {
+        sales_orders: true,
+        service_orders: true,
+      },
+    });
 
     return res.status(200).json({ success: true, data: users });
   } catch (error) {
+    console.error("Error get all users:", error);
     return res
       .status(500)
       .json({ success: false, message: "Internal Server Error" });
@@ -31,6 +79,37 @@ export const getUser = async (req, res) => {
         password: true,
       },
       where: { user_id },
+      include: {
+        sales_orders: true,
+        service_orders: true,
+      },
+    });
+
+    if (user) {
+      return res.status(200).json({ success: true, data: user });
+    }
+
+    return res.status(404).json({ success: false, message: "User not found" });
+  } catch (error) {
+    console.log("Error get user: ", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+export const getUserById = async (req, res) => {
+  const user_id = req.params.id;
+  try {
+    const user = await prisma.users.findUnique({
+      omit: {
+        password: true,
+      },
+      where: { user_id },
+      include: {
+        sales_orders: true,
+        service_orders: true,
+      },
     });
 
     if (user) {

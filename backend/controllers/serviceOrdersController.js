@@ -41,7 +41,16 @@ export const createServiceOrders = async (req, res) => {
 
 export const getAllServiceOrders = async (req, res) => {
   try {
-    const serviceOrder = await prisma.service_orders.findMany({});
+    const serviceOrder = await prisma.service_orders.findMany({
+      include: {
+        client: true,
+        service_order_details: {
+          include: {
+            service: true,
+          },
+        },
+      },
+    });
 
     if (!serviceOrder) {
       return res.status(404).json({
@@ -73,6 +82,14 @@ export const getServiceOrder = async (req, res) => {
     const serviceOrder = await prisma.service_orders.findUnique({
       where: {
         service_order_id,
+      },
+      include: {
+        client: true,
+        service_order_details: {
+          include: {
+            service: true,
+          },
+        },
       },
     });
 

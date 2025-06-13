@@ -1,7 +1,7 @@
 import { Menu, ShoppingBag, UserRound, X } from "lucide-react";
 import Sidebar from "../Client/Sidebar";
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import Logo from "./Logo";
 import { useUser } from "../../contexts/userContext";
 import { signOut } from "../../api/user.api";
@@ -33,21 +33,28 @@ export default function Navbar() {
   const options = [
     { name: "Trang chủ", page: "/" },
     { name: "Bộ sưu tập", page: "/products" },
-    { name: "Dịch vụ", page: "/service" },
+    { name: "Dịch vụ", page: "/services" },
     { name: "Tài khoản", page: userProfile ? "/profile" : "/auth" },
-    { name: "Yêu thích", page: "/wishlist" },
+    { name: "Giỏ hàng", page: "/cart" },
   ];
 
+  const location = useLocation();
+
   const renderOptions = (options: option[]) => {
-    return options.map(option => (
-      <Link
-        to={option.page}
-        className="w-max font-bold text-center hover:text-primary ease-in-out duration-500"
-      >
-        {" "}
-        {option.name}{" "}
-      </Link>
-    ));
+    return options.map((option) => {
+      const active = location.pathname == option.page;
+      return (
+        <Link
+          to={option.page}
+          className={`w-max font-bold text-center hover:text-primary ease-in-out duration-500 ${
+            active ? "text-primary" : "text-black"
+          }`}
+        >
+          {" "}
+          {option.name}{" "}
+        </Link>
+      );
+    });
   };
 
   const nav = useNavigate();
