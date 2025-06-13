@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { Search, Plus, Edit2, Trash2, Wrench, DollarSign } from "lucide-react";
+import { Search, Plus, Edit2, Trash2, Wrench } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNotification } from "@/contexts/notificationContext";
 import type {
   ServiceResponse,
   ServiceCreate,
@@ -17,6 +18,9 @@ import { toast } from "react-hot-toast";
 export default function AdminServices() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [deleting, setDeleting] = useState<ServiceResponse>(
+    {} as unknown as ServiceResponse
+  );
   const [editingService, setEditingService] = useState<ServiceResponse | null>(
     null
   );
@@ -54,18 +58,6 @@ export default function AdminServices() {
     },
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => deleteService(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["services"] });
-      toast.success("Xóa dịch vụ thành công");
-    },
-    onError: (error) => {
-      toast.error("Không thể xóa dịch vụ");
-      console.error("Lỗi xóa dịch vụ:", error);
-    },
-  });
-
   const filteredServices = services.filter((service) =>
     service.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -80,10 +72,8 @@ export default function AdminServices() {
     setShowModal(true);
   };
 
-  const handleDelete = (id: string) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa dịch vụ này?")) {
-      deleteMutation.mutate(id);
-    }
+  const handleDelete = (service: ServiceResponse) => {
+    setDeleting(service);
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -165,7 +155,7 @@ export default function AdminServices() {
                   <Edit2 className="h-4 w-4" />
                 </button>
                 <button
-                  onClick={() => handleDelete(service.service_id)}
+                  onClick={() => handleDelete(service)}
                   className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150"
                 >
                   <Trash2 className="h-4 w-4" />
@@ -177,7 +167,6 @@ export default function AdminServices() {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Giá cơ bản</span>
                 <div className="flex items-center">
-                  <DollarSign className="h-4 w-4 text-emerald-600 mr-1" />
                   <span className="text-sm font-medium text-emerald-600">
                     {Number(service.base_price).toLocaleString("vi-VN")}đ
                   </span>
@@ -203,7 +192,7 @@ export default function AdminServices() {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-gray-600/50  z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
             <div className="p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
@@ -232,7 +221,6 @@ export default function AdminServices() {
                   <input
                     type="number"
                     name="base_price"
-                    step="1000"
                     min="0"
                     defaultValue={editingService?.base_price || ""}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -271,6 +259,67 @@ export default function AdminServices() {
           </div>
         </div>
       )}
+
+      {deleting.service_id && (
+        <ConfirmModal deleting={deleting} setDeleting={setDeleting} />
+      )}
+    </div>
+  );
+}
+
+function ConfirmModal({
+  deleting,
+  setDeleting,
+}: {
+  deleting: ServiceResponse;
+  setDeleting: React.Dispatch<React.SetStateAction<ServiceResponse>>;
+}) {
+  const queryClient = useQueryClient();
+  const { addNotification } = useNotification();
+  const { mutate, isPending } = useMutation({
+    mutationFn: deleteService,
+    /**
+     * After successfully deleting the service, invalidate the "services" query, reset `deleting` to an empty object, and
+     * show a notification to the user that the service has been deleted.
+     */
+    onSuccess() {
+      queryClient.invalidateQueries({
+        queryKey: ["services"],
+      });
+      setDeleting({} as unknown as ServiceResponse);
+      addNotification(`Dịch vụ ${deleting.name} vừa được xóa.`);
+    },
+  });
+
+  const handleSubmit = () => {
+    mutate(deleting.service_id);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-gray-600/50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+        <div className="p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            Bạn chắc chắn muốn xóa Nhà cung cấp <b>{deleting.name}</b>?
+          </h2>
+
+          <div className="flex justify-end space-x-3 mt-6 pt-4 border-t">
+            <button
+              onClick={() => setDeleting({} as unknown as ServiceResponse)}
+              className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+            >
+              Hủy
+            </button>
+            <button
+              onClick={handleSubmit}
+              disabled={isPending}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:bg-gray-600"
+            >
+              {isPending ? "Đang xóa..." : "Xóa"}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

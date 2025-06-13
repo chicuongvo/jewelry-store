@@ -295,7 +295,7 @@ export default function AdminServiceOrders() {
 
       {/* Order Detail Modal */}
       {selectedOrder && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 bg-gray-600/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
           <div className="bg-white rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
@@ -470,7 +470,7 @@ export default function AdminServiceOrders() {
 
       {/* Payment Modal */}
       {showPaymentModal && selectedOrder && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 bg-gray-600/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
             <div className="p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
@@ -565,7 +565,7 @@ export default function AdminServiceOrders() {
 
       {/* Create Order Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0  bg-gray-600 bg-opacity-50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div className="fixed inset-0  bg-gray-600/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
           <div className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
