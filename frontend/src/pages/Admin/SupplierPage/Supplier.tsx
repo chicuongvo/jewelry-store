@@ -8,6 +8,8 @@ import {
   MapPin,
   Package,
 } from "lucide-react";
+import { toast } from "react-toastify";
+import { AxiosError } from "axios";
 
 import type { SupplierResponse } from "@/types/supplier/supplier";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -28,7 +30,7 @@ export default function Suppliers() {
     {} as unknown as SupplierResponse
   );
 
-  const { data: suppliersData } = useQuery({
+  const { data: suppliersData, isLoading } = useQuery({
     queryKey: ["suppliers"],
     queryFn: getAllSuppliers,
   });
@@ -110,54 +112,58 @@ export default function Suppliers() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredSuppliers?.map(supplier => (
-                <tr
-                  key={supplier.supplier_id}
-                  className="hover:bg-gray-50 transition-colors duration-150"
-                >
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">
-                        {supplier.name}
+              {isLoading ? (
+                <TableSkeleton />
+              ) : (
+                filteredSuppliers?.map(supplier => (
+                  <tr
+                    key={supplier.supplier_id}
+                    className="hover:bg-gray-50 transition-colors duration-150"
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {supplier.name}
+                        </div>
+                        <div className="text-sm text-gray-500 flex items-center mt-1">
+                          <MapPin className="h-3 w-3 mr-1" />
+                          {supplier.address.split(",")[0]}
+                        </div>
                       </div>
-                      <div className="text-sm text-gray-500 flex items-center mt-1">
-                        <MapPin className="h-3 w-3 mr-1" />
-                        {supplier.address.split(",")[0]}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-500 flex items-center">
+                        <Phone className="h-3 w-3 mr-1" />
+                        {supplier.phone_number}
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-500 flex items-center">
-                      <Phone className="h-3 w-3 mr-1" />
-                      {supplier.phone_number}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center text-sm text-gray-900">
-                      <Package className="h-4 w-4 mr-2 text-gray-400" />
-                      {/* REFERENCE LATER */}
-                      {0} sản phẩm
-                    </div>
-                  </td>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center text-sm text-gray-900">
+                        <Package className="h-4 w-4 mr-2 text-gray-400" />
+                        {/* REFERENCE LATER */}
+                        {supplier?.products?.length} sản phẩm
+                      </div>
+                    </td>
 
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => handleEdit(supplier)}
-                        className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors duration-150"
-                      >
-                        <Edit2 className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(supplier)}
-                        className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => handleEdit(supplier)}
+                          className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors duration-150"
+                        >
+                          <Edit2 className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(supplier)}
+                          className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -176,6 +182,44 @@ export default function Suppliers() {
         <ConfirmModal deleting={deleting} setDeleting={setDeleting} />
       )}
     </div>
+  );
+}
+
+function TableSkeleton() {
+  return (
+    <>
+      {[...Array(5)].map((_, index) => (
+        <tr key={index} className="animate-pulse">
+          <td className="px-6 py-4 whitespace-nowrap">
+            <div className="space-y-2">
+              <div className="h-4 w-32 bg-gray-200 rounded"></div>
+              <div className="flex items-center">
+                <div className="h-3 w-3 mr-1 bg-gray-200 rounded"></div>
+                <div className="h-3 w-40 bg-gray-200 rounded"></div>
+              </div>
+            </div>
+          </td>
+          <td className="px-6 py-4 whitespace-nowrap">
+            <div className="flex items-center">
+              <div className="h-3 w-3 mr-1 bg-gray-200 rounded"></div>
+              <div className="h-4 w-24 bg-gray-200 rounded"></div>
+            </div>
+          </td>
+          <td className="px-6 py-4 whitespace-nowrap">
+            <div className="flex items-center">
+              <div className="h-4 w-4 mr-2 bg-gray-200 rounded"></div>
+              <div className="h-4 w-20 bg-gray-200 rounded"></div>
+            </div>
+          </td>
+          <td className="px-6 py-4 whitespace-nowrap">
+            <div className="flex space-x-2">
+              <div className="h-8 w-8 bg-gray-200 rounded"></div>
+              <div className="h-8 w-8 bg-gray-200 rounded"></div>
+            </div>
+          </td>
+        </tr>
+      ))}
+    </>
   );
 }
 
@@ -207,7 +251,25 @@ function SupplierModal({
       queryClient.invalidateQueries({
         queryKey: ["suppliers"],
       });
+      toast.success(
+        supplierData.supplier_id ? "Cập nhật thành công" : "Tạo thành công"
+      );
       setShowModal(false);
+    },
+    onError(error: AxiosError) {
+      const serverErr = error.response?.data as unknown as {
+        message: string[];
+      };
+      const msg =
+        error.status === 400
+          ? `Dữ liệu không thỏa mãn: ${serverErr.message.join(". ")}`
+          : "";
+      toast.error(
+        msg ||
+          `Lỗi khi ${
+            supplierData.supplier_id ? "cập nhật" : "tạo"
+          } Nhà cung cấp: ${error.message}`
+      );
     },
   });
 
@@ -313,7 +375,11 @@ function ConfirmModal({
       queryClient.invalidateQueries({
         queryKey: ["suppliers"],
       });
+      toast.success("Xóa thành công");
       setDeleting({} as unknown as SupplierResponse);
+    },
+    onError(error) {
+      toast.error(`Lỗi khi xóa Nhà cung cấp: ${error.message}`);
     },
   });
 
