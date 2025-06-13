@@ -8,26 +8,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// --------------------------------------------------------------------------- //
-
-// PRODUCT 
 model suppliers {
-  supplier_id  String @id @default(cuid())
-  name         String
-  address      String
-  phone_number String
-
-  products     products[]
-  // sales_orders sales_orders[]
+  supplier_id     String            @id @default(cuid())
+  name            String
+  address         String
+  phone_number    String
+  products        products[]
   purchase_orders purchase_orders[]
 }
 
 model product_types {
-  type_id     String @id @default(cuid())
-  name        String @unique
+  type_id     String     @id @default(cuid())
+  name        String     @unique
   profit_rate Float
-
-  products products[]
+  products    products[]
 }
 
 model units {
@@ -37,32 +31,25 @@ model units {
 }
 
 model products {
-  product_id  String  @id @default(cuid())
-  name        String
-  image       String
-  description String
-  buy_price   Decimal
-  sell_price  Decimal //sell_price = buy_price + buy_price * ProductType.profit_rate
-
-  created_at DateTime? @default(now())
-
-  supplier    suppliers? @relation(fields: [supplier_id], references: [supplier_id], onDelete: SetNull)
-  supplier_id String?
-
-  productType product_types? @relation(fields: [type], references: [name], onDelete: SetNull)
-  type        String?
-
-  productUnit units?  @relation(fields: [unit], references: [name], onDelete: SetNull)
-  unit        String?
-
+  product_id               String                     @id @default(cuid())
+  name                     String
+  image                    String
+  description              String
+  buy_price                Decimal
+  sell_price               Decimal
+  created_at               DateTime?                  @default(now())
+  supplier_id              String?
+  type                     String?
+  unit                     String?
+  cart_details             cart_details[]
   inventory_report_details inventory_report_details[]
+  supplier                 suppliers?                 @relation(fields: [supplier_id], references: [supplier_id])
+  productType              product_types?             @relation(fields: [type], references: [name])
+  productUnit              units?                     @relation(fields: [unit], references: [name])
   purchase_order_details   purchase_order_details[]
   sales_order_details      sales_order_details[]
 }
 
-// --------------------------------------------------------------------------- //
-
-// SERVICE
 model services {
   service_id            String                  @id @default(cuid())
   name                  String                  @unique
@@ -70,9 +57,6 @@ model services {
   service_order_details service_order_details[]
 }
 
-// --------------------------------------------------------------------------- //
-
-// INVENTORY
 model inventory_reports {
   report_id                String                     @id @default(cuid())
   month                    Int
@@ -81,42 +65,128 @@ model inventory_reports {
 }
 
 model inventory_report_details {
-  belongs_to inventory_reports @relation(fields: [report_id], references: [report_id])
-  report_id  String
-
-  product    products @relation(fields: [product_id], references: [product_id])
-  product_id String
-
+  report_id     String
+  product_id    String
   begin_stock   Int
-  buy_quantity  Int @default(0)
-  sell_quantity Int @default(0)
-  end_stock     Int @default(0)//end_stock = begin_stock + buy_quantity - sell_quantity
+  buy_quantity  Int               @default(0)
+  sell_quantity Int               @default(0)
+  end_stock     Int               @default(0)
+  product       products          @relation(fields: [product_id], references: [product_id])
+  belongs_to    inventory_reports @relation(fields: [report_id], references: [report_id])
 
   @@id([report_id, product_id])
 }
 
-// --------------------------------------------------------------------------- //
-
-// USER
 model users {
-  user_id                         String            @id @default(cuid())
-  google_id                       String            @unique @default(cuid())
-  username                        String            @unique
-  email                           String            @unique
-  phone_number                    String?           @unique
+  user_id                         String           @id @default(cuid())
+  google_id                       String           @unique @default(cuid())
+  username                        String           @unique
+  email                           String           @unique
+  phone_number                    String?          @unique
   password                        String
-  role                            Role              @default(USER)
+  role                            Role             @default(USER)
   fullname                        String?
   profile_pic                     String?
-  created_at                      DateTime?         @default(now())
-  is_verified                     Boolean           @default(false)
-  reset_password_token            String?           @unique
+  created_at                      DateTime?        @default(now())
+  is_verified                     Boolean          @default(false)
+  reset_password_token            String?          @unique
   reset_password_token_expires_at DateTime?
-  verification_token              String?           @unique
+  verification_token              String?          @unique
   verification_token_expires_at   DateTime?
-  // purchase_orders                 purchase_orders[]
-  service_orders                  service_orders[]
+  is_banned                       Boolean          @default(false)
+  carts                           carts?
   sales_orders                    sales_orders[]
+  service_orders                  service_orders[]
+}
+
+/// *
+///  * Purchase
+model purchase_orders {
+  purchase_order_id      String                   @id @default(cuid())
+  created_at             DateTime                 @default(now())
+  supplier_id            String
+  purchase_order_details purchase_order_details[]
+  supplier               suppliers                @relation(fields: [supplier_id], references: [supplier_id])
+}
+
+model purchase_order_details {
+  purchase_order_id String
+  product_id        String
+  quantity          Int
+  total_price       Decimal         @default(0)
+  product           products        @relation(fields: [product_id], references: [product_id])
+  purchase_order    purchase_orders @relation(fields: [purchase_order_id], references: [purchase_order_id])
+
+  @@id([purchase_order_id, product_id])
+}
+
+/// *
+///  * Sale
+model sales_orders {
+  sales_order_id      String                @id @default(cuid())
+  created_at          DateTime              @default(now())
+  client_id           String
+  sales_order_details sales_order_details[]
+  client              users                 @relation(fields: [client_id], references: [user_id])
+}
+
+model sales_order_details {
+  sales_order_id String
+  product_id     String
+  quantity       Int
+  total_price    Decimal      @default(0)
+  product        products     @relation(fields: [product_id], references: [product_id])
+  sales_order    sales_orders @relation(fields: [sales_order_id], references: [sales_order_id])
+
+  @@id([sales_order_id, product_id])
+}
+
+model service_orders {
+  service_order_id      String                  @id @default(cuid())
+  created_at            DateTime                @default(now())
+  client_id             String
+  total_price           Decimal                 @default(0)
+  total_paid            Decimal                 @default(0)
+  total_remaining       Decimal                 @default(0)
+  status                Status                  @default(NOT_DELIVERED)
+  service_order_details service_order_details[]
+  client                users                   @relation(fields: [client_id], references: [user_id])
+}
+
+model service_order_details {
+  service_order_id String
+  service_id       String
+  extra_cost       Decimal        @default(0)
+  calculated_price Decimal        @default(0)
+  quantity         Int
+  total_price      Decimal        @default(0)
+  paid             Decimal
+  remaining        Decimal        @default(0)
+  status           Status         @default(NOT_DELIVERED)
+  service          services       @relation(fields: [service_id], references: [service_id])
+  service_order    service_orders @relation(fields: [service_order_id], references: [service_order_id])
+
+  @@id([service_order_id, service_id])
+}
+
+model cart_details {
+  cart_id     String
+  product_id  String
+  quantity    Int
+  total_price Int      @default(0)
+  carts       carts    @relation(fields: [cart_id], references: [cart_id], onDelete: Cascade)
+  products    products @relation(fields: [product_id], references: [product_id])
+
+  @@id([cart_id, product_id])
+}
+
+model carts {
+  cart_id        String         @id
+  user_id        String         @unique
+  total_quantity Int            @default(0)
+  total_price    Int            @default(0)
+  cart_details   cart_details[]
+  users          users          @relation(fields: [user_id], references: [user_id])
 }
 
 enum Role {
@@ -124,103 +194,7 @@ enum Role {
   ADMIN
 }
 
-// --------------------------------------------------------------------------- //
-
-// ORDERS
-
-/**
- * Purchase
- */
-model purchase_orders {
-  purchase_order_id String   @id @default(cuid())
-  created_at        DateTime @default(now())
-
-
-  supplier            suppliers             @relation(fields: [supplier_id], references: [supplier_id])
-  supplier_id         String
-  // client                 users                    @relation(fields: [client_id], references: [user_id])
-  // client_id?              String
-  purchase_order_details purchase_order_details[]
-}
-
-model purchase_order_details {
-  purchase_order    purchase_orders @relation(fields: [purchase_order_id], references: [purchase_order_id])
-  purchase_order_id String
-
-  product    products @relation(fields: [product_id], references: [product_id])
-  product_id String
-
-  quantity    Int  //products.sell_quantity -= quantity
-  total_price Decimal @default(0) //total_price = quantity * products.sell_price
-
-  @@id([purchase_order_id, product_id])
-}
-
-/**
- * Sale
- */
-model sales_orders {
-  sales_order_id String   @id @default(cuid())
-  created_at     DateTime @default(now())
-
-  client                users                   @relation(fields: [client_id], references: [user_id])
-  client_id             String
-  // supplier            suppliers             @relation(fields: [supplier_id], references: [supplier_id])
-  // supplier_id         String
-  sales_order_details sales_order_details[]
-}
-
-model sales_order_details {
-  sales_order    sales_orders @relation(fields: [sales_order_id], references: [sales_order_id])
-  sales_order_id String
-
-  product    products @relation(fields: [product_id], references: [product_id])
-  product_id String
-
-  quantity    Int
-  total_price Decimal @default(0)//total_price = product.sell_price * quantity
-
-  @@id([sales_order_id, product_id])
-}
-
-/**
- * Service
- */
-
-model service_orders {
-  service_order_id String   @id @default(cuid())
-  created_at       DateTime @default(now())
-
-  client                users                   @relation(fields: [client_id], references: [user_id])
-  client_id             String
-  total_price           Decimal @default(0)
-  total_paid            Decimal @default(0)
-  total_remaining       Decimal @default(0)
-  status                Status @default(NOT_DELIVERED)
-  service_order_details service_order_details[]
-}
-
-model service_order_details {
-  service_order    service_orders @relation(fields: [service_order_id], references: [service_order_id])
-  service_order_id String
-
-  service    services @relation(fields: [service_id], references: [service_id])
-  service_id String
-
-  extra_cost       Decimal @default(0)
-  calculated_price Decimal @default(0) //service.base_price + extra_cost
-  quantity         Int
-  total_price      Decimal @default(0)//calculated_price * quantity
-  paid             Decimal // >= (0.5 * total_price )
-  remaining        Decimal @default(0)
-  status           Status  @default(NOT_DELIVERED)
-
-  @@id([service_order_id, service_id])
-}
-
 enum Status {
   NOT_DELIVERED
   DELIVERED
 }
-
-// ---- 

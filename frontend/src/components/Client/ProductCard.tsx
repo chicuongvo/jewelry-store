@@ -1,19 +1,8 @@
+import type { Product } from "@/types/Product/product";
 import { ShoppingBag, Tag } from "lucide-react";
 import { Link } from "react-router";
 
-interface product {
-  product_id: string;
-  name: string;
-  image: string;
-  description: string;
-  buy_price: string;
-  sell_price: string;
-  created_at: string;
-  type: string;
-  unit: string;
-}
-
-export default function ProductCard({ product }: { product: product }) {
+export default function ProductCard({ product }: { product: Product }) {
   return (
     <div className="bg-white font-primary overflow-hidden transition-all  group transition-all duration-500">
       <div className="relative">

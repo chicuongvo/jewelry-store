@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import ProductTypeCard from "../../../../components/Client/ProductTypeCard";
 import charms from "../../../../../assets/charms.webp";
 import rings from "../../../../../assets/ring.webp";
@@ -10,20 +11,46 @@ interface ProductType {
   img: string;
 }
 
-const productTypes = [
-  { name: "Charms", img: charms },
-  { name: "Nhẫn", img: rings },
-  { name: "Vòng tay", img: bracelet },
-  { name: "Dây chuyền", img: necklace },
-  { name: "Vòng tay", img: bracelet },
-  { name: "Bông tai", img: earrings },
-];
+export default function ProductTypes({
+  searchCategories,
+  setSearchCategories,
+  setUpdateData,
+}: {
+  searchCategories: any;
+  setSearchCategories: any;
+  setUpdateData: any;
+}) {
+  const productTypes = [
+    { name: "Charms", img: charms },
+    { name: "Nhẫn", img: rings },
+    { name: "Vòng tay", img: bracelet },
+    { name: "Dây chuyền", img: necklace },
+    { name: "Bông tai", img: earrings },
+  ];
 
-const renderProductTypes = (productTypes: ProductType[]) => {
-  return productTypes.map((type) => <ProductTypeCard productType={type} />);
-};
+  const handleToggleCategory = (categoryName: string) => {
+    setSearchCategories((prev: string[]) =>
+      prev.includes(categoryName)
+        ? prev.filter((name) => name !== categoryName)
+        : [...prev, categoryName]
+    );
+    setUpdateData(true);
+  };
 
-export default function ProductTypes() {
+  const renderProductTypes = (productTypes: ProductType[]) => {
+    return productTypes.map((type, index) => {
+      const chosen = searchCategories.includes(type.name);
+      return (
+        <ProductTypeCard
+          key={index}
+          productType={type}
+          chosen={chosen}
+          onClick={() => handleToggleCategory(type.name)}
+        />
+      );
+    });
+  };
+
   return (
     <div className="flex flex-row gap-6 overflow-x-scroll scroll-container w-full  items-center h-max">
       {renderProductTypes(productTypes)}

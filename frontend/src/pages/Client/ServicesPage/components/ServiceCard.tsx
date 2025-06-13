@@ -14,7 +14,9 @@ export default function ServiceCard({
     <div
       key={service.service_id}
       className={`bg-white rounded-xl shadow-sm border ${
-        isSelected ? "border-primary shadow-xl border-2" : "border-gray-200"
+        isSelected
+          ? "border-primary shadow-xl border-2"
+          : "border-gray-200 border-2"
       } p-6 pb-3 transition-shadow duration-200`}
     >
       <div className="flex items-start justify-between mb-4">
