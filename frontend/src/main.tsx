@@ -24,7 +24,7 @@ import ProductType from "./pages/Admin/ProductTypePage/ProductType";
 import { NotificationProvider } from "./contexts/notificationContext.tsx";
 import InventoryReports from "./pages/Admin/InventoryReportPage/InventoryReport.tsx";
 import InventoryReportDetails from "./pages/Admin/InventoryReportDetailsPage/InventoryReportDetails.tsx";
-// import ClientServices from "./pages/Client/ServicesPage/Services.tsx";
+import Services from "./pages/Client/ServicesPage/Services.tsx";
 
 const queryClient = new QueryClient();
 
