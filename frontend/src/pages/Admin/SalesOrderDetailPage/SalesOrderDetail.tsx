@@ -1,67 +1,60 @@
 import { useState } from "react";
 import { Search, Plus, Edit2, Trash2 } from "lucide-react";
-import { useNavigate } from "react-router";
+import { useLocation } from "react-router-dom";
 
-import type {
-  SalesOrderRes,
-  SalesOrderData,
-} from "@/types/SalesOrder/salesOrder.ts";
+import type { SalesOrderDetailData } from "@/types/SalesOrder/salesOrder.ts";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  getAllSalesOrder,
-  deleteSalesOrder,
-  createSalesOrder,
-} from "@/api/sales_order.api";
+  getAllSalesOrderDetail,
+  createSalesOrderDetail,
+  updateSalesOrderDetail,
+  deleteSalesOrderDetail,
+} from "@/api/sales_order_detail.api";
 import * as React from "react";
 
-export default function SalesOrder() {
+export default function SalesOrderDetail() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = React.useState(false);
-  const [editingSalesOrder, setEditingSalesOrder] = useState<SalesOrderRes>(
-    {} as SalesOrderRes,
+  const [editingPurchaseOrderDetail, setEditingPurchaseOrderDetail] =
+    useState<SalesOrderDetailData>({} as SalesOrderDetailData);
+  const [deleting, setDeleting] = useState<SalesOrderDetailData>(
+    {} as SalesOrderDetailData,
   );
-  const [deleting, setDeleting] = useState<SalesOrderRes>({} as SalesOrderRes);
 
-  const { data: salesOrderData } = useQuery({
-    queryKey: ["salesOrder"],
-    queryFn: getAllSalesOrder,
+  const location = useLocation();
+  console.log(location.pathname.split("/")[2]);
+
+  const { data: salesOrderDetailData } = useQuery({
+    queryKey: ["salesOrderDetailData", location.pathname.split("/")[2]],
+    queryFn: () => getAllSalesOrderDetail(location.pathname.split("/")[2]),
   });
 
-  let navigate = useNavigate();
-  const routeChange = (sales_order_id: String) => {
-    let path = `/sales-order-details/${sales_order_id}`;
-    navigate(path);
-  };
-
-  console.log(salesOrderData);
-
-  const filteredSalesOrder = salesOrderData?.filter(
-    (salesOrder) =>
-      salesOrder.sales_order_id
+  const filteredSalesOrderDetail = salesOrderDetailData?.filter(
+    (salesOrderDetail) =>
+      salesOrderDetail.quantity
+        .toString()
         .toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
-      salesOrder.client.username
+      salesOrderDetail.total_price
+        .toString()
         .toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
-      salesOrder.client.phone_number
+      salesOrderDetail.product.name
         .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      salesOrder.created_at.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      salesOrder.client_id.toLowerCase().includes(searchTerm.toLowerCase()),
+        .includes(searchTerm.toLowerCase()),
   );
 
-  const handleEdit = (salesOrder: SalesOrderRes) => {
-    setEditingSalesOrder(salesOrder);
+  const handleEdit = (salesOrderDetail: SalesOrderDetailData) => {
+    setEditingPurchaseOrderDetail(salesOrderDetail);
     setShowModal(true);
   };
 
   const handleAdd = () => {
-    setEditingSalesOrder({} as unknown as SalesOrderRes);
+    setEditingPurchaseOrderDetail({} as unknown as SalesOrderDetailData);
     setShowModal(true);
   };
-
-  const handleDelete = (salesOrder: SalesOrderRes) => {
-    setDeleting(salesOrder);
+  const handleDelete = (salesOrderDetail: SalesOrderDetailData) => {
+    setDeleting(salesOrderDetail);
   };
 
   return (
@@ -69,9 +62,9 @@ export default function SalesOrder() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Sales Order</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Purchase Order</h1>
           <p className="text-gray-600">
-            Manage your sales order information and relationships
+            Manage your purchase order detail information and relationships
           </p>
         </div>
         <button
@@ -79,7 +72,7 @@ export default function SalesOrder() {
           className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Add Sales Order
+          Add Purchase Order Detail
         </button>
       </div>
 
@@ -90,7 +83,7 @@ export default function SalesOrder() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <input
               type="text"
-              placeholder="Search sales order..."
+              placeholder="Search purchase order..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -108,13 +101,13 @@ export default function SalesOrder() {
                   ID
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Khách hàng
+                  Sản phẩm
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Số điện thoại
+                  Số lượng
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Ngày tạo
+                  Đơn giá
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Action
@@ -122,41 +115,38 @@ export default function SalesOrder() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredSalesOrder?.map((salesOrder) => (
-                <tr
-                  onClick={() => routeChange(salesOrder.sales_order_id)}
-                  className="hover:bg-gray-50 transition-colors duration-150"
-                >
+              {filteredSalesOrderDetail?.map((salesOrderDetail) => (
+                <tr className="hover:bg-gray-50 transition-colors duration-150">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">
-                      {filteredSalesOrder.indexOf(salesOrder) + 1}
+                      {filteredSalesOrderDetail.indexOf(salesOrderDetail) + 1}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">
-                      {salesOrder.client.username}
+                      {salesOrderDetail.product.name}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">
-                      {salesOrder.client.phone_number}
+                      {salesOrderDetail.quantity}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">
-                      {salesOrder.created_at}
+                      {salesOrderDetail.total_price}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center space-x-2">
                       <button
-                        onClick={() => handleEdit(salesOrder)}
+                        onClick={() => handleEdit(salesOrderDetail)}
                         className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors duration-150"
                       >
                         <Edit2 className="h-4 w-4" />
                       </button>
                       <button
-                        onClick={() => handleDelete(salesOrder)}
+                        onClick={() => handleDelete(salesOrderDetail)}
                         className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -171,7 +161,8 @@ export default function SalesOrder() {
       </div>
       {showModal && (
         <PurchaseOrderModal
-          salesOrderData={editingSalesOrder}
+          sales_order_id={location.pathname.split("/")[2]}
+          salesOrderDetailData={editingPurchaseOrderDetail}
           setShowModal={setShowModal}
         />
       )}
@@ -182,23 +173,37 @@ export default function SalesOrder() {
   );
 }
 
+// export type SalesOrderDetailCreate = {
+//   sales_order_id: string;
+//   product_id: string;
+//   quantity: number;
+//   total_price: number;
+// };
+
 function PurchaseOrderModal({
-  salesOrderData,
+  sales_order_id,
+  salesOrderDetailData,
   setShowModal,
 }: {
-  salesOrderData: SalesOrderRes;
+  sales_order_id: string;
+  salesOrderDetailData: SalesOrderDetailData;
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-  const [salesOder, setSalesOrder] = useState({
-    client_id: salesOrderData.client_id,
-  } as SalesOrderData);
+  const [salesOrderDetail, setPurchaseOrderDetail] = useState({
+    sales_order_id: sales_order_id,
+    product_id: salesOrderDetailData.product_id,
+    quantity: salesOrderDetailData.quantity,
+    total_price: 1,
+  } as SalesOrderDetailData);
 
   const queryClient = useQueryClient();
   const { mutate, isPending } = useMutation({
-    mutationFn: (data: SalesOrderData) => createSalesOrder(data),
+    mutationFn: salesOrderDetailData.product_id
+      ? (data: SalesOrderDetailData) => updateSalesOrderDetail(data)
+      : (data: SalesOrderDetailData) => createSalesOrderDetail(data),
     onSuccess() {
       queryClient.invalidateQueries({
-        queryKey: ["salesOrder"],
+        queryKey: ["salesOrderDetailData", sales_order_id],
       });
       setShowModal(false);
     },
@@ -206,8 +211,9 @@ function PurchaseOrderModal({
 
   const handleSubmit = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
-    if (!salesOder.client_id) return;
-    mutate(salesOder);
+    if (!salesOrderDetail.sales_order_id || !salesOrderDetail.product_id)
+      return;
+    mutate(salesOrderDetail);
   };
 
   return (
@@ -215,23 +221,46 @@ function PurchaseOrderModal({
       <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            {salesOder ? "Edit Sales Order" : "Add New Sales Order"}
+            {salesOrderDetail
+              ? "Edit Purchase Order"
+              : "Add New Purchase Order"}
           </h2>
 
           <form className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Client ID:
+                Product_id:
               </label>
               <input
                 disabled={isPending}
                 type="text"
-                defaultValue={salesOder?.client_id || ""}
+                defaultValue={salesOrderDetail?.product_id || ""}
                 onChange={(e) =>
-                  setSalesOrder({ ...setSalesOrder, client_id: e.target.value })
+                  setPurchaseOrderDetail({
+                    ...salesOrderDetail,
+                    product_id: e.target.value,
+                  })
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Enter supplier name"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Quantity:
+              </label>
+              <input
+                disabled={isPending}
+                type="number"
+                defaultValue={salesOrderDetail?.quantity || 0}
+                onChange={(e) =>
+                  setPurchaseOrderDetail({
+                    ...salesOrderDetail,
+                    quantity: parseInt(e.target.value),
+                  })
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Enter quantity"
               />
             </div>
           </form>
@@ -249,7 +278,7 @@ function PurchaseOrderModal({
             >
               {isPending
                 ? "Updating ..."
-                : salesOrderData.sales_order_id
+                : salesOrderDetailData.product_id
                   ? "Update"
                   : "Create"}{" "}
             </button>
@@ -264,17 +293,17 @@ function ConfirmModal({
   deleting,
   setDeleting,
 }: {
-  deleting: SalesOrderRes;
-  setDeleting: React.Dispatch<React.SetStateAction<SalesOrderRes>>;
+  deleting: SalesOrderDetailData;
+  setDeleting: React.Dispatch<React.SetStateAction<SalesOrderDetailData>>;
 }) {
   const queryClient = useQueryClient();
   const { mutate, isPending } = useMutation({
-    mutationFn: deleteSalesOrder,
+    mutationFn: deleteSalesOrderDetail,
     onSuccess() {
       queryClient.invalidateQueries({
-        queryKey: ["salesOrder"],
+        queryKey: ["salesOrderDetail"],
       });
-      setDeleting({} as unknown as SalesOrderRes);
+      setDeleting({} as unknown as SalesOrderDetailData);
     },
   });
 
@@ -287,13 +316,13 @@ function ConfirmModal({
       <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Bạn chắc chắn muốn xóa Đơn bán hàng <b>{deleting.sales_order_id}</b>
+            Bạn chắc chắn muốn xóa Đơn đặt hàng <b>{deleting.sales_order_id}</b>
             ?
           </h2>
 
           <div className="flex justify-end space-x-3 mt-6 pt-4 border-t">
             <button
-              onClick={() => setDeleting({} as unknown as SalesOrderRes)}
+              onClick={() => setDeleting({} as unknown as SalesOrderDetailData)}
               className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
             >
               Cancel

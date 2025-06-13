@@ -1,59 +1,48 @@
 import { axiosClient } from "../lib/axios";
 
-export interface SalesOrderDetailInput {
-  product_id: string;
-  sales_order_id: string;
-}
+import type { SalesOrderDetailData } from "../types/SalesOrder/salesOrder.ts";
 
-export interface SalesOrderDetailData {
-  product_id: string;
-  sales_order_id: string;
-  quantity: number;
-  total_price: number;
-}
-
-export interface SalesOrderRes {
-  sales_order_id: string;
-  product_id: string;
-  quantity: number;
-  total_price: number;
-}
+export const getAllSalesOrderDetail = async (
+  id: String,
+): Promise<SalesOrderDetailData[]> => {
+  const response = await axiosClient.get(`/sales-order-details/${id}`);
+  return response.data.data;
+};
 
 export const getSalesOrderDetail = async (
-  SalesOrderDetailInput: SalesOrderDetailInput,
-): Promise<SalesOrderRes> => {
+  SalesOrderDetailInput: SalesOrderDetailData,
+): Promise<SalesOrderDetailData> => {
   const response = await axiosClient.get(
-    `/sales-order-detail/${SalesOrderDetailInput.sales_order_id}/${SalesOrderDetailInput.product_id}`,
+    `/sales-order-details/${SalesOrderDetailInput.sales_order_id}/${SalesOrderDetailInput.product_id}`,
   );
-  return response.data;
+  return response.data.data;
 };
 
 export const createSalesOrderDetail = async (
   SalesOrderDetailData: SalesOrderDetailData,
 ) => {
   const response = await axiosClient.post(
-    "/sales-order-detail",
+    "/sales-order-details",
     SalesOrderDetailData,
   );
-  return response.data;
+  return response.data.data;
 };
 
 export const updateSalesOrderDetail = async (
-  SalesOrderDetailInput: SalesOrderDetailInput,
   SalesOrderDetailData: SalesOrderDetailData,
 ) => {
   const response = await axiosClient.put(
-    `/sales-order-detail/${SalesOrderDetailInput.sales_order_id}/${SalesOrderDetailInput.product_id}`,
+    `/sales-order-details/${SalesOrderDetailData.sales_order_id}/${SalesOrderDetailData.product_id}`,
     SalesOrderDetailData,
   );
-  return response.data;
+  return response.data.data;
 };
 
 export const deleteSalesOrderDetail = async (
-  SalesOrderDetailInput: SalesOrderDetailInput,
+  SalesOrderDetailInput: SalesOrderDetailData,
 ) => {
   const response = await axiosClient.delete(
-    `/sales-order-detail/${SalesOrderDetailInput.sales_order_id}/${SalesOrderDetailInput.product_id}`,
+    `/sales-order-details/${SalesOrderDetailInput.sales_order_id}/${SalesOrderDetailInput.product_id}`,
   );
-  return response.data;
+  return response.data.data;
 };
