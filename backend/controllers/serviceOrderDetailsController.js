@@ -40,14 +40,14 @@ export const getServiceOrderDetails = async (req, res) => {
   }
 };
 export const createServiceOrderDetails = async (req, res) => {
-  // const { service_order_id, service_id, quantity, total_price } = req.body;
-  const { service_order_id, service_id } = req.body;
+  const { service_order_id, service_id, quantity, total_price } = req.body;
+  // const { service_order_id, service_id } = req.body;
   try {
-    await createServiceOrderDetailsValidator.validateAsync({
-      ...req.body,
-      ...req.params,
-    });
-    console.log(service_order_id, service_id);
+    // await createServiceOrderDetailsValidator.validateAsync({
+    //   ...req.body,
+    //   ...req.params,
+    // });
+    // console.log(service_order_id, service_id);
 
     const existingServiceOrderDetail =
       await prisma.service_order_details.findMany({

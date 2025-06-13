@@ -50,6 +50,9 @@ export const getAllServiceOrders = async (req, res) => {
           },
         },
       },
+      orderBy: {
+        created_at: "desc",
+      },
     });
 
     if (!serviceOrder) {
