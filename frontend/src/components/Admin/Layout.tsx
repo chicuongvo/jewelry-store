@@ -5,9 +5,9 @@ import { Bounce, ToastContainer } from "react-toastify";
 
 export default function Layout() {
   return (
-    <div className="flex font-admin h-screen w-min-screen relative">
+    <div className="flex font-admin h-screen relative">
       <Sidebar />
-      <div className="w-full">
+      <div className="w-full min-h-screen">
         <div className="sticky left-0 top-0 w-full z-500">
           <Header />
         </div>

@@ -16,19 +16,19 @@ import {
 
 const navigation = [
   { name: "Trang chủ", href: "/admin", icon: Home },
-  { name: "Nhà cung cấp", href: "/admin/suppliers", icon: Truck },
   { name: "Loại sản phẩm", href: "/admin/product-types", icon: Tag },
   { name: "Sản phẩm", href: "/admin/products", icon: Package },
-  { name: "Báo cáo tồn kho", href: "/admin/inventory-reports", icon: FileText },
+  { name: "Dịch vụ", href: "/admin/services", icon: Wrench },
+  { name: "Nhà cung cấp", href: "/admin/suppliers", icon: Truck },
   { name: "Khách hàng", href: "/admin/users", icon: Users },
+  { name: "Phiếu bán hàng", href: "/admin/sales-orders", icon: ShoppingBag },
   {
     name: "Phiếu mua hàng",
     href: "/admin/purchase-orders",
     icon: ShoppingCart,
   },
-  { name: "Phiếu bán hàng", href: "/admin/sales-orders", icon: ShoppingBag },
   { name: "Phiếu dịch vụ", href: "/admin/service-orders", icon: ClipboardList },
-  { name: "Dịch vụ", href: "/admin/services", icon: Wrench },
+  { name: "Báo cáo tồn kho", href: "/admin/inventory-reports", icon: FileText },
 ];
 
 export default function Sidebar() {

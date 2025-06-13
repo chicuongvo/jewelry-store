@@ -1,13 +1,24 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { axiosClient, axiosClientFormData } from "../lib/axios";
 
-import type {
-  Product,
-  ProductCreateData,
-  ProductUpdateData,
-} from "../types/Product/product";
+import type { Product, ProductCreateData } from "../types/Product/product";
 
-export const getAllProducts = async (): Promise<Product[]> => {
-  const res = await axiosClient.get("/products");
+export interface GetProductParams {
+  name?: string;
+  category?: string;
+  minPrice?: string;
+  maxPrice?: string;
+  supplier?: string;
+  sortBy?: string;
+  sortOrder?: string;
+  page?: string;
+  limit?: string;
+}
+
+export const getAllProducts = async (
+  params: GetProductParams = {}
+): Promise<Product[]> => {
+  const res = await axiosClient.get("/products", { params: params });
   return res?.data.data;
 };
 

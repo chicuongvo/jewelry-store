@@ -41,6 +41,7 @@ model products {
   supplier_id              String?
   type                     String?
   unit                     String?
+  cart_details             cart_details[]
   inventory_report_details inventory_report_details[]
   supplier                 suppliers?                 @relation(fields: [supplier_id], references: [supplier_id])
   productType              product_types?             @relation(fields: [type], references: [name])
@@ -93,6 +94,7 @@ model users {
   verification_token              String?          @unique
   verification_token_expires_at   DateTime?
   is_banned                       Boolean          @default(false)
+  carts                           carts?
   sales_orders                    sales_orders[]
   service_orders                  service_orders[]
 }
@@ -165,6 +167,26 @@ model service_order_details {
   service_order    service_orders @relation(fields: [service_order_id], references: [service_order_id])
 
   @@id([service_order_id, service_id])
+}
+
+model cart_details {
+  cart_id     String
+  product_id  String
+  quantity    Int
+  total_price Int      @default(0)
+  carts       carts    @relation(fields: [cart_id], references: [cart_id], onDelete: Cascade)
+  products    products @relation(fields: [product_id], references: [product_id])
+
+  @@id([cart_id, product_id])
+}
+
+model carts {
+  cart_id        String         @id
+  user_id        String         @unique
+  total_quantity Int            @default(0)
+  total_price    Int            @default(0)
+  cart_details   cart_details[]
+  users          users          @relation(fields: [user_id], references: [user_id])
 }
 
 enum Role {
