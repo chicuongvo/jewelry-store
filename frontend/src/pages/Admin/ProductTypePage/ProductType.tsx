@@ -4,20 +4,29 @@ import { Search, Plus, Edit2, Trash2, Tag, Percent } from "lucide-react";
 import { Modal } from "antd";
 
 import useProductTypes from "@/hooks/useProductTypes";
+import { Pagination } from "antd";
+import { useSearchParams } from "react-router";
 export default function ProductTypes() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingType, setEditingType] = useState<any>(null);
   const [modal, contextHolder] = Modal.useModal();
 
+  const [searchParams, setSearchParams] = useSearchParams();
+  const newSeachParams = new URLSearchParams(searchParams.toString());
+  newSeachParams.set("limit", "6");
+
   const {
     getAllProductTypesQuery,
+    getFilteredProductTypesQuery,
     createProductTypeMutation,
     updateProductTypeMutation,
     deleteProductTypeMutation,
-  } = useProductTypes();
+  } = useProductTypes(newSeachParams.toString());
 
-  const filteredTypes = getAllProductTypesQuery.data?.filter((type) =>
+  console.log(getAllProductTypesQuery.data?.length);
+  console.log(getFilteredProductTypesQuery.data?.length);
+  const filteredTypes = getFilteredProductTypesQuery.data?.filter((type) =>
     type.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -82,7 +91,7 @@ export default function ProductTypes() {
     }
   };
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 flex flex-col w-full h-full">
       {/* Page Header */}
       {contextHolder}
       <div className="flex items-center justify-between">
@@ -183,10 +192,19 @@ export default function ProductTypes() {
           </div>
         ))}
       </div>
-
+      <div className="mx-auto mt-auto w-fit- h-fit mb-4">
+        <Pagination
+          onChange={(currentPage) => {
+            newSeachParams.set("page", currentPage.toString());
+            setSearchParams(newSeachParams);
+          }}
+          pageSize={6}
+          total={getAllProductTypesQuery.data?.length || 0}
+        />
+      </div>
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-gray-600/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
             <div className="p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">

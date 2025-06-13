@@ -1,4 +1,5 @@
-import { getAllProducts } from "../api/product.api";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { getAllProductQueries } from "../api/product.api";
 import { getAllSuppliers } from "@/api/supplier.api";
 import { getAllProductTypes } from "@/api/productType";
 import {
@@ -7,19 +8,37 @@ import {
   createProduct,
 } from "../api/product.api";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
-export default function useProducts() {
+import type { Product } from "@/types/Product/product";
+export default function useProducts(query?: string) {
   const queryClient = useQueryClient();
-  const getAllProductQuery = useQuery({
+  const getAllProductQuery = useQuery<Product[]>({
     queryKey: ["products"],
-    queryFn: getAllProducts,
+    queryFn: () => {
+      return getAllProductQueries("");
+    },
   });
+  const getFilteredProductsQuery = useQuery<
+    Product[],
+    Error,
+    Product[],
+    [string, string?]
+  >({
+    queryKey: ["products", query],
+    queryFn: ({ queryKey }) => {
+      const [, query] = queryKey;
+      return getAllProductQueries(query);
+    },
+  });
+
   const getAllSuppliersQuery = useQuery({
     queryKey: ["suppliers"],
     queryFn: getAllSuppliers,
   });
   const getAllProductTypesQuery = useQuery({
     queryKey: ["productTypes"],
-    queryFn: getAllProductTypes,
+    queryFn: () => {
+      return getAllProductTypes();
+    },
   });
   const deleteProductMutation = useMutation({
     mutationFn: (id: string) => {
@@ -46,6 +65,7 @@ export default function useProducts() {
     getAllProductQuery,
     getAllSuppliersQuery,
     getAllProductTypesQuery,
+    getFilteredProductsQuery,
     deleteProductMutation,
     updateProductMutation,
     createProductMutation,

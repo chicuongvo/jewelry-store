@@ -6,8 +6,16 @@ import {
 
 export const getAllTypes = async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || undefined;
+
+    const query = { skip: (page - 1) * limit || 0 };
+    if (limit) {
+      query.take = limit;
+    }
     const types = await prisma.product_types.findMany({
       include: { products: true },
+      ...query,
     });
 
     return res.status(200).json({ success: true, data: types });
@@ -110,6 +118,8 @@ export const updateType = async (req, res) => {
     const type_id = req.params.id;
     const data = req.body;
 
+    console.log("Data to update:", data);
+    console.log("Type ID:", type_id);
     if (!Object.keys(data).length) {
       return res
         .status(400)

@@ -3,6 +3,7 @@ import {
   updateProductValidator,
 } from "../validation/productValidation.js";
 import { prisma } from "../config/db.js";
+import cloudinary from "../config/cloudinary.js";
 
 export const getAllProducts = async (req, res) => {
   try {
@@ -137,9 +138,8 @@ export const getProduct = async (req, res) => {
 };
 
 export const createProduct = async (req, res) => {
-  const { name, image, description, buy_price, type, unit, supplier_id } =
-    req.body;
-
+  const { name, description, buy_price, type, unit, supplier_id } = req.body;
+  const imageFile = req.file;
   try {
     if (!req.body || Object.keys(req.body).length === 0) {
       return res
@@ -169,11 +169,18 @@ export const createProduct = async (req, res) => {
         .json({ success: false, message: "Supplier was not valid" });
 
     const sell_price = (1 + checkType.profit_rate) * buy_price;
+    let imageUrl = { secure_url: "" };
+    if (imageFile) {
+      const imageBase64 = `data:${
+        imageFile.mimetype
+      };base64,${imageFile.buffer.toString("base64")}`;
+      imageUrl = await cloudinary.uploader.upload(imageBase64);
+    }
 
     const newProduct = await prisma.products.create({
       data: {
         name,
-        image,
+        image: imageUrl.secure_url || "",
         description,
         buy_price,
         type,
@@ -185,6 +192,7 @@ export const createProduct = async (req, res) => {
 
     return res.status(201).json({ success: true, data: newProduct });
   } catch (error) {
+    console.log("Error creating product:", error);
     if (error.isJoi) {
       return res.status(400).json({
         success: false,
@@ -206,6 +214,7 @@ export const deleteProduct = async (req, res) => {
       where: { product_id },
     });
 
+    console.log("checkProduct", checkProduct);
     if (checkProduct) {
       await prisma.products.delete({ where: { product_id } });
       return res
@@ -218,16 +227,18 @@ export const deleteProduct = async (req, res) => {
     }
   } catch (error) {
     console.log("Error delete product", error);
-    return res
-      .status(400)
-      .json({ success: false, message: "Internal Server Error" });
+    return res.status(400).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.toString(),
+    });
   }
 };
 
 export const updateProduct = async (req, res) => {
   const product_id = req.params.id;
-  const { name, image, description, buy_price, type, unit, supplier_id } =
-    req.body;
+  const { name, description, buy_price, type, unit, supplier_id } = req.body;
+  const imageFile = req.file;
 
   try {
     if (!req.body || Object.keys(req.body).length === 0) {
@@ -272,6 +283,15 @@ export const updateProduct = async (req, res) => {
     const new_buy_price = buy_price ?? oldProduct.buy_price;
     const sell_price = (1 + profit_rate) * new_buy_price;
 
+    let image = oldProduct.image;
+    if (imageFile) {
+      const imageBase64 = `data:${
+        req.file.mimetype
+      };base64,${req.file.buffer.toString("base64")}`;
+      const imageUrl = await cloudinary.uploader.upload(imageBase64);
+
+      image = imageUrl.secure_url;
+    }
     const updatedProduct = await prisma.products.update({
       where: { product_id },
       data: {

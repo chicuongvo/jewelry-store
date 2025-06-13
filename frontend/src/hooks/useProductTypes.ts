@@ -6,11 +6,20 @@ import {
   updateProductType,
 } from "@/api/productType";
 
-export default function useProductTypes() {
+export default function useProductTypes(queryString?: string) {
   const queryClient = useQueryClient();
   const getAllProductTypesQuery = useQuery({
     queryKey: ["productTypes"],
-    queryFn: getAllProductTypes,
+    queryFn: () => {
+      return getAllProductTypes();
+    },
+  });
+  const getFilteredProductTypesQuery = useQuery({
+    queryKey: ["productTypes", queryString],
+    queryFn: ({ queryKey }) => {
+      const [, query] = queryKey;
+      return getAllProductTypes(queryString);
+    },
   });
   const deleteProductTypeMutation = useMutation({
     mutationFn: (id: string) => {
@@ -38,6 +47,7 @@ export default function useProductTypes() {
   });
   return {
     getAllProductTypesQuery,
+    getFilteredProductTypesQuery,
     deleteProductTypeMutation,
     updateProductTypeMutation,
     createProductTypeMutation,

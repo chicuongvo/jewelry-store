@@ -11,9 +11,7 @@ export const createProductValidator = Joi.object({
     "string.empty": "Product type must not be empty",
     "any.required": "Product type is required",
   }),
-  image: Joi.string().required().messages({
-    "any.required": "Image is required",
-  }),
+
   unit: Joi.string().required().messages({
     "string.empty": "Product unit must not be empty",
     "any.required": "Product unit is required",
@@ -43,7 +41,6 @@ export const updateProductValidator = Joi.object({
   type: Joi.string().messages({
     "string.empty": "Product type must not be empty",
   }),
-  image: Joi.string(),
   unit: Joi.string().messages({
     "string.empty": "Product unit must not be empty",
   }),

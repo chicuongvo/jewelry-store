@@ -22,6 +22,13 @@ export const getAllProducts = async (
   return res?.data.data;
 };
 
+export const getAllProductQueries = async (
+  query?: string
+): Promise<Product[]> => {
+  const res = await axiosClient.get(`/products?${query ?? ""}`);
+  return res?.data.data;
+};
+
 export const getProduct = async (id: string): Promise<Product> => {
   const res = await axiosClient.get(`/products/${id}`);
   return res?.data.data;

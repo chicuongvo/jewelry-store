@@ -1,4 +1,4 @@
-import type { SupplierCreate } from "../supplier/supplier";
+import type { SupplierCreate, SupplierResponse } from "../supplier/supplier";
 export type Product = {
   product_id: string;
   name: string;
@@ -10,7 +10,7 @@ export type Product = {
   supplier_id: string;
   type: string;
   unit: string;
-  supplier?: SupplierCreate;
+  supplier?: SupplierResponse;
 };
 
 export type ProductCreateData = {
