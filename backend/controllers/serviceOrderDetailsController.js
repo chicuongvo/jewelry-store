@@ -18,6 +18,14 @@ export const getServiceOrderDetails = async (req, res) => {
           service_order_id,
         },
       },
+      include: {
+        service: true,
+        service_order: {
+          include: {
+            client: true,
+          },
+        },
+      },
     });
     return res.status(200).json({
       success: true,

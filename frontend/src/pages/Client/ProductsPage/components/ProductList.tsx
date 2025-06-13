@@ -230,7 +230,7 @@ export default function ProductList() {
     return products.map((product) => <ProductCard product={product} />);
   };
   return (
-    <div className="px-2  grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 lg:gap-10">
+    <div className="px-2 lg:px-5 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 lg:gap-10">
       {renderProducts(products)}
     </div>
   );

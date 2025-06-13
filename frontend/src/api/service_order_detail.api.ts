@@ -1,4 +1,6 @@
 import { axiosClient } from "../lib/axios";
+import type { ServiceResponse } from "../types/service/service";
+import type { Client } from "../types/ServiceOrder/ServiceOrder";
 
 export interface ServiceOrderDetailInput {
   service_order_id: string;
@@ -25,43 +27,54 @@ export interface ServiceOrderDetailRes {
   paid: number;
   remaining: number;
   status: string;
+  service: ServiceResponse;
+  service_order: {
+    service_order_id: string;
+    client_id: string;
+    total_price: number;
+    total_paid: number;
+    total_remaining: number;
+    status: string;
+    created_at: string;
+    client: Client;
+  };
 }
 
 export const getServiceOrderDetail = async (
-  ServiceOrderDetailInput: ServiceOrderDetailInput,
+  ServiceOrderDetailInput: ServiceOrderDetailInput
 ): Promise<ServiceOrderDetailRes> => {
   const response = await axiosClient.get(
-    `/service-order-details/${ServiceOrderDetailInput.service_order_id}/${ServiceOrderDetailInput.service_id}`,
+    `/service-order-details/${ServiceOrderDetailInput.service_order_id}/${ServiceOrderDetailInput.service_id}`
   );
-  return response.data;
+  return response.data.data;
 };
 
 export const createServiceOrderDetail = async (
-  ServiceOrderDetailData: ServiceOrderDetailData,
+  ServiceOrderDetailData: ServiceOrderDetailData
 ) => {
   const response = await axiosClient.post(
-    "/service-order-detail",
-    ServiceOrderDetailData,
+    "/service-order-details",
+    ServiceOrderDetailData
   );
-  return response.data;
+  return response.data.data;
 };
 
 export const updateSalesOrderDetail = async (
   ServiceOrderDetailInput: ServiceOrderDetailInput,
-  ServiceOrderDetailDataUpdate: ServiceOrderDetailDataUpdate,
+  ServiceOrderDetailDataUpdate: ServiceOrderDetailDataUpdate
 ) => {
   const response = await axiosClient.put(
     `/service-order-detail/${ServiceOrderDetailInput.service_order_id}/${ServiceOrderDetailInput.service_id}`,
-    ServiceOrderDetailDataUpdate,
+    ServiceOrderDetailDataUpdate
   );
-  return response.data;
+  return response.data.data;
 };
 
 export const deleteSalesOrderDetail = async (
-  ServiceOrderDetailInput: ServiceOrderDetailInput,
+  ServiceOrderDetailInput: ServiceOrderDetailInput
 ) => {
   const response = await axiosClient.delete(
-    `/service-order-detail/${ServiceOrderDetailInput.service_order_id}/${ServiceOrderDetailInput.service_id}`,
+    `/service-order-detail/${ServiceOrderDetailInput.service_order_id}/${ServiceOrderDetailInput.service_id}`
   );
-  return response.data;
+  return response.data.data;
 };

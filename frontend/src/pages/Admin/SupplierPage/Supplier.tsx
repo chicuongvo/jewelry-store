@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import {
   Search,
@@ -19,6 +20,7 @@ import {
   getAllSuppliers,
   updateSupplier,
 } from "@/api/supplier.api";
+import { useNotification } from "@/contexts/notificationContext";
 
 export default function Suppliers() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -36,7 +38,7 @@ export default function Suppliers() {
   });
 
   const filteredSuppliers = suppliersData?.filter(
-    supplier =>
+    (supplier: { name: string; phone_number: string; address: string }) =>
       supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       supplier.phone_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
       supplier.address.toLowerCase().includes(searchTerm.toLowerCase())
@@ -243,6 +245,7 @@ function SupplierModal({
   });
 
   const queryClient = useQueryClient();
+  const { addNotification } = useNotification();
   const { mutate, isPending } = useMutation({
     mutationFn: supplierData.supplier_id
       ? (data: Supplier) => updateSupplier(supplierData.supplier_id, data)
@@ -369,6 +372,7 @@ function ConfirmModal({
   setDeleting: React.Dispatch<React.SetStateAction<SupplierResponse>>;
 }) {
   const queryClient = useQueryClient();
+  const { addNotification } = useNotification();
   const { mutate, isPending } = useMutation({
     mutationFn: deleteSupplier,
     onSuccess() {

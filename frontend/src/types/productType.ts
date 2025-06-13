@@ -1,7 +1,10 @@
+import type { Product } from "./Product/product";
+
 export type ProductType = {
   type_id: string;
   name: string;
   profit_rate: number;
+  products: Product[];
 };
 
 export type ProductTypeCreateData = {

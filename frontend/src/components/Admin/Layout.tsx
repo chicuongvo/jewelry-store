@@ -5,11 +5,15 @@ import { Bounce, ToastContainer } from "react-toastify";
 
 export default function Layout() {
   return (
-    <div className="flex">
+    <div className="flex font-admin h-screen w-min-screen relative">
       <Sidebar />
-      <div>
-        <Header />
-        <Outlet />
+      <div className="w-full">
+        <div className="sticky left-0 top-0 w-full z-500">
+          <Header />
+        </div>
+        <div className="p-6 bg-gray-50 h-min-screen">
+          <Outlet />
+        </div>
       </div>
       <ToastContainer
         position="top-right"

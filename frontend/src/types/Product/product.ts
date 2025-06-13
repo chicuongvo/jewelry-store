@@ -1,3 +1,4 @@
+import type { SupplierCreate } from "../supplier/supplier";
 export type Product = {
   product_id: string;
   name: string;
@@ -9,11 +10,12 @@ export type Product = {
   supplier_id: string;
   type: string;
   unit: string;
+  supplier?: SupplierCreate;
 };
 
 export type ProductCreateData = {
   name: string;
-  image: string;
+  image: File;
   description: string;
   buy_price: number;
   supplier_id: string;
