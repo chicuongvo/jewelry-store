@@ -37,4 +37,5 @@ export interface UserProfile {
   reset_password_token_expires_at: string | null;
   verification_token: string | null;
   verification_token_expires_at: string | null;
+  is_banned: boolean;
 }

@@ -8,6 +8,7 @@ export type SupplierResponse = {
   name: string;
   address: string;
   phone_number: string;
+  products: [];
 };
 export type SupplierUpdate = {
   name?: string;

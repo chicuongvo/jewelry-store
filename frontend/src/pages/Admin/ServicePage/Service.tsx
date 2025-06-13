@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Search, Plus, Edit2, Trash2, Wrench } from "lucide-react";
+import { Search, Plus, Edit2, Trash2, Wrench, X } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNotification } from "@/contexts/notificationContext";
+import { Pagination } from "antd";
 import type {
   ServiceResponse,
   ServiceCreate,
@@ -13,11 +14,17 @@ import {
   updateService,
   deleteService,
 } from "../../../api/service.api";
-import { toast } from "react-hot-toast";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function AdminServices() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [showOrdersModal, setShowOrdersModal] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 6; // 6 items per page for grid layout
+  const [selectedService, setSelectedService] =
+    useState<ServiceResponse | null>(null);
   const [deleting, setDeleting] = useState<ServiceResponse>(
     {} as unknown as ServiceResponse
   );
@@ -58,6 +65,19 @@ export default function AdminServices() {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteService(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["services"] });
+      toast.success("Xóa dịch vụ thành công");
+      setDeleting({} as unknown as ServiceResponse);
+    },
+    onError: (error) => {
+      toast.error("Không thể xóa dịch vụ");
+      console.error("Lỗi xóa dịch vụ:", error);
+    },
+  });
+
   const filteredServices = services.filter((service) =>
     service.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -89,6 +109,11 @@ export default function AdminServices() {
     } else {
       createMutation.mutate(data);
     }
+  };
+
+  const handleViewOrders = (service: ServiceResponse) => {
+    setSelectedService(service);
+    setShowOrdersModal(true);
   };
 
   if (isLoading) {
@@ -128,66 +153,85 @@ export default function AdminServices() {
 
       {/* Services Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredServices.map((service) => (
-          <div
-            key={service.service_id}
-            className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200"
-          >
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center">
-                <div className="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center">
-                  <Wrench className="h-5 w-5 text-purple-600" />
-                </div>
-                <div className="ml-3">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    {service.name}
-                  </h3>
-                  <p className="text-sm text-gray-500 mt-1">
-                    {service.service_order_details?.length || 0} đơn hàng
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => handleEdit(service)}
-                  className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors duration-150"
-                >
-                  <Edit2 className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => handleDelete(service)}
-                  className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Giá cơ bản</span>
+        {filteredServices
+          .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+          .map((service) => (
+            <div
+              key={service.service_id}
+              className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200"
+            >
+              <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center">
-                  <span className="text-sm font-medium text-emerald-600">
-                    {Number(service.base_price).toLocaleString("vi-VN")}đ
+                  <div className="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center">
+                    <Wrench className="h-5 w-5 text-purple-600" />
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {service.name}
+                    </h3>
+                    <p className="text-sm text-gray-500 mt-1">
+                      {service.service_order_details?.length || 0} đơn hàng
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => handleEdit(service)}
+                    disabled={updateMutation.isPending}
+                    className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors duration-150 disabled:opacity-50"
+                  >
+                    <Edit2 className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(service)}
+                    disabled={deleteMutation.isPending}
+                    className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150 disabled:opacity-50"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Giá cơ bản</span>
+                  <div className="flex items-center">
+                    <span className="text-sm font-medium text-emerald-600">
+                      {Number(service.base_price).toLocaleString("vi-VN")}đ
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Số đơn hàng</span>
+                  <span className="text-sm font-medium text-gray-900">
+                    {service.service_order_details?.length || 0}
                   </span>
                 </div>
-              </div>
 
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Số đơn hàng</span>
-                <span className="text-sm font-medium text-gray-900">
-                  {service.service_order_details?.length || 0}
-                </span>
-              </div>
-
-              <div className="pt-3 border-t border-gray-100">
-                <button className="w-full text-sm text-blue-600 hover:text-blue-700 font-medium">
-                  Xem đơn hàng →
-                </button>
+                <div className="pt-3 border-t border-gray-100">
+                  <button
+                    onClick={() => handleViewOrders(service)}
+                    className="w-full text-sm text-blue-600 hover:text-blue-700 font-medium"
+                  >
+                    Xem đơn hàng →
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+      </div>
+
+      {/* Thêm phân trang */}
+      <div className="mt-6 flex justify-center">
+        <Pagination
+          current={currentPage}
+          pageSize={pageSize}
+          total={filteredServices.length}
+          onChange={(page) => setCurrentPage(page)}
+          showSizeChanger={false}
+          showTotal={(total) => `Tổng số ${total} dịch vụ`}
+        />
       </div>
 
       {/* Modal */}
@@ -243,15 +287,26 @@ export default function AdminServices() {
                   <button
                     type="button"
                     onClick={() => setShowModal(false)}
-                    className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                    disabled={
+                      createMutation.isPending || updateMutation.isPending
+                    }
+                    className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50"
                   >
                     Hủy
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                    disabled={
+                      createMutation.isPending || updateMutation.isPending
+                    }
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50"
                   >
-                    {editingService ? "Cập Nhật" : "Tạo"} Dịch Vụ
+                    {createMutation.isPending || updateMutation.isPending
+                      ? "Đang xử lý..."
+                      : editingService
+                      ? "Cập Nhật"
+                      : "Tạo"}{" "}
+                    Dịch Vụ
                   </button>
                 </div>
               </form>
@@ -262,6 +317,108 @@ export default function AdminServices() {
 
       {deleting.service_id && (
         <ConfirmModal deleting={deleting} setDeleting={setDeleting} />
+      )}
+
+      {/* Orders Modal */}
+      {showOrdersModal && selectedService && (
+        <div className="fixed inset-0 bg-gray-600/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Đơn hàng của dịch vụ: {selectedService.name}
+                </h2>
+                <button
+                  onClick={() => setShowOrdersModal(false)}
+                  className="text-gray-400 hover:text-gray-500 disabled:opacity-50"
+                  disabled={
+                    createMutation.isPending || updateMutation.isPending
+                  }
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {selectedService.service_order_details &&
+                selectedService.service_order_details.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Mã đơn hàng
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Tên khách hàng
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Ngày tạo
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Trạng thái
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Tổng tiền
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {selectedService.service_order_details.map((order) => (
+                          <tr
+                            key={order.service_order_id}
+                            className="hover:bg-gray-50"
+                          >
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                              #{order.service_order.service_order_id}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {order.service_order.client.username}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {new Date(
+                                order.service_order.created_at
+                              ).toLocaleDateString("vi-VN")}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span
+                                className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                  order.service_order.status === "completed"
+                                    ? "bg-green-100 text-green-800"
+                                    : order.service_order.status === "pending"
+                                    ? "bg-yellow-100 text-yellow-800"
+                                    : "bg-gray-100 text-gray-800"
+                                }`}
+                              >
+                                {order.service_order.status === "DELIVERED"
+                                  ? "Hoàn thành"
+                                  : order.service_order.status === "pending"
+                                  ? "Đang xử lý"
+                                  : "Chờ xử lý"}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {Number(order.total_price).toLocaleString(
+                                "vi-VN"
+                              )}
+                              đ
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-gray-500">
+                      Chưa có đơn hàng nào cho dịch vụ này
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
@@ -287,6 +444,7 @@ function ConfirmModal({
         queryKey: ["services"],
       });
       setDeleting({} as unknown as ServiceResponse);
+      toast.success("Xóa dịch vụ thành công");
       addNotification(`Dịch vụ ${deleting.name} vừa được xóa.`);
     },
   });
@@ -300,7 +458,7 @@ function ConfirmModal({
       <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Bạn chắc chắn muốn xóa Nhà cung cấp <b>{deleting.name}</b>?
+            Bạn chắc chắn muốn xóa dịch vụ <b>{deleting.name}</b>?
           </h2>
 
           <div className="flex justify-end space-x-3 mt-6 pt-4 border-t">
@@ -313,7 +471,7 @@ function ConfirmModal({
             <button
               onClick={handleSubmit}
               disabled={isPending}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:bg-gray-600"
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:opacity-50"
             >
               {isPending ? "Đang xóa..." : "Xóa"}
             </button>

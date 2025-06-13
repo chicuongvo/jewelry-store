@@ -1,6 +1,6 @@
 import { axiosClient } from "../lib/axios";
 import type { ServiceResponse } from "../types/service/service";
-import type { Client } from "../types/ServiceOrder/ServiceOrder";
+import type { UserProfile } from "../types/User/User";
 
 export interface ServiceOrderDetailInput {
   service_order_id: string;
@@ -11,10 +11,16 @@ export interface ServiceOrderDetailData {
   service_order_id: string;
   service_id: string;
   quantity: number;
+  extra_cost: number;
+  calculated_price: number;
+  total_price: number;
+  paid: number;
+  remaining: number;
 }
 
 export interface ServiceOrderDetailDataUpdate {
-  quantity: number;
+  paid: number;
+  status?: string;
 }
 
 export interface ServiceOrderDetailRes {
@@ -36,7 +42,7 @@ export interface ServiceOrderDetailRes {
     total_remaining: number;
     status: string;
     created_at: string;
-    client: Client;
+    client: UserProfile;
   };
 }
 
@@ -59,22 +65,22 @@ export const createServiceOrderDetail = async (
   return response.data.data;
 };
 
-export const updateSalesOrderDetail = async (
+export const updateServiceOrderDetail = async (
   ServiceOrderDetailInput: ServiceOrderDetailInput,
   ServiceOrderDetailDataUpdate: ServiceOrderDetailDataUpdate
 ) => {
   const response = await axiosClient.put(
-    `/service-order-detail/${ServiceOrderDetailInput.service_order_id}/${ServiceOrderDetailInput.service_id}`,
+    `/service-order-details/${ServiceOrderDetailInput.service_order_id}/${ServiceOrderDetailInput.service_id}`,
     ServiceOrderDetailDataUpdate
   );
   return response.data.data;
 };
 
-export const deleteSalesOrderDetail = async (
+export const deleteServiceOrderDetail = async (
   ServiceOrderDetailInput: ServiceOrderDetailInput
 ) => {
   const response = await axiosClient.delete(
-    `/service-order-detail/${ServiceOrderDetailInput.service_order_id}/${ServiceOrderDetailInput.service_id}`
+    `/service-order-details/${ServiceOrderDetailInput.service_order_id}/${ServiceOrderDetailInput.service_id}`
   );
   return response.data.data;
 };

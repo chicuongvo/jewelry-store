@@ -1,4 +1,5 @@
 import type { ServiceResponse } from "../service/service";
+import type { UserProfile } from "../User/User";
 export type ServiceOrderCreate = {
   client_id: string;
   total_price: number;
@@ -13,14 +14,6 @@ export type ServiceOrderUpdate = {
   total_paid?: number;
   total_remaining?: number;
   status?: string;
-};
-
-export type Client = {
-  client_id: string;
-  name: string;
-  phone: string;
-  email: string;
-  address: string;
 };
 
 export type ServiceOrderDetail = {
@@ -44,6 +37,6 @@ export type ServiceOrderResponse = {
   total_remaining: number;
   status: string;
   created_at: string;
-  client: Client;
+  client: UserProfile;
   service_order_details: ServiceOrderDetail[];
 };
