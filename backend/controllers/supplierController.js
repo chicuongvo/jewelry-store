@@ -6,7 +6,12 @@ import { prisma } from "../config/db.js";
 
 export const getAllSuppliers = async (req, res) => {
   try {
-    const suppliers = await prisma.suppliers.findMany();
+    const suppliers = await prisma.suppliers.findMany({
+      include: {
+        products: true,
+        purchase_orders: true,
+      },
+    });
 
     return res.status(200).json({ success: true, data: suppliers });
   } catch (error) {
@@ -22,6 +27,7 @@ export const getSupplier = async (req, res) => {
   try {
     const supplier = await prisma.suppliers.findUnique({
       where: { supplier_id },
+      include: { products: true, purchase_orders: true },
     });
 
     if (!supplier) {

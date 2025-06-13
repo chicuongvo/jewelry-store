@@ -13,16 +13,65 @@ export const getAllProducts = async (req, res) => {
     if (limit) {
       query.take = limit;
     }
+    const { name, category, minPrice, maxPrice, supplier, sortBy, sortOrder } =
+      req.query;
+
+    const filters = {};
+
+    if (name) {
+      filters.name = {
+        contains: name,
+        mode: "insensitive",
+      };
+    }
+
+    if (category) {
+      filters.productType = {
+        name: {
+          contains: category,
+          mode: "insensitive",
+        },
+      };
+    }
+
+    if (minPrice || maxPrice) {
+      filters.price = {};
+      if (minPrice) filters.price.gte = parseFloat(minPrice);
+      if (maxPrice) filters.price.lte = parseFloat(maxPrice);
+    }
+
+    if (supplier) {
+      filters.supplier = {
+        name: {
+          contains: supplier,
+          mode: "insensitive",
+        },
+      };
+    }
+
+    const validSortFields = ["name", "price", "createdAt"];
+    const orderBy = {};
+
+    if (sortBy && validSortFields.includes(sortBy)) {
+      orderBy[sortBy] = sortOrder === "desc" ? "desc" : "asc";
+    }
 
     const products = await prisma.products.findMany({
+      where: filters,
+      orderBy: Object.keys(orderBy).length ? orderBy : undefined,
       include: {
+        inventory_report_details: true,
         supplier: true,
+        productType: true,
+        purchase_order_details: true,
+        sales_order_details: true,
       },
       ...query,
     });
+
     return res.status(200).json({ success: true, data: products });
   } catch (error) {
-    console.log("Error get all products:", error);
+    console.error("Error get all products:", error);
     return res
       .status(500)
       .json({ success: false, error: "Internal Server Error" });
@@ -35,6 +84,13 @@ export const getProduct = async (req, res) => {
   try {
     const product = await prisma.products.findUnique({
       where: { product_id },
+      include: {
+        inventory_report_details: true,
+        supplier: true,
+        productType: true,
+        purchase_order_details: true,
+        sales_order_details: true,
+      },
     });
 
     if (product) {

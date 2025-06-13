@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { Search, Plus, Edit2, Trash2 } from "lucide-react";
 import { Modal } from "antd";
 import useProducts from "@/hooks/useProducts";
 import { Pagination } from "antd";
 import { useSearchParams } from "react-router";
+import InventoryReportSkeleton from "../InventoryReportPage/components/Skeleton";
 export default function Products() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType] = useState("");
@@ -25,7 +28,6 @@ export default function Products() {
     getFilteredProductsQuery,
   } = useProducts(newSearchParams.toString());
 
-  console.log(getAllProductQuery.data);
   const filteredProducts = getFilteredProductsQuery.data?.filter((product) => {
     const matchesSearch = product.name
       .toLowerCase()
@@ -70,14 +72,16 @@ export default function Products() {
         });
       }
       setShowModal(false);
-    } catch (error) {
+    } catch (error: any) {
       if (editingProduct) {
         modal.error({
-          content: "Cập nhật sản phẩm thất bại",
+          content:
+            error.response?.data?.message || "Cập nhật sản phẩm thất bại",
         });
       } else {
         modal.error({
-          content: "Tạo sản phẩm thất bại",
+          content:
+            error.response?.data?.message || "Cập nhật sản phẩm thất bại",
         });
       }
     }
@@ -86,7 +90,6 @@ export default function Products() {
     setEditingProduct(null);
     setShowModal(true);
   };
-
   return (
     <div className="space-y-6 flex flex-col h-full w-full">
       {contextHolder}
@@ -136,98 +139,108 @@ export default function Products() {
       </div>
 
       {/* Products Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
-        {filteredProducts?.map((product) => (
-          <div
-            key={product.product_id}
-            className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200"
-          >
-            <div className="relative">
-              <img
-                src={product.image || "https://via.placeholder.com/150"}
-                alt={product.name}
-                className="w-full h-48 object-cover"
-              />
-            </div>
+      {getAllProductQuery.isLoading ||
+      getAllSuppliersQuery.isLoading ||
+      getAllProductTypesQuery.isLoading ||
+      getFilteredProductsQuery.isLoading ? (
+        <div className="grid grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, id) => {
+            return <InventoryReportSkeleton index={id} />;
+          })}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+          {filteredProducts?.map((product) => (
+            <div
+              key={product.product_id}
+              className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200"
+            >
+              <div className="relative">
+                <img
+                  src={product.image || "https://via.placeholder.com/150"}
+                  alt={product.name}
+                  className="w-full h-48 object-cover"
+                />
+              </div>
 
-            <div className="p-4">
-              <div className="flex items-start justify-between mb-2">
-                <h3 className="text-sm font-semibold text-gray-900 line-clamp-1">
-                  {product.name}
-                </h3>
-                <div className="flex items-center space-x-2 ml-2">
-                  <button
-                    onClick={() => handleEdit(product)}
-                    className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors duration-150"
-                  >
-                    <Edit2 className="h-3 w-3" />
-                  </button>
-                  <button className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150">
-                    <Trash2
-                      className="h-3 w-3"
-                      onClick={async () => {
-                        const confirmed = await modal.confirm(
-                          confirmModalConfig
-                        );
-                        if (confirmed) {
-                          try {
-                            await deleteProductMutation.mutateAsync(
-                              product.product_id
-                            );
-                            await modal.success({
-                              content: "Đã xóa sản phẩm thành công",
-                            });
-                          } catch (error) {
-                            console.error("Error deleting product:", error);
-                            await modal.error({
-                              content: "Xóa sản phẩm thất bại",
-                            });
+              <div className="p-4">
+                <div className="flex items-start justify-between mb-2">
+                  <h3 className="text-sm font-semibold text-gray-900 line-clamp-1">
+                    {product.name}
+                  </h3>
+                  <div className="flex items-center space-x-2 ml-2">
+                    <button
+                      onClick={() => handleEdit(product)}
+                      className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors duration-150"
+                    >
+                      <Edit2 className="h-3 w-3" />
+                    </button>
+                    <button className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150">
+                      <Trash2
+                        className="h-3 w-3"
+                        onClick={async () => {
+                          const confirmed = await modal.confirm(
+                            confirmModalConfig
+                          );
+                          if (confirmed) {
+                            try {
+                              await deleteProductMutation.mutateAsync(
+                                product.product_id
+                              );
+                              await modal.success({
+                                content: "Đã xóa sản phẩm thành công",
+                              });
+                            } catch (error) {
+                              console.error("Error deleting product:", error);
+                              await modal.error({
+                                content: "Xóa sản phẩm thất bại",
+                              });
+                            }
                           }
-                        }
-                      }}
-                    />
-                  </button>
+                        }}
+                      />
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              <div className="space-y-2 text-xs text-gray-600">
-                <div className="flex items-center justify-between">
-                  <span>Loại sản phẩm:</span>
+                <div className="space-y-2 text-xs text-gray-600">
+                  <div className="flex items-center justify-between">
+                    <span>Loại sản phẩm:</span>
 
-                  <span className="text-gray-900 line-clamp-1">
-                    {product.type}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between line-clamp-1">
-                  <span>Nhà cung cấp: {product.supplier?.name} </span>
-                </div>
-              </div>
-
-              <div className="mt-3 pt-3 border-t border-gray-100">
-                <div className="flex items-center justify-between text-sm">
-                  <div>
-                    <span className="text-gray-500">Mua: </span>
-                    <span className="font-medium text-gray-900">
-                      ${product.buy_price}
+                    <span className="text-gray-900 line-clamp-1">
+                      {product.type}
                     </span>
                   </div>
-                  <div>
-                    <span className="text-gray-500">Sell: </span>
-                    <span className="font-medium text-emerald-600">
-                      ${product.sell_price}
-                    </span>
+                  <div className="flex items-center justify-between line-clamp-1">
+                    <span>Nhà cung cấp: {product.supplier?.name} </span>
+                  </div>
+                </div>
+
+                <div className="mt-3 pt-3 border-t border-gray-100">
+                  <div className="flex items-center justify-between text-sm">
+                    <div>
+                      <span className="text-gray-500">Mua: </span>
+                      <span className="font-medium text-gray-900">
+                        ${product.buy_price}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Sell: </span>
+                      <span className="font-medium text-emerald-600">
+                        ${product.sell_price}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
       <div className="mx-auto mt-auto mb-4 h-fit w-fit">
         <Pagination
           total={getAllProductQuery.data?.length}
           onChange={(currentPage) => {
-            // setPage(currentPage);
             newSearchParams.set("page", currentPage.toString());
             setSearchParams(newSearchParams);
           }}
@@ -254,7 +267,9 @@ export default function Products() {
                     name="name"
                     defaultValue={editingProduct?.name || ""}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter product name"
+                    placeholder="Nhập tên sản phẩm"
+                    required
+                    minLength={3}
                   />
                 </div>
 
@@ -309,7 +324,6 @@ export default function Products() {
                       name="buy_price"
                       defaultValue={editingProduct?.buy_price || 0.1}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      // placeholder="0.00"
                     />
                   </div>
                 </div>

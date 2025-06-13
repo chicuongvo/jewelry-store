@@ -3,23 +3,23 @@ import {
   type ServiceOrderCreate,
   type ServiceOrderUpdate,
   type ServiceOrderResponse,
-} from "../types/serviceOrder/serviceOrder";
+} from "../types/ServiceOrder/ServiceOrder";
 export const getAllServiceOrders = async (): Promise<
   ServiceOrderResponse[]
 > => {
   const response = await axiosClient.get("/service-orders");
-  return response.data;
+  return response.data.data;
 };
 
 export const getServiceOrderById = async (
   id: string
 ): Promise<ServiceOrderResponse[]> => {
   const response = await axiosClient.get(`/service-orders/${id}`);
-  return response.data;
+  return response.data.data;
 };
 export const createServiceOrder = async (serviceOrder: ServiceOrderCreate) => {
   const response = await axiosClient.post("/service-orders", serviceOrder);
-  return response.data;
+  return response.data.data;
 };
 
 export const updateServiceOrder = async (
@@ -27,9 +27,9 @@ export const updateServiceOrder = async (
   serviceOrder: ServiceOrderUpdate
 ) => {
   const response = await axiosClient.put(`/service-orders/${id}`, serviceOrder);
-  return response.data;
+  return response.data.data;
 };
 export const deleteServiceOrder = async (id: string) => {
   const response = await axiosClient.delete(`/service-orders/${id}`);
-  return response.data;
+  return response.data.data;
 };

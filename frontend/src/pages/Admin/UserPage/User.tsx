@@ -51,8 +51,8 @@ export default function Users() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Users</h1>
-          <p className="text-gray-600">Manage user accounts and permissions</p>
+          <h1 className="text-2xl font-bold text-gray-900">Người dùng</h1>
+          <p className="text-gray-600">Quản lý tài khoản và quyền người dùng</p>
         </div>
       </div>
 
@@ -63,7 +63,7 @@ export default function Users() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <input
               type="text"
-              placeholder="Search users..."
+              placeholder="Tìm kiếm người dùng..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -75,9 +75,9 @@ export default function Users() {
             onChange={e => setRoleFilter(e.target.value)}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
-            <option value="">All Roles</option>
-            <option value="USER">Users</option>
-            <option value="ADMIN">Admins</option>
+            <option value="">Tất cả vai trò</option>
+            <option value="USER">Người dùng</option>
+            <option value="ADMIN">Quản trị viên</option>
           </select>
 
           <select
@@ -85,14 +85,14 @@ export default function Users() {
             onChange={e => setVerifiedFilter(e.target.value)}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
-            <option value="">All Status</option>
-            <option value="verified">Verified</option>
-            <option value="unverified">Unverified</option>
+            <option value="">Tất cả trạng thái</option>
+            <option value="verified">Đã xác thực</option>
+            <option value="unverified">Chưa xác thực</option>
           </select>
 
           <div className="flex items-center space-x-2">
             <button className="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors duration-200">
-              Export
+              Xuất dữ liệu
             </button>
           </div>
         </div>
@@ -105,22 +105,22 @@ export default function Users() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  User
+                  Người dùng
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Contact
+                  Liên hệ
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Role
+                  Vai trò
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
+                  Trạng thái
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Orders
+                  Đơn hàng
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
+                  Thao tác
                 </th>
               </tr>
             </thead>
@@ -142,7 +142,7 @@ export default function Users() {
                           {user.username}
                         </div>
                         <div className="text-sm text-gray-500">
-                          Joined {user.created_at}
+                          Tham gia {user.created_at}
                         </div>
                       </div>
                     </div>
@@ -181,7 +181,7 @@ export default function Users() {
                           user.is_verified ? "text-green-600" : "text-red-600"
                         }`}
                       >
-                        {user.is_verified ? "Verified" : "Unverified"}
+                        {user.is_verified ? "Đã xác thực" : "Chưa xác thực"}
                       </span>
                     </div>
                   </td>
@@ -189,7 +189,7 @@ export default function Users() {
                     <div className="text-sm text-gray-900 font-medium">
                       {/* {user.ordersCount || 0} */} 0
                     </div>
-                    <div className="text-xs text-gray-500">total orders</div>
+                    <div className="text-xs text-gray-500">tổng đơn hàng</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center space-x-2">
@@ -217,19 +217,19 @@ export default function Users() {
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                {editingUser ? "Edit User" : "Add New User"}
+                {editingUser ? "Chỉnh sửa người dùng" : "Thêm người dùng mới"}
               </h2>
 
               <form className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Username
+                    Tên đăng nhập
                   </label>
                   <input
                     type="text"
                     defaultValue={editingUser?.username || ""}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter username"
+                    placeholder="Nhập tên đăng nhập"
                   />
                 </div>
 
@@ -241,44 +241,44 @@ export default function Users() {
                     type="email"
                     defaultValue={editingUser?.email || ""}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter email address"
+                    placeholder="Nhập địa chỉ email"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Phone
+                    Số điện thoại
                   </label>
                   <input
                     type="tel"
                     defaultValue={editingUser?.phone_number || ""}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter phone number"
+                    placeholder="Nhập số điện thoại"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Role
+                    Vai trò
                   </label>
                   <select
                     defaultValue={editingUser?.role || "USER"}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    <option value="USER">User</option>
-                    <option value="ADMIN">Admin</option>
+                    <option value="USER">Người dùng</option>
+                    <option value="ADMIN">Quản trị viên</option>
                   </select>
                 </div>
 
                 {!editingUser && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Password
+                      Mật khẩu
                     </label>
                     <input
                       type="password"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Enter password"
+                      placeholder="Nhập mật khẩu"
                     />
                   </div>
                 )}
@@ -289,10 +289,10 @@ export default function Users() {
                   onClick={() => setShowModal(false)}
                   className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
                 >
-                  Cancel
+                  Hủy
                 </button>
                 <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                  {editingUser ? "Update" : "Create"} User
+                  {editingUser ? "Cập nhật" : "Tạo"} người dùng
                 </button>
               </div>
             </div>

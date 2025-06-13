@@ -14,6 +14,7 @@ export const getAllTypes = async (req, res) => {
       query.take = limit;
     }
     const types = await prisma.product_types.findMany({
+      include: { products: true },
       ...query,
     });
 
@@ -28,7 +29,10 @@ export const getType = async (req, res) => {
   const type_id = req.params.id;
 
   try {
-    const type = await prisma.product_types.findUnique({ where: { type_id } });
+    const type = await prisma.product_types.findUnique({
+      where: { type_id },
+      include: { products: true },
+    });
 
     if (!type) {
       return res
