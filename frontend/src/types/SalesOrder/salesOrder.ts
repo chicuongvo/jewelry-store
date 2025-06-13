@@ -1,3 +1,5 @@
+import type { Product } from "../Product/product";
+
 export type SalesOrderInput = {
   sales_order_id: string;
 };
@@ -6,16 +8,13 @@ export type SalesOrderData = {
   client_id: string;
 };
 
-export type Product = {
-  name: String;
-};
-
 export type SalesOrderDetailData = {
   sales_order_id: string;
   product_id: string;
   quantity: number;
   total_price: number;
   product: Product;
+  created_at: Date;
 };
 
 export type Client = {
