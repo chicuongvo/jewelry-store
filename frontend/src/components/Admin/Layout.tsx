@@ -8,7 +8,7 @@ export default function Layout() {
     <div className="flex font-admin h-screen relative">
       <Sidebar />
       <div className="w-full min-h-screen">
-        <div className="sticky left-0 top-0 w-full z-500">
+        <div className="sticky left-0 top-0 w-full z-1">
           <Header />
         </div>
         <div className="p-6 bg-gray-50 h-min-screen">
@@ -16,6 +16,7 @@ export default function Layout() {
         </div>
       </div>
       <ToastContainer
+        aria-label={""}
         position="top-right"
         autoClose={3500}
         newestOnTop={false}

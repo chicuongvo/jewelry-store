@@ -41,10 +41,11 @@ export default function Navbar() {
   const location = useLocation();
 
   const renderOptions = (options: option[]) => {
-    return options.map((option) => {
+    return options.map(option => {
       const active = location.pathname == option.page;
       return (
         <Link
+          key={option.name}
           to={option.page}
           className={`w-max font-bold text-center hover:text-primary ease-in-out duration-500 ${
             active ? "text-primary" : "text-black"
@@ -82,7 +83,7 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`font-primary bg-white flex text-black items-center h-[60px] relative justify-between px-5 sticky z-30 top-0 shadow-md  ${
+      className={`font-primary bg-white flex text-black items-center h-[60px] justify-between px-5 sticky z-30 top-0 shadow-md  ${
         isScrolled && "bg-white/30 backdrop-blur-xl shadow-xl "
       }`}
     >

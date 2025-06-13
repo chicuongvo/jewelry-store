@@ -1,57 +1,68 @@
-import {useState} from "react";
-import {
-  Search,
-  Plus,
-  Edit2,
-  Trash2
-} from "lucide-react";
+import { useState } from "react";
+import { Search, Plus, Edit2, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router";
 
-
-import type {PurchaseOrder, PurchaseOrderCreateData, PurchaseOrderUpdateData} from "@/types/PurchaseOrder/purchaseOrder.ts";
-import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
+import type {
+  PurchaseOrder,
+  PurchaseOrderCreateData,
+  PurchaseOrderUpdateData,
+} from "@/types/PurchaseOrder/purchaseOrder.ts";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createPurchaseOrder,
   deletePurchaseOrder,
-  getAllPurchaseOrders, updatePurchaseOrder,
+  getAllPurchaseOrders,
+  updatePurchaseOrder,
 } from "@/api/purchaseOrder.api";
 import * as React from "react";
 
 export default function PurchaseOrder() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = React.useState(false);
-  const [editingPurchaseOrder, setEditingPurchaseOrder] = useState<PurchaseOrder>(
-    {} as PurchaseOrder
-  );
-  const [deleting, setDeleting] = useState<PurchaseOrder>(
-    {} as PurchaseOrder
-  );
+  const [editingPurchaseOrder, setEditingPurchaseOrder] =
+    useState<PurchaseOrder>({} as PurchaseOrder);
+  const [deleting, setDeleting] = useState<PurchaseOrder>({} as PurchaseOrder);
 
-  const {data: purchaseOrderData} = useQuery({
+  const { data: purchaseOrderData } = useQuery({
     queryKey: ["purchaseOrder"],
     queryFn: getAllPurchaseOrders,
   });
 
+  let navigate = useNavigate();
+  const routeChange = (purchase_order_id: String) => {
+    let path = `/purchase-orders-detail/${purchase_order_id}`;
+    navigate(path);
+  };
+
   const filteredPurchaseOrder = purchaseOrderData?.filter(
-    purchaseOrder =>
-      purchaseOrder.purchase_order_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      purchaseOrder.created_at.toLowerCase().includes(searchTerm.toLowerCase())
+    (purchaseOrder) =>
+      purchaseOrder.purchase_order_id
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      purchaseOrder.supplier.name
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      purchaseOrder.supplier.phone_number
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      purchaseOrder.created_at.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const handleEdit = (purchaseOrder: PurchaseOrder) => {
     setEditingPurchaseOrder(purchaseOrder);
     setShowModal(true);
-  }
+  };
 
   const handleAdd = () => {
     setEditingPurchaseOrder({} as unknown as PurchaseOrder);
     setShowModal(true);
-  }
+  };
   const handleDelete = (purchaseOrder: PurchaseOrder) => {
     setDeleting(purchaseOrder);
-  }
+  };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -64,7 +75,7 @@ export default function PurchaseOrder() {
           onClick={() => handleAdd()}
           className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
         >
-          <Plus className="h-4 w-4 mr-2"/>
+          <Plus className="h-4 w-4 mr-2" />
           Add Purchase Order
         </button>
       </div>
@@ -73,12 +84,12 @@ export default function PurchaseOrder() {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4"/>
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <input
               type="text"
               placeholder="Search purchase order..."
               value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
@@ -89,59 +100,68 @@ export default function PurchaseOrder() {
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                ID
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Name
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Created At
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Action
-              </th>
-            </tr>
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  ID
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Nhà cung cấp
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Số điện thoại
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Ngày tạo
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Action
+                </th>
+              </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-            {filteredPurchaseOrder?.map((purchaseOrder) => (
-              <tr
-                className="hover:bg-gray-50 transition-colors duration-150"
-              >
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">
-                    {filteredPurchaseOrder.indexOf(purchaseOrder) + 1}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">
-                    {purchaseOrder.purchase_order_id}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">
-                    {purchaseOrder.created_at}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => (handleEdit(purchaseOrder))}
-                      className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors duration-150"
-                    >
-                      <Edit2 className="h-4 w-4"/>
-                    </button>
-                    <button
-                      onClick={() => (handleDelete(purchaseOrder))}
-                      className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150"
-                    >
-                      <Trash2 className="h-4 w-4"/>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+              {filteredPurchaseOrder?.map((purchaseOrder) => (
+                <tr
+                  onClick={() => routeChange(purchaseOrder.purchase_order_id)}
+                  className="hover:bg-gray-50 transition-colors duration-150"
+                >
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-gray-900">
+                      {filteredPurchaseOrder.indexOf(purchaseOrder) + 1}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-gray-900">
+                      {purchaseOrder.supplier.name}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-gray-900">
+                      {purchaseOrder.supplier.phone_number}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-gray-900">
+                      {purchaseOrder.created_at}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => handleEdit(purchaseOrder)}
+                        className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors duration-150"
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(purchaseOrder)}
+                        className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -150,7 +170,7 @@ export default function PurchaseOrder() {
         <PurchaseOrderModal
           purchaseOrderData={editingPurchaseOrder}
           setShowModal={setShowModal}
-          />
+        />
       )}
       {deleting.purchase_order_id && (
         <ConfirmModal deleting={deleting} setDeleting={setDeleting} />
@@ -160,20 +180,21 @@ export default function PurchaseOrder() {
 }
 
 function PurchaseOrderModal({
-                         purchaseOrderData,
-                         setShowModal,
-                       }: {
+  purchaseOrderData,
+  setShowModal,
+}: {
   purchaseOrderData: PurchaseOrder;
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const [purchaseOrder, setPurchaseOrder] = useState({
-    supplier_id: purchaseOrderData.supplier_id
+    supplier_id: purchaseOrderData.supplier_id,
   } as PurchaseOrderCreateData);
 
   const queryClient = useQueryClient();
   const { mutate, isPending } = useMutation({
     mutationFn: purchaseOrderData.purchase_order_id
-      ? (data: PurchaseOrderUpdateData) => updatePurchaseOrder(purchaseOrderData.purchase_order_id, data)
+      ? (data: PurchaseOrderUpdateData) =>
+          updatePurchaseOrder(purchaseOrderData.purchase_order_id, data)
       : (data: PurchaseOrderCreateData) => createPurchaseOrder(data),
     onSuccess() {
       queryClient.invalidateQueries({
@@ -206,8 +227,11 @@ function PurchaseOrderModal({
                 disabled={isPending}
                 type="text"
                 defaultValue={purchaseOrder?.supplier_id || ""}
-                onChange={e =>
-                  setPurchaseOrder({ ...purchaseOrder, supplier_id: e.target.value })
+                onChange={(e) =>
+                  setPurchaseOrder({
+                    ...purchaseOrder,
+                    supplier_id: e.target.value,
+                  })
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Enter supplier name"
@@ -240,14 +264,14 @@ function PurchaseOrderModal({
 }
 
 function ConfirmModal({
-                        deleting,
-                        setDeleting,
-                      }: {
+  deleting,
+  setDeleting,
+}: {
   deleting: PurchaseOrder;
   setDeleting: React.Dispatch<React.SetStateAction<PurchaseOrder>>;
 }) {
   const queryClient = useQueryClient();
-  const {mutate, isPending} = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: deletePurchaseOrder,
     onSuccess() {
       queryClient.invalidateQueries({
@@ -266,7 +290,8 @@ function ConfirmModal({
       <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Bạn chắc chắn muốn xóa Đơn đặt hàng <b>{deleting.purchase_order_id}</b>?
+            Bạn chắc chắn muốn xóa Đơn đặt hàng{" "}
+            <b>{deleting.purchase_order_id}</b>?
           </h2>
 
           <div className="flex justify-end space-x-3 mt-6 pt-4 border-t">
