@@ -5,8 +5,12 @@ import type {
   ProductTypeUpdateData,
 } from "../types/productType";
 
-export const getAllProductTypes = async (): Promise<ProductType[]> => {
-  const res = await axiosClient.get("/product-types");
+export const getAllProductTypes = async (
+  query?: string
+): Promise<ProductType[]> => {
+  const res = await axiosClient.get(
+    `/product-types?${query ? `${query}` : ""}`
+  );
   return res?.data.data;
 };
 

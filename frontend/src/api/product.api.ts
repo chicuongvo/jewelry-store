@@ -6,8 +6,8 @@ import type {
   ProductUpdateData,
 } from "../types/Product/product";
 
-export const getAllProducts = async (): Promise<Product[]> => {
-  const res = await axiosClient.get("/products");
+export const getAllProducts = async (query?: string): Promise<Product[]> => {
+  const res = await axiosClient.get(`/products?${query ?? ""}`);
   return res?.data.data;
 };
 

@@ -8,13 +8,13 @@ import {
 } from "../controllers/productController.js";
 import { verifyToken } from "../middleware/verifyToken.js";
 import { verifyAdmin } from "../middleware/verifyAdmin.js";
-
+import { upload } from "../middleware/multer.js";
 const router = express.Router();
 
 router.get("/", getAllProducts);
 router.get("/:id", getProduct);
-router.post("/", createProduct);
+router.post("/", upload.single("image"), createProduct);
 router.delete("/:id", deleteProduct);
-router.put("/:id", updateProduct);
+router.put("/:id", upload.single("image"), updateProduct);
 
 export default router;

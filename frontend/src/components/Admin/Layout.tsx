@@ -6,7 +6,7 @@ export default function Layout() {
   return (
     <div className="flex">
       <Sidebar />
-      <div>
+      <div className="flex-1 min-h-screen">
         <Header />
         <Outlet />
       </div>
