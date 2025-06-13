@@ -5,49 +5,47 @@ import type {
   PurchaseOrderDetailUpdateData,
 } from "../types/PurchaseOrder/purchaseOrder";
 
-export const getAllPurchaseOrderDetails = async (): Promise<
-  PurchaseOrderDetail[]
-> => {
-  const res = await axiosClient.get("/purchase-order-details");
+export const getAllPurchaseOrderDetails = async (
+  id: String,
+): Promise<PurchaseOrderDetail[]> => {
+  const res = await axiosClient.get(`/purchase-order-details/${id}`);
   return res?.data.data;
 };
 
 export const getPurchaseOrderDetail = async (
-  id: string,
-  id2: string
+  data: PurchaseOrderDetail,
 ): Promise<PurchaseOrderDetail> => {
-  const res = await axiosClient.get(`/purchase-order-details/${id}/${id2}`);
+  const res = await axiosClient.get(
+    `/purchase-order-details/${data.purchase_order_id}/${data.product_id}`,
+  );
   return res?.data.data;
 };
 
 export const createPurchaseOrderDetail = async (
-  id: string,
-  id2: string,
-  data: PurchaseOrderDetailCreateData
+  data: PurchaseOrderDetailCreateData,
 ): Promise<PurchaseOrderDetail> => {
-  const res = await axiosClient.post(
-    `/purchase-order-details/${id}/${id2}`,
-    data
-  );
+  console.log("call purchase order detail api");
+  const res = await axiosClient.post("/purchase-order-details/", data);
   return res?.data.data;
 };
 
 export const updatePurchaseOrderDetail = async (
   id: string,
   id2: string,
-  data: PurchaseOrderDetailUpdateData
+  data: PurchaseOrderDetailUpdateData,
 ): Promise<PurchaseOrderDetail> => {
   const res = await axiosClient.put(
     `/purchase-order-details/${id}/${id2}`,
-    data
+    data,
   );
   return res?.data.data;
 };
 
 export const deletePurchaseOrderDetail = async (
-  id: string,
-  id2: string
+  data: PurchaseOrderDetail,
 ): Promise<PurchaseOrderDetail> => {
-  const res = await axiosClient.delete(`/purchase-order-details/${id}/${id2}`);
+  const res = await axiosClient.delete(
+    `/purchase-order-details/${data.purchase_order_id}/${data.product_id}`,
+  );
   return res?.data.data;
 };
