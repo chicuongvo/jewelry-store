@@ -1,3 +1,5 @@
+import type { Product } from "../Product/product";
+
 export type InventoryReportDetail = {
   report_id: string;
   product_id: string;
@@ -5,6 +7,7 @@ export type InventoryReportDetail = {
   buy_quantity: number;
   sell_quantity: number;
   end_stock: number;
+  product: Product;
 };
 
 export type InventoryReportDetailCreateData = {
@@ -27,6 +30,11 @@ export type InventoryReport = {
   month: number;
   year: number;
   inventory_report_details: InventoryReportDetail[];
+  total_begin_stock?: number;
+  total_end_stock?: number;
+  total_buy?: number;
+  total_sell?: number;
+  total_products?: number;
 };
 
 export type InventoryReportCreateData = {

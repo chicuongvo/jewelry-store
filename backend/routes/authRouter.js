@@ -10,6 +10,7 @@ import {
   getResetPasswordToken,
   resetPassword,
   updateUser,
+  getUserById,
 } from "../controllers/authController.js";
 import { verifyToken } from "../middleware/verifyToken.js";
 import { verifyAdmin } from "../middleware/verifyAdmin.js";
@@ -20,6 +21,7 @@ const router = express.Router();
 
 router.get("/me", verifyToken, getUser);
 router.get("/", verifyToken, verifyAdmin, getAllUsers);
+router.get("/:id", verifyToken, verifyAdmin, getUserById);
 router.put("/me", verifyToken, updateUser);
 router.post("/sign-up", signUp);
 router.post("/sign-in", signIn);

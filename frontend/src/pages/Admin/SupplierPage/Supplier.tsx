@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import {
   Search,
@@ -17,6 +18,7 @@ import {
   getAllSuppliers,
   updateSupplier,
 } from "@/api/supplier.api";
+import { useNotification } from "@/contexts/notificationContext";
 
 export default function Suppliers() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -28,13 +30,15 @@ export default function Suppliers() {
     {} as unknown as SupplierResponse
   );
 
+  // const { addNotification } = useNotification();
+
   const { data: suppliersData } = useQuery({
     queryKey: ["suppliers"],
     queryFn: getAllSuppliers,
   });
 
   const filteredSuppliers = suppliersData?.filter(
-    supplier =>
+    (supplier: { name: string; phone_number: string; address: string }) =>
       supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       supplier.phone_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
       supplier.address.toLowerCase().includes(searchTerm.toLowerCase())
@@ -82,7 +86,7 @@ export default function Suppliers() {
               type="text"
               placeholder="Tìm kiếm nhà cung cấp..."
               value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
@@ -110,7 +114,7 @@ export default function Suppliers() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredSuppliers?.map(supplier => (
+              {filteredSuppliers?.map((supplier) => (
                 <tr
                   key={supplier.supplier_id}
                   className="hover:bg-gray-50 transition-colors duration-150"
@@ -199,6 +203,7 @@ function SupplierModal({
   });
 
   const queryClient = useQueryClient();
+  const { addNotification } = useNotification();
   const { mutate, isPending } = useMutation({
     mutationFn: supplierData.supplier_id
       ? (data: Supplier) => updateSupplier(supplierData.supplier_id, data)
@@ -208,6 +213,11 @@ function SupplierModal({
         queryKey: ["suppliers"],
       });
       setShowModal(false);
+      addNotification(
+        supplierData.supplier_id
+          ? `Nhà cung cấp ${supplierData.name} vừa được cập nhật`
+          : `Nhà cung cấp vừa được thêm mới`
+      );
     },
   });
 
@@ -234,7 +244,7 @@ function SupplierModal({
                 disabled={isPending}
                 type="text"
                 defaultValue={supplier?.name || ""}
-                onChange={e =>
+                onChange={(e) =>
                   setSupplier({ ...supplier, name: e.target.value })
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -250,7 +260,7 @@ function SupplierModal({
                 type="tel"
                 disabled={isPending}
                 defaultValue={supplier?.phone_number || ""}
-                onChange={e =>
+                onChange={(e) =>
                   setSupplier({ ...supplier, phone_number: e.target.value })
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -266,7 +276,7 @@ function SupplierModal({
                 rows={3}
                 disabled={isPending}
                 defaultValue={supplier?.address || ""}
-                onChange={e =>
+                onChange={(e) =>
                   setSupplier({ ...supplier, address: e.target.value })
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -307,6 +317,7 @@ function ConfirmModal({
   setDeleting: React.Dispatch<React.SetStateAction<SupplierResponse>>;
 }) {
   const queryClient = useQueryClient();
+  const { addNotification } = useNotification();
   const { mutate, isPending } = useMutation({
     mutationFn: deleteSupplier,
     onSuccess() {
@@ -314,6 +325,7 @@ function ConfirmModal({
         queryKey: ["suppliers"],
       });
       setDeleting({} as unknown as SupplierResponse);
+      addNotification(`Nhà cung cấp ${deleting.name} vừa được xóa.`);
     },
   });
 

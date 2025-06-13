@@ -27,6 +27,7 @@ export const getSupplier = async (req, res) => {
   try {
     const supplier = await prisma.suppliers.findUnique({
       where: { supplier_id },
+      include: { products: true, purchase_orders: true },
     });
 
     if (!supplier) {
@@ -62,7 +63,7 @@ export const createSupplier = async (req, res) => {
     if (error.isJoi) {
       return res.status(400).json({
         success: false,
-        message: error.details.map(err => err.message),
+        message: error.details.map((err) => err.message),
       });
     }
 
@@ -145,7 +146,7 @@ export const updateSupplier = async (req, res) => {
     if (error.isJoi) {
       return res.status(400).json({
         success: false,
-        message: error.details.map(err => err.message),
+        message: error.details.map((err) => err.message),
       });
     } else {
       console.log("Error update supplier:", error);

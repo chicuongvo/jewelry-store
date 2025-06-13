@@ -6,7 +6,12 @@ import {
 
 export const getAllPurchaseOrders = async (req, res) => {
   try {
-    const purchaseOrders = await prisma.purchase_orders.findMany({});
+    const purchaseOrders = await prisma.purchase_orders.findMany({
+      include: {
+        supplier: true,
+        purchase_order_details: { include: { product: true } },
+      },
+    });
     return res.status(200).json({ success: true, data: purchaseOrders });
   } catch (error) {
     return res.status(500).json({

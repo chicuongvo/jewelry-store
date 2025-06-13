@@ -14,7 +14,7 @@ import {
 } from "../../../api/service.api";
 import { toast } from "react-hot-toast";
 
-export default function Services() {
+export default function AdminServices() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingService, setEditingService] = useState<ServiceResponse | null>(
