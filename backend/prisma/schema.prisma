@@ -170,29 +170,23 @@ model service_order_details {
 }
 
 model carts {
-    cart_id String @id @default(cuid())
-
-    user_id String @unique
-    user    users  @relation(fields: [user_id], references: [user_id])
-
-    total_quantity Int @default(0)
-    total_price    Int @default(0)
-
-    cart_details cart_details[]
-
+  cart_id        String         @id @default(cuid())
+  user_id        String         @unique
+  total_quantity Int            @default(0)
+  total_price    Int            @default(0)
+  cart_details   cart_details[]
+  user           users          @relation(fields: [user_id], references: [user_id])
 }
 
 model cart_details {
-    cart_id String
-    cart    carts  @relation(fields: [cart_id], references: [cart_id], onDelete: Cascade)
+  cart_id     String
+  product_id  String
+  quantity    Int
+  total_price Int      @default(0)
+  cart        carts    @relation(fields: [cart_id], references: [cart_id], onDelete: Cascade)
+  product     products @relation(fields: [product_id], references: [product_id])
 
-    product_id String
-    product   products   @relation(fields: [product_id], references: [product_id])
-
-    quantity    Int
-    total_price Int @default(0)
-
-    @@id([cart_id, product_id])
+  @@id([cart_id, product_id])
 }
 
 enum Role {

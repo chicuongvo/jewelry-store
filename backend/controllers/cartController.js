@@ -1,49 +1,67 @@
 import { prisma } from "../config/db.js";
 
-export const createCart = async (req, res) => {
-  const user_id = req.params.userId;
-  const { product_id, quantity, total_price } = req.body;
+export const addToCart = async (req, res) => {
+  const { product_id, user_id } = req.params;
+  const { quantity, cart_id } = req.body;
+
   try {
-    let existedCart = await prisma.carts.findUnique({
-      where: {
-        user_id,
-      },
-    });
-    console.log("Existed cart:", existedCart);
-    if (!existedCart) {
-      console.log("Creating new cart for user:", user_id);
-      existedCart = await prisma.carts.create({
-        data: {
-          user_id,
-          total_price: 0,
-          total_quantity: 0,
-        },
-      });
+    let cart = await prisma.carts.findUnique({ where: { user_id } });
+    if (!cart) {
+      cart = await prisma.carts.create({ data: { user_id, cart_id } });
     }
-    let existedCartdetail = await prisma.cart_details.findUnique({
-      where: {
-        cart_id_product_id: {
-          cart_id: existedCart.cart_id,
-          product_id,
-        },
-      },
+
+    let cart_details = await prisma.cart_details.findUnique({
+      where: { cart_id_product_id: { product_id, cart_id: cart.cart_id } },
     });
-    if (!existedCartdetail) {
-      await prisma.cart_details.create({
+
+    const product = await prisma.products.findUnique({
+      where: { product_id },
+    });
+    const price = quantity * product.sell_price;
+
+    if (!cart_details) {
+      cart_details = await prisma.cart_details.create({
         data: {
-          cart_id: existedCart.cart_id,
+          cart_id: cart.cart_id,
           product_id,
-          quantity: quantity || 1,
-          total_price: total_price || 0,
+          quantity,
+          total_price: price,
         },
       });
-      return res.status(200).json({ message: "Cart created successfully" });
     } else {
-      throw new Error("Product already exists in the cart");
+      cart_details = await prisma.cart_details.update({
+        where: { cart_id_product_id: { product_id, cart_id: cart.cart_id } },
+        data: {
+          quantity: cart_details.quantity + quantity,
+          total_price: cart_details.total_price + price,
+        },
+      });
     }
+
+    const totalQuantity = await prisma.cart_details.aggregate({
+      _sum: { quantity: true },
+      where: { cart_id: cart.cart_id },
+    });
+
+    const totalPrice = await prisma.cart_details.aggregate({
+      _sum: { total_price: true },
+      where: { cart_id: cart.cart_id },
+    });
+
+    cart = await prisma.carts.update({
+      where: { cart_id: cart.cart_id },
+      data: {
+        total_quantity: totalQuantity._sum.quantity,
+        total_price: totalPrice._sum.total_price,
+      },
+      include: { cart_details: { include: { product: true } } },
+    });
+    return res.status(200).json({ success: true, data: cart });
   } catch (error) {
-    console.error(error.toString());
-    res.status(500).json({ error: "Failed to create cart" });
+    console.log("Error add to cart: ", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error" });
   }
 };
 
@@ -68,37 +86,96 @@ export const getCartByUserId = async (req, res) => {
   }
 };
 
-export const deleteCart = async (req, res) => {
-  console.log("Deleting cart...");
+export const removeFromCart = async (req, res) => {
+  const { cart_id } = req.body;
+  const { product_id, user_id } = req.params;
+
   try {
-    const { userId, productId } = req.params;
-
-    const cart = await prisma.carts.findUnique({
-      where: { user_id: userId },
+    await prisma.cart_details.delete({
+      where: { cart_id_product_id: { cart_id, product_id } },
     });
 
-    await prisma.cart_details.deleteMany({
-      where: { cart_id: cart.cart_id, product_id: productId },
+    const checkCart = await prisma.cart_details.findMany({
+      where: { cart_id },
     });
-    return res.status(200).json({ message: "Cart deleted successfully" });
+
+    if (checkCart.length == 0) {
+      await prisma.carts.delete({ where: { user_id } });
+    } else {
+      const totalQuantity = await prisma.cart_details.aggregate({
+        _sum: { quantity: true },
+        where: { cart_id },
+      });
+
+      const totalPrice = await prisma.cart_details.aggregate({
+        _sum: { total_price: true },
+        where: { cart_id },
+      });
+
+      await prisma.carts.update({
+        where: { user_id },
+        data: {
+          total_quantity: totalQuantity._sum.quantity,
+          total_price: totalPrice._sum.total_price,
+        },
+        include: { cart_details: { include: { product: true } } },
+      });
+    }
+
+    let cart = await prisma.carts.findUnique({
+      where: { user_id },
+      include: { cart_details: { include: { product: true } } },
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: cart,
+    });
   } catch (error) {
-    return res.status(500).json({ error: "Failed to delete cart" });
+    console.log("Error removing from cart: ", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error" });
   }
 };
 
 export const updateCart = async (req, res) => {
+  const { cart_id, quantity } = req.body;
+  const { user_id, product_id } = req.params;
+
   try {
-    const { cartId } = req.params;
-    const { quantity, total_price } = req.body;
-    await prisma.cart_details.updateMany({
-      where: { cart_id: cartId },
-      data: {
-        quantity,
-        total_price,
-      },
+    const product = await prisma.products.findUnique({
+      where: { product_id },
     });
-    res.status(200).json({ message: "Cart updated successfully" });
+    const price = quantity * product.sell_price;
+
+    let updatedCartDetails = await prisma.cart_details.update({
+      where: { cart_id_product_id: { cart_id, product_id } },
+      data: { quantity, total_price: price },
+    });
+    const totals = await prisma.cart_details.aggregate({
+      _sum: { quantity: true, total_price: true },
+      where: { cart_id },
+    });
+
+    let cart = await prisma.carts.update({
+      where: { user_id },
+      data: {
+        total_quantity: totals._sum.quantity,
+        total_price: totals._sum.total_price,
+      },
+      include: { cart_details: { include: { product: true } } },
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: cart,
+      updatedCartDetails,
+    });
   } catch (error) {
-    res.status(500).json({ error: "Failed to update cart" });
+    console.log("Error updating cart: ", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error" });
   }
 };
