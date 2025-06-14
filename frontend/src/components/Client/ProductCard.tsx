@@ -33,9 +33,9 @@ export default function ProductCard({ product }: { product: Product }) {
         </h3>
 
         <div className="flex items-center justify-between ">
-          <div className="flex flex-col">
-            <span className="text-sm text-primary font-medium">Price</span>
-            <span className="text-sm font-bold text-gray-800 text-gray-700">
+          <div className="flex flex-row justify-between w-full">
+            <span className="text-md text-primary font-medium">Price</span>
+            <span className="text-md font-bold text-emerald-600">
               {Number(product.sell_price).toLocaleString("vi-VN")}đ
             </span>
           </div>

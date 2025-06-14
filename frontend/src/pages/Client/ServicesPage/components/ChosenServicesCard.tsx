@@ -78,7 +78,7 @@ export default function ChosenServiceCards({
         </div>
       ) : (
         <>
-          <table className="table-auto w-full border-separate border-white border-spacing-y-2 text-sm">
+          <table className="table-auto w-full border-separate border-white border-spacing-y-2 text-md">
             <thead className="bg-primary text-white ">
               <tr>
                 <th className="px-4 py-2 text-center border-r-2 border-white">
