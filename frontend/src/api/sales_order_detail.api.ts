@@ -3,7 +3,7 @@ import { axiosClient } from "../lib/axios";
 import type { SalesOrderDetailData } from "../types/SalesOrder/salesOrder.ts";
 
 export const getAllSalesOrderDetail = async (
-  id: String,
+  id: string,
 ): Promise<SalesOrderDetailData[]> => {
   const response = await axiosClient.get(`/sales-order-details/${id}`);
   return response.data.data;

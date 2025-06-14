@@ -22,11 +22,11 @@ export default function SalesOrderDetail() {
   );
 
   const location = useLocation();
-  console.log(location.pathname.split("/")[2]);
+  console.log(location.pathname.split("/")[3]);
 
   const { data: salesOrderDetailData } = useQuery({
-    queryKey: ["salesOrderDetailData", location.pathname.split("/")[2]],
-    queryFn: () => getAllSalesOrderDetail(location.pathname.split("/")[2]),
+    queryKey: ["salesOrderDetailData", location.pathname.split("/")[3]],
+    queryFn: () => getAllSalesOrderDetail(location.pathname.split("/")[3]),
   });
 
   const filteredSalesOrderDetail = salesOrderDetailData?.filter(
@@ -59,7 +59,6 @@ export default function SalesOrderDetail() {
 
   return (
     <div className="space-y-6 p-6">
-      {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Purchase Order</h1>
@@ -161,7 +160,7 @@ export default function SalesOrderDetail() {
       </div>
       {showModal && (
         <PurchaseOrderModal
-          sales_order_id={location.pathname.split("/")[2]}
+          sales_order_id={location.pathname.split("/")[3]}
           salesOrderDetailData={editingPurchaseOrderDetail}
           setShowModal={setShowModal}
         />
@@ -172,13 +171,6 @@ export default function SalesOrderDetail() {
     </div>
   );
 }
-
-// export type SalesOrderDetailCreate = {
-//   sales_order_id: string;
-//   product_id: string;
-//   quantity: number;
-//   total_price: number;
-// };
 
 function PurchaseOrderModal({
   sales_order_id,

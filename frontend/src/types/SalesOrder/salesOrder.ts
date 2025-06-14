@@ -7,7 +7,7 @@ export type SalesOrderData = {
 };
 
 export type Product = {
-  name: String;
+  name: string;
 };
 
 export type SalesOrderDetailData = {
