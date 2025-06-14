@@ -66,19 +66,14 @@ export const addToCart = async (req, res) => {
 };
 
 export const getCartByUserId = async (req, res) => {
+  const { user_id } = req.params;
   try {
-    const { userId } = req.params;
     const cart = await prisma.carts.findUnique({
-      where: { user_id: userId },
-    });
-    const cartDetails = await prisma.cart_details.findMany({
-      where: { cart_id: cart.cart_id },
-      include: {
-        product: true,
-      },
+      where: { user_id },
+      include: { cart_details: { include: { product: true } } },
     });
     return res.status(200).json({
-      data: cartDetails,
+      data: cart,
     });
   } catch (error) {
     console.log(error.toString());
