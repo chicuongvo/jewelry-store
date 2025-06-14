@@ -26,6 +26,7 @@ import InventoryReports from "./pages/Admin/InventoryReportPage/InventoryReport.
 import InventoryReportDetails from "./pages/Admin/InventoryReportDetailsPage/InventoryReportDetails.tsx";
 import Services from "./pages/Client/ServicesPage/Services.tsx";
 import History from "./components/Client/History.tsx";
+import Profile from "./pages/Client/Profile/Profile.tsx";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,7 @@ createRoot(document.getElementById("root")!).render(
               <Route path="/" element={<App />}>
                 <Route index element={<Home />} />
                 <Route path="/history" element={<History />} />
+                <Route path="/profile" element={<Profile />} />
               </Route>
 
               <Route path="/auth" element={<App />}>

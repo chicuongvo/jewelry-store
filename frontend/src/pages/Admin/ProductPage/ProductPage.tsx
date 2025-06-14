@@ -7,6 +7,7 @@ import useProducts from "@/hooks/useProducts";
 import { Pagination } from "antd";
 import { useSearchParams } from "react-router";
 import InventoryReportSkeleton from "../InventoryReportPage/components/Skeleton";
+const limit = 8;
 export default function Products() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType] = useState("");
@@ -17,7 +18,7 @@ export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
   const newSearchParams = new URLSearchParams(searchParams.toString());
 
-  newSearchParams.set("limit", "8");
+  newSearchParams.set("limit", limit.toString());
   const {
     getAllProductQuery,
     getAllSuppliersQuery,
@@ -144,7 +145,7 @@ export default function Products() {
       getAllProductTypesQuery.isLoading ||
       getFilteredProductsQuery.isLoading ? (
         <div className="grid grid-cols-4 gap-6">
-          {Array.from({ length: 6 }).map((_, id) => {
+          {Array.from({ length: limit }).map((_, id) => {
             return <InventoryReportSkeleton index={id} />;
           })}
         </div>

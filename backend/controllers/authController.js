@@ -6,6 +6,7 @@ import {
 import { prisma } from "../config/db.js";
 import generateTokenAndSetCookie from "../utils/generateTokenAndSetCookie.js";
 import generateToken from "../utils/generateToken.js";
+import clourdinary from "../config/cloudinary.js";
 import {
   sendVerificationEmail,
   sendResetPasswordEmail,
@@ -130,24 +131,34 @@ export const getUserById = async (req, res) => {
 
 export const updateUser = async (req, res) => {
   const user_id = req.user_id;
+  const file = req.file;
   const data = req.body;
+  console.log("Update user data:", user_id);
+
+  if (file) {
+    const profileBase64String = `data:${
+      file.mimetype
+    };base64,${file.buffer.toString("base64")}`;
+    try {
+      const UrlObject = await clourdinary.uploader.upload(profileBase64String);
+      data.profile_pic = UrlObject.secure_url;
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ success: false, message: "Internal Server Error" });
+    }
+  }
 
   try {
-    if (!data || Object.keys(data).length === 0) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Vui lòng cung cấp đủ thông tin." });
-    }
-
+    // if (!data || Object.keys(data).length === 0) {
+    //   return res
+    //     .status(400)
+    //     .json({ success: false, message: "Vui lòng cung cấp đủ thông tin." });
+    // }
+    console.log("Data to update:", data, "@@@");
     const updatedUser = await prisma.users.update({
       where: { user_id },
-      data: {
-        username: data.username,
-        fullname: data.fullname,
-        phone_number: data.phone_number,
-        email: data.email,
-        profile_pic: data.profile_pic,
-      },
+      data,
     });
 
     return res.status(200).json({

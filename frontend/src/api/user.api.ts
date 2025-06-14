@@ -40,6 +40,17 @@ export const updateUser = async (
   return response.data.data;
 };
 
+export const updateUserByFormdata = async (
+  formData: FormData
+): Promise<UserProfile> => {
+  const response = await axiosClient.put("/auth/me", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  return response.data.data;
+};
 export const getVerificationToken = async (): Promise<string> => {
   const response = await axiosClient.get("/auth/verification-token");
 
