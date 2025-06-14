@@ -13,8 +13,8 @@ export type SalesOrderDetailData = {
   product_id: string;
   quantity: number;
   total_price: number;
-  product: Product;
-  created_at: Date;
+  product?: Product;
+  created_at?: Date;
 };
 
 export type Client = {

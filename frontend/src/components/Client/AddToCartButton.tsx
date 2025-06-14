@@ -45,7 +45,7 @@ export default function AddToCartButton({
 
   return (
     <button
-      className="flex w-full items-center disabled:cursor-not-allowed justify-center gap-2 bg-primary border border-primary text-white px-5 py-2.5 font-bold hover:text-white hover:bg-primary/80 hover:border hover:border-primary/80 transition-all duration-300 text:md cursor-pointer"
+      className={`flex w-full items-center disabled:cursor-not-allowed justify-center gap-2 bg-primary border border-primary text-white px-5 py-2.5 font-bold hover:text-white hover:bg-primary/80 hover:border hover:border-primary/80 transition-all duration-300 text:md cursor-pointer disabled:bg-primary/50`}
       onClick={handleAddToCart}
       disabled={mutation.isPending}
     >

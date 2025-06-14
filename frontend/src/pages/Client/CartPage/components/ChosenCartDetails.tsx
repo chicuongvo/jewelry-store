@@ -2,6 +2,12 @@
 
 import { ToastContainer, toast } from "react-toastify";
 import type { cartDetails } from "@/types/CartDetails/cartDetails";
+import { useNavigate } from "react-router";
+import { useUser } from "@/contexts/userContext";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createSalesOrder } from "@/api/sales_order.api";
+import { createSalesOrderDetail } from "@/api/sales_order_detail.api";
+import { removeFromCart } from "@/api/cart.api";
 
 interface Props {
   cartDetails: cartDetails[];
@@ -14,50 +20,62 @@ export default function ChosenCartDetails({
   totalPrice,
   setChosenCartDetails,
 }: Props) {
-  //   const { userProfile } = useUser();
-  //   const nav = useNavigate();
-  //   const queryClient = useQueryClient();
+  const { userProfile } = useUser();
+  const nav = useNavigate();
+  const queryClient = useQueryClient();
 
-  //   const mutation = useMutation({
-  //     mutationFn: async () => {
-  //       if (!userProfile?.user_id) {
-  //         nav("/auth");
-  //         return;
-  //       }
+  const mutation = useMutation({
+    mutationFn: async () => {
+      if (!userProfile?.user_id) {
+        nav("/auth");
+        return;
+      }
 
-  //       const order = await createServiceOrder({
-  //         client_id: userProfile.user_id,
-  //       });
+      const order = await createSalesOrder({
+        client_id: userProfile.user_id,
+      });
 
-  //       const service_order_id = order?.service_order_id;
-  //       if (!service_order_id) throw new Error("Không thể lấy ID đơn hàng!");
+      const sales_order_id = order?.sales_order_id;
+      if (!sales_order_id) throw new Error("Không thể lấy ID đơn hàng!");
 
-  //       await Promise.all(
-  //         services.map((service) =>
-  //           createServiceOrderDetail({
-  //             service_order_id,
-  //             service_id: service.service_id,
-  //             quantity: 1,
-  //             calculated_price: service.base_price,
-  //             total_price: service.base_price,
-  //             paid: service.base_price / 2,
-  //             remaining: service.base_price / 2,
-  //             status: "NOT_DELIVERED",
-  //           })
-  //         )
-  //       );
+      await Promise.all(
+        cartDetails.map((details) => {
+          if (
+            !details.product_id ||
+            !details.quantity ||
+            !details.total_price
+          ) {
+            throw new Error(
+              "Thiếu thông tin sản phẩm để tạo chi tiết đơn hàng!"
+            );
+          }
+          return createSalesOrderDetail({
+            sales_order_id,
+            product_id: details.product_id,
+            quantity: details.quantity,
+            total_price: details.total_price,
+          });
+        })
+      );
 
-  //       return order;
-  //     },
-  //     onSuccess: () => {
-  //       queryClient.invalidateQueries({ queryKey: ["services"] });
-  //       setChosenServices([]);
-  //       toast.success("🎉 Đặt dịch vụ thành công!");
-  //     },
-  //     onError: (error: any) => {
-  //       toast.error(error?.response?.data?.error || "Đặt dịch vụ thất bại.");
-  //     },
-  //   });
+      await Promise.all(
+        cartDetails.map((details) => {
+          if (!details.product_id) return null;
+          return removeFromCart(details.product_id);
+        })
+      );
+
+      return order;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+      setChosenCartDetails([]);
+      toast.success("🎉 Đặt hàng & xoá khỏi giỏ thành công!");
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.error || "Đặt hàng thất bại.");
+    },
+  });
 
   return (
     <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 pb-4 transition-shadow duration-200 flex flex-col gap-4 ">
@@ -107,12 +125,11 @@ export default function ChosenCartDetails({
           </div>
 
           <button
-            // onClick={() => mutation.mutate()}
-            // disabled={mutation.isPending}
+            onClick={() => mutation.mutate()}
+            disabled={mutation.isPending || cartDetails.length === 0}
             className="cursor-pointer mt-3 w-full bg-white text-primary hover:text-white border-2 border-primary py-2 rounded-lg hover:bg-primary transition-all duration-200 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {/* {mutation.isPending ? "Đang xử lý..." : "Xác nhận"} */}
-            Xác nhận
+            {mutation.isPending ? "Đang xử lý..." : "Xác nhận"}
           </button>
         </>
       )}

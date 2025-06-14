@@ -7,20 +7,30 @@ import { Minus, Plus, Tag, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-toastify";
 
+interface Props {
+  cartDetails: cartDetails;
+  toggleCartDetails?: (cartDetails: cartDetails) => void;
+  isSelected?: boolean;
+  showCheckbox?: boolean;
+  checked?: boolean;
+  setChosenCartDetails: any;
+}
+
 export default function CartDetailsCard({
   cartDetails,
   toggleCartDetails,
-  isSelected,
-}: {
-  cartDetails: cartDetails;
-  toggleCartDetails: any;
-  isSelected: any;
-}) {
+  isSelected = false,
+  showCheckbox = false,
+  checked = false,
+  setChosenCartDetails,
+}: Props) {
   const [quantity, setQuantity] = useState<number>(
     Number(cartDetails.quantity) || 1
   );
 
   const queryClient = useQueryClient();
+  const { setCartChanged } = useCart();
+
   const { mutate: updateMutation } = useMutation({
     mutationFn: ({
       product_id,
@@ -40,13 +50,15 @@ export default function CartDetailsCard({
     },
   });
 
-  const { setCartChanged } = useCart();
-
   const { mutate: deleteMutation, isPending: isDeleting } = useMutation({
     mutationFn: (product_id: string) => removeFromCart(product_id),
     onSuccess() {
       toast.success("Đã xoá sản phẩm khỏi giỏ hàng.");
       setCartChanged(true);
+      setChosenCartDetails((prev: any) =>
+        prev.filter((item: any) => item.product_id !== cartDetails.product_id)
+      );
+
       queryClient.invalidateQueries({ queryKey: ["cart"] });
     },
     onError(error: any) {
@@ -59,73 +71,93 @@ export default function CartDetailsCard({
   const increaseQuantity = () => {
     const newQuantity = quantity + 1;
     setQuantity(newQuantity);
-    if (cartDetails.product_id) {
-      updateMutation({
-        product_id: cartDetails.product_id,
-        quantity: newQuantity,
-      });
-    } else {
-      toast.error("Product ID is missing.");
-    }
+    updateMutation({
+      product_id: cartDetails.product_id ?? "",
+      quantity: newQuantity,
+    });
   };
 
   const decreaseQuantity = () => {
     if (quantity > 1) {
       const newQuantity = quantity - 1;
       setQuantity(newQuantity);
-      if (cartDetails.product_id) {
-        updateMutation({
-          product_id: cartDetails.product_id,
-          quantity: newQuantity,
-        });
-      } else {
-        toast.error("Product ID is missing.");
-      }
+      updateMutation({
+        product_id: cartDetails.product_id ?? "",
+        quantity: newQuantity,
+      });
     }
   };
 
   return (
     <div
-      className={`flex flex-row justify-between rounded-md  px-6 py-4 cursor-pointer h-[170px] ${
+      className={`flex justify-between items-start rounded-md px-6 py-4 h-[170px] ${
         isSelected
-          ? "border border-red-200 shadow-md"
-          : "shadow-sm border border-zinc-200"
+          ? "border-2 border-primary shadow-md"
+          : "border-2 border-zinc-200 shadow-sm"
       }`}
-      onClick={() => toggleCartDetails(cartDetails)}
     >
-      <div className="flex flex-row gap-3">
-        <div className="w-[100px] h-[100px] aspect-square">
+      <div className="flex flex-row gap-3 w-full">
+        {showCheckbox && (
+          <label className="flex items-start gap-2 cursor-pointer select-none mt-2">
+            <input
+              type="checkbox"
+              checked={checked}
+              onChange={() => toggleCartDetails?.(cartDetails)}
+              className="peer hidden"
+            />
+            <div className="w-5 h-5 flex items-center justify-center border-2 border-primary rounded-sm peer-checked:bg-primary peer-checked:border-primary">
+              <svg
+                className="w-4 h-4 text-white"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </div>
+          </label>
+        )}
+
+        <div className="w-[100px] h-[100px]">
           <img
             src={cartDetails.product?.image}
             alt={cartDetails.product?.name}
-            className="w-[100px] h-[100px]  object-cover"
+            className="w-[100px] h-[100px] object-cover rounded-md"
           />
         </div>
-        <div className="flex flex-col justify-between gap-1">
+
+        <div className="flex flex-col justify-between gap-1 flex-1">
           <span className="w-max bg-pink-50 px-2 py-1.5 rounded-full flex items-center gap-1.5 text-[12px] font-medium text-primary border border-primary">
             <Tag size={12} className="text-primary" />
             {cartDetails.product?.type}
           </span>
-          <div className="text-md font-bold">{cartDetails.product?.name}</div>
-          <div className="text-md text-emerald-600 ">
+
+          <div className="text-md font-bold line-clamp-1">
+            {cartDetails.product?.name}
+          </div>
+
+          <div className="text-md text-emerald-600">
             {Number(cartDetails.product?.sell_price).toLocaleString()}₫
           </div>
+
           <div className="w-max">
-            <div className="flex items-center border border-gray-300 ">
+            <div className="flex items-center border border-gray-300">
               <button
                 onClick={decreaseQuantity}
-                className="p-2 disabled:opacity-50 cursor-pointer"
+                className="p-2 disabled:opacity-50"
                 disabled={quantity <= 1}
               >
                 <Minus className="h-3 w-3" />
               </button>
-              <span className="w-[30px]  py-1 font-semibold text-gray-900 text-center">
+              <span className="w-[30px] py-1 text-center font-semibold text-gray-900">
                 {quantity}
               </span>
-              <button
-                onClick={increaseQuantity}
-                className="p-2 disabled:opacity-50 cursor-pointer"
-              >
+              <button onClick={increaseQuantity} className="p-2">
                 <Plus className="h-3 w-3" />
               </button>
             </div>
@@ -133,22 +165,22 @@ export default function CartDetailsCard({
         </div>
       </div>
 
-      <div className="flex flex-col items-end justify-between content-end font-bold">
+      <div className="flex flex-col items-end justify-between font-bold h-full">
         <Trash2
-          className={`text-red-300  hover:text-red-500 transition-all duration-400 ${
-            isDeleting ? "cursor:not-allowed" : "cursor-pointer"
+          className={`text-red-300 hover:text-red-500 transition-all ${
+            isDeleting ? "cursor-not-allowed" : "cursor-pointer"
           }`}
           onClick={() => {
             if (cartDetails.product_id) {
               deleteMutation(cartDetails.product_id);
             } else {
-              toast.error("Product ID is missing.");
+              toast.error("Thiếu product_id!");
             }
           }}
         />
 
         <div>
-          <span className="font-medium ">Tổng: </span>
+          <span className="font-medium">Tổng: </span>
           {(quantity * (cartDetails.product?.sell_price ?? 0)).toLocaleString()}
           ₫
         </div>
