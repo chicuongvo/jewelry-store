@@ -15,14 +15,14 @@ function ServiceHistory() {
   }
 
   return (
-    <div className="py-6 border border-card-border rounded-lg max-w-[1000px] mx-auto bg-white">
-      <div className="flex justify-center items-center gap-2 px-6 py-4 border-b border-card-border">
+    <div className="py-6 border max-w-[1000px] mx-auto h-dvh">
+      <div className="flex justify-center items-center gap-2 px-6 py-4">
         <HistoryIcon className="w-6 h-6 text-primary" />
-        <h2 className="text-2xl font-semibold text-gray-800">
+        <h2 className="text-2xl uppercase font-bold text-gray-800">
           Lịch sử dịch vụ
         </h2>
       </div>
-      <div className="p-6">
+      <div className="px-10 mt-6">
         <ul className="space-y-6">
           {serviceOrders?.map(order => (
             <li key={order.service_order_id}>

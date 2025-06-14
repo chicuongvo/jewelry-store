@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import {
   Search,
@@ -21,10 +20,14 @@ import {
   updateSupplier,
 } from "@/api/supplier.api";
 import { useNotification } from "@/contexts/notificationContext";
+import { Pagination } from "antd";
 
 export default function Suppliers() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [page, setPage] = useState(1);
+  const queryClient = useQueryClient();
+
   const [deleting, setDeleting] = useState<SupplierResponse>(
     {} as unknown as SupplierResponse
   );
@@ -32,10 +35,28 @@ export default function Suppliers() {
     {} as unknown as SupplierResponse
   );
 
-  const { data: suppliersData, isLoading } = useQuery({
-    queryKey: ["suppliers"],
-    queryFn: getAllSuppliers,
+  const limit = 6;
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["suppliers", page],
+    queryFn: () => getAllSuppliers({ page, limit }),
   });
+
+  const suppliersData = data?.data;
+  const totalItems = data?.totalItems;
+  const totalPages = data?.totalPages;
+
+  if (page < totalPages)
+    queryClient.prefetchQuery({
+      queryKey: ["suppliers", page + 1],
+      queryFn: () => getAllSuppliers({ page: page + 1, limit }),
+    });
+
+  if (page > 1)
+    queryClient.prefetchQuery({
+      queryKey: ["suppliers", page - 1],
+      queryFn: () => getAllSuppliers({ page: page - 1, limit }),
+    });
 
   const filteredSuppliers = suppliersData?.filter(
     (supplier: { name: string; phone_number: string; address: string }) =>
@@ -117,7 +138,7 @@ export default function Suppliers() {
               {isLoading ? (
                 <TableSkeleton />
               ) : (
-                filteredSuppliers?.map(supplier => (
+                filteredSuppliers?.map((supplier: SupplierResponse) => (
                   <tr
                     key={supplier.supplier_id}
                     className="hover:bg-gray-50 transition-colors duration-150"
@@ -170,6 +191,16 @@ export default function Suppliers() {
           </table>
         </div>
       </div>
+
+      <Pagination
+        align="center"
+        current={page}
+        total={totalItems || 0}
+        pageSize={limit}
+        onChange={current => {
+          setPage(current);
+        }}
+      />
 
       {/* Modal */}
       {showModal && (
