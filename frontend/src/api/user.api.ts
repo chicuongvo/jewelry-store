@@ -82,9 +82,13 @@ export const resetPassword = async (
   return response.data.message;
 };
 
-export const getAllUsers = async (): Promise<UserProfile[]> => {
-  const response = await axiosClient.get("/auth/");
-  return response.data.data;
+export const getAllUsers = async (
+  params: { page: number; limit: number } = { page: 1, limit: 6 }
+) => {
+  const response = await axiosClient.get(
+    `/auth?page=${params.page}&limit=${params.limit}`
+  );
+  return response.data;
 };
 
 export const banUser = async (id: string) => {

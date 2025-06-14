@@ -5,9 +5,13 @@ import {
 } from "../types/supplier/supplier";
 import { axiosClient } from "../lib/axios";
 
-export const getAllSuppliers = async (): Promise<SupplierResponse[]> => {
-  const response = await axiosClient.get("/suppliers");
-  return response.data.data;
+export const getAllSuppliers = async (
+  params: { page: number; limit: number } = { page: 1, limit: 6 }
+) => {
+  const response = await axiosClient.get(
+    `/suppliers?page=${params.page}&limit=${params.limit}`
+  );
+  return response.data;
 };
 export const getSupplierById = async (
   id: string
