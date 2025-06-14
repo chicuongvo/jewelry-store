@@ -5,6 +5,7 @@ import { useUser } from "@/contexts/userContext";
 import { createServiceOrder } from "@/api/serviceOrder.api";
 import { createServiceOrderDetail } from "@/api/service_order_detail.api";
 import { useNavigate } from "react-router";
+import { ToastContainer, toast } from "react-toastify";
 
 interface Props {
   services: ServiceResponse[];
@@ -57,15 +58,16 @@ export default function ChosenServiceCards({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["services"] });
       setChosenServices([]);
-      alert("🎉 Đặt dịch vụ thành công!");
+      toast.success("🎉 Đặt dịch vụ thành công!");
     },
     onError: (error: any) => {
-      alert(error?.response?.data?.error || "Đặt dịch vụ thất bại.");
+      toast.error(error?.response?.data?.error || "Đặt dịch vụ thất bại.");
     },
   });
 
   return (
     <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 pb-4 transition-shadow duration-200 flex flex-col gap-4 ">
+      <ToastContainer />
       <h2 className="w-full text-center font-extrabold text-2xl text-gray-800">
         DỊCH VỤ ĐÃ CHỌN
       </h2>

@@ -18,7 +18,7 @@ export default function ProductTypeCard({
   return (
     <div
       key={key}
-      className={`font-primary font-bold flex gap-4 flex-col justify-center items-center w-max h-max md:w-max md:h-max `}
+      className={`font-primary cursor-pointer font-bold flex gap-4 flex-col justify-center items-center w-max h-max md:w-max md:h-max `}
       onClick={onClick}
     >
       <div

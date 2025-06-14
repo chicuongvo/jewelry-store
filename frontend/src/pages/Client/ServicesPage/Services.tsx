@@ -46,16 +46,16 @@ export default function Services() {
         />
       </div>
 
-      <div className="px-2 py-5 grid gird-cols-1 gap-8 md:px-10 lg:px-15">
+      <div className="px-2 py-8 grid gird-cols-1 gap-8 md:px-10 lg:px-15">
         <div className="flex flex-col justify-center items-center gap-3">
           <div className="text-4xl w-full text-center font-extrabold">
             DỊCH VỤ
           </div>
           <div className="text-center">
-            <span className="text-primary font-logo font-bold">
+            <span className="text-primary font-logo font-bold md:text-lg">
               JewelryStore{" "}
             </span>{" "}
-            <span className="text-sm italic text-zinc-800 text-center">
+            <span className="text-sm md:text-lg italic text-zinc-800 text-center">
               mang đến dịch vụ chăm sóc trang sức từ A-Z, thêm chút dấu ấn riêng
               – để mỗi món trang sức không chỉ đẹp, mà còn thật sự thuộc về bạn.
             </span>
