@@ -47,6 +47,7 @@ model products {
   productUnit              units?                     @relation(fields: [unit], references: [name])
   purchase_order_details   purchase_order_details[]
   sales_order_details      sales_order_details[]
+  cart_details           cart_details[]
 }
 
 model services {
@@ -95,10 +96,11 @@ model users {
   is_banned                       Boolean          @default(false)
   sales_orders                    sales_orders[]
   service_orders                  service_orders[]
+  carts                          carts?
 }
 
 /// *
-///  * Purchase
+/// * Purchase
 model purchase_orders {
   purchase_order_id      String                   @id @default(cuid())
   created_at             DateTime                 @default(now())
@@ -119,7 +121,7 @@ model purchase_order_details {
 }
 
 /// *
-///  * Sale
+/// * Sale
 model sales_orders {
   sales_order_id      String                @id @default(cuid())
   created_at          DateTime              @default(now())
@@ -165,6 +167,32 @@ model service_order_details {
   service_order    service_orders @relation(fields: [service_order_id], references: [service_order_id])
 
   @@id([service_order_id, service_id])
+}
+
+model carts {
+    cart_id String @id @default(cuid())
+
+    user_id String @unique
+    user    users  @relation(fields: [user_id], references: [user_id])
+
+    total_quantity Int @default(0)
+    total_price    Int @default(0)
+
+    cart_details cart_details[]
+
+}
+
+model cart_details {
+    cart_id String
+    cart    carts  @relation(fields: [cart_id], references: [cart_id], onDelete: Cascade)
+
+    product_id String
+    product   products   @relation(fields: [product_id], references: [product_id])
+
+    quantity    Int
+    total_price Int @default(0)
+
+    @@id([cart_id, product_id])
 }
 
 enum Role {

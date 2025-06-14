@@ -57,7 +57,7 @@ export const createType = async (req, res) => {
         .json({ success: false, message: "No data provided" });
     }
 
-    // await createProductTypeValidator.validateAsync(data);
+    await createProductTypeValidator.validateAsync(data);
 
     const [checkTypeName] = await Promise.all([
       prisma.product_types.findUnique({ where: { name: data.name } }),

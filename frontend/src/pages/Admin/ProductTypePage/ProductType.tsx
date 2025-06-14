@@ -6,6 +6,7 @@ import { Modal } from "antd";
 import useProductTypes from "@/hooks/useProductTypes";
 import { Pagination } from "antd";
 import { useSearchParams } from "react-router";
+import InventoryReportSkeleton from "../InventoryReportPage/components/Skeleton";
 export default function ProductTypes() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -49,10 +50,10 @@ export default function ProductTypes() {
       ...data,
       profit_rate: profitRate,
     };
-    if (isNaN(profitRate) || profitRate < 0 || profitRate > 100) {
+    if (isNaN(profitRate) || profitRate < 0 || profitRate > 0.5) {
       modal.error({
         title: "Tỉ lệ lợi nhuận không hợp lệ",
-        content: "Vui lòng nhập tỉ lệ lợi nhuận hợp lệ từ 0 đến 100.",
+        content: "Vui lòng nhập tỉ lệ lợi nhuận hợp lệ từ 0 đến 0.5.",
       });
       return;
     }
@@ -92,7 +93,6 @@ export default function ProductTypes() {
   };
   return (
     <div className="space-y-6 flex flex-col w-full h-full">
-      {/* Page Header */}
       {contextHolder}
       <div className="flex items-center justify-between">
         <div>
@@ -104,7 +104,7 @@ export default function ProductTypes() {
         </div>
         <button
           onClick={handleAdd}
-          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+          className="flex cursor-pointer items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
         >
           <Plus className="h-4 w-4 mr-2" />
           Thêm loại sản phẩm
@@ -117,7 +117,7 @@ export default function ProductTypes() {
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <input
             type="text"
-            placeholder="Search product types..."
+            placeholder="Tìm kiếm loại sản phẩm..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -125,6 +125,16 @@ export default function ProductTypes() {
         </div>
       </div>
 
+      {getAllProductTypesQuery.isLoading ||
+      getFilteredProductTypesQuery.isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, index) => {
+            return <InventoryReportSkeleton index={index} />;
+          })}
+        </div>
+      ) : (
+        <div className="loader"></div>
+      )}
       {/* Product Types Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredTypes?.map((type) => (
@@ -141,7 +151,6 @@ export default function ProductTypes() {
                   <h3 className="text-lg font-semibold text-gray-900">
                     {type.name}
                   </h3>
-                  {/* <p className="text-sm text-gray-500">{type.description}</p> */}
                 </div>
               </div>
               <div className="flex items-center space-x-2">
@@ -176,10 +185,10 @@ export default function ProductTypes() {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Tỉ lệ lợi nhuận</span>
                 <div className="flex items-center">
-                  <Percent className="h-4 w-4 text-emerald-600 mr-1" />
                   <span className="text-sm font-medium text-emerald-600">
-                    {type.profit_rate}%
+                    {type.profit_rate}
                   </span>
+                  <Percent className="h-4 w-4 text-emerald-600 mr-1" />
                 </div>
               </div>
 
@@ -208,7 +217,7 @@ export default function ProductTypes() {
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
             <div className="p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                {editingType ? "Edit Product Type" : "Add New Product Type"}
+                {editingType ? "Chỉnh sửa loại sản phẩm" : "Thêm loại sản phẩm"}
               </h2>
 
               <form className="space-y-4" id="productTypeForm">
@@ -224,7 +233,7 @@ export default function ProductTypes() {
                     minLength={3}
                     defaultValue={editingType?.name || ""}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter product type name"
+                    placeholder="Nhập tên loại sản phẩm"
                   />
                 </div>
 
@@ -240,7 +249,7 @@ export default function ProductTypes() {
                     name="profit_rate"
                     defaultValue={editingType?.profit_rate || ""}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter profit rate"
+                    placeholder="Nhập tỉ lệ lợi nhuận"
                   />
                 </div>
               </form>
@@ -252,12 +261,22 @@ export default function ProductTypes() {
                 >
                   Hủy bỏ
                 </button>
-                <button
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
-                  onClick={handleAddAndUpdateProductType}
-                >
-                  {editingType ? "Cập nhập" : "Tạo"} Loại sản phẩm
-                </button>
+                {updateProductTypeMutation.isPending ||
+                createProductTypeMutation.isPending ? (
+                  <button
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg opacity-50 cursor-not-allowed"
+                    disabled
+                  >
+                    {editingType ? "Đang cập nhật..." : "Đang tạo..."}
+                  </button>
+                ) : (
+                  <button
+                    className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                    onClick={handleAddAndUpdateProductType}
+                  >
+                    {editingType ? "Cập nhật" : "Tạo"} loại sản phẩm
+                  </button>
+                )}
               </div>
             </div>
           </div>

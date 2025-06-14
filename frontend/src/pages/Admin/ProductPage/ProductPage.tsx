@@ -17,7 +17,7 @@ export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
   const newSearchParams = new URLSearchParams(searchParams.toString());
 
-  newSearchParams.set("limit", "6");
+  newSearchParams.set("limit", "8");
   const {
     getAllProductQuery,
     getAllSuppliersQuery,
@@ -143,13 +143,13 @@ export default function Products() {
       getAllSuppliersQuery.isLoading ||
       getAllProductTypesQuery.isLoading ||
       getFilteredProductsQuery.isLoading ? (
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-4 gap-6">
           {Array.from({ length: 6 }).map((_, id) => {
             return <InventoryReportSkeleton index={id} />;
           })}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-6">
           {filteredProducts?.map((product) => (
             <div
               key={product.product_id}
@@ -188,7 +188,7 @@ export default function Products() {
                                 product.product_id
                               );
                               await modal.success({
-                                content: "Đã xóa sản phẩm thành công",
+                                content: "₫ ã xóa sản phẩm thành công",
                               });
                             } catch (error) {
                               console.error("Error deleting product:", error);
@@ -221,13 +221,19 @@ export default function Products() {
                     <div>
                       <span className="text-gray-500">Mua: </span>
                       <span className="font-medium text-gray-900">
-                        ${product.buy_price}
+                        {Number(product.sell_price).toLocaleString("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        })}
                       </span>
                     </div>
                     <div>
-                      <span className="text-gray-500">Sell: </span>
+                      <span className="text-gray-500">Bán: </span>
                       <span className="font-medium text-emerald-600">
-                        ${product.sell_price}
+                        {Number(product.sell_price).toLocaleString("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        })}{" "}
                       </span>
                     </div>
                   </div>
@@ -316,7 +322,7 @@ export default function Products() {
                 <div className="">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Giá mua ($)
+                      Giá mua (₫ )
                     </label>
                     <input
                       type="number"
@@ -384,7 +390,7 @@ export default function Products() {
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
                   onClick={handleAddAndUpdateProduct}
                 >
-                  {editingProduct ? "Cập nhật" : "Tạo"} Sản phẩm
+                  {editingProduct ? "Cập nhật" : "Tạo"} sản phẩm
                 </button>
               </div>
             </div>
