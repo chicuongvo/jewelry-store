@@ -28,7 +28,7 @@ import type { UserProfile } from "../../../types/User/User";
 export default function AdminServiceOrders() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [selectedOrder, setSelectedOrder] =
+  const [ selectedOrder, setSelectedOrder] =
     useState<ServiceOrderResponse | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);

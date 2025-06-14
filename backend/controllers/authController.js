@@ -83,6 +83,15 @@ export const getUser = async (req, res) => {
       where: { user_id },
       include: {
         sales_orders: true,
+        service_orders: {
+          include: {
+            service_order_details: {
+              include: {
+                service: true,
+              },
+            },
+          },
+        },
         service_orders: true,
         carts: { include: { cart_details: { include: { product: true } } } },
       },
@@ -111,7 +120,17 @@ export const getUserById = async (req, res) => {
       where: { user_id },
       include: {
         sales_orders: true,
+        service_orders: {
+          include: {
+            service_order_details: {
+              include: {
+                service: true,
+              },
+            },
+          },
+        },
         service_orders: true,
+        carts: { include: { cart_details: { include: { product: true } } } },
       },
     });
 
