@@ -72,7 +72,7 @@ export default function ProductDetails() {
           {/* <button className="bg-white text-primary hover:bg-zinc-100 transition-all border-2 border-primary px-6 py-3 text-sm font-semibold   transition-all duration-300  cursor-pointer                                                                                    ">
             THÊM VÀO GIỎ
           </button> */}
-          {product && <AddToCartButton product={product} />}
+          {product && <AddToCartButton product={product} quantity={quantity} />}
         </div>
 
         <div className="pt-4 flex flex-col gap-3">

@@ -4,6 +4,7 @@ import ProductTypes from "./components/ProductTypes";
 import SearchBar from "./components/SearchBar";
 import { useState } from "react";
 import ProductList from "./components/ProductList";
+import { ToastContainer } from "react-toastify";
 
 function Products() {
   const [searchPrice, setSearchPrice] = useState<string[]>(["0", "100"]);
@@ -16,6 +17,7 @@ function Products() {
 
   return (
     <div className="mb-10">
+      <ToastContainer />
       <div className="h-[350px] overflow-hidden">
         <img
           src={productBanner}

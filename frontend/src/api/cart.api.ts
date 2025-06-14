@@ -10,7 +10,9 @@ export const addToCart = async (
   product_id: string,
   quantity: number
 ): Promise<Cart> => {
-  const res = await axiosClient.post(`/carts/add/${product_id}`, quantity);
+  const res = await axiosClient.post(`/carts/add/${product_id}`, {
+    quantity: quantity,
+  });
   return res?.data.data;
 };
 
@@ -23,6 +25,8 @@ export const updateCart = async (
   product_id: string,
   quantity: number
 ): Promise<Cart> => {
-  const res = await axiosClient.post(`/carts/update/${product_id}`, quantity);
+  const res = await axiosClient.post(`/carts/update/${product_id}`, {
+    quantity: quantity,
+  });
   return res?.data.data;
 };

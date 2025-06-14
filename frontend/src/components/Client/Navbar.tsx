@@ -5,6 +5,8 @@ import { Link, useLocation, useNavigate } from "react-router";
 import Logo from "./Logo";
 import { useUser } from "../../contexts/userContext";
 import { signOut } from "../../api/user.api";
+import { Badge, ConfigProvider } from "antd";
+import { useCart } from "@/contexts/cartContext";
 
 interface option {
   name: string;
@@ -41,7 +43,7 @@ export default function Navbar() {
   const location = useLocation();
 
   const renderOptions = (options: option[]) => {
-    return options.map(option => {
+    return options.map((option) => {
       const active = location.pathname == option.page;
       return (
         <Link
@@ -80,6 +82,8 @@ export default function Navbar() {
     }
     setOpenMenu(false);
   };
+
+  const { cartData } = useCart();
 
   return (
     <nav
@@ -124,10 +128,14 @@ export default function Navbar() {
             </div>
           </div>
         )}
-        <ShoppingBag
-          className="hover:text-primary ease-in-out duration-500 cursor-pointer"
-          onClick={handleOnClickCart}
-        />
+        <ConfigProvider>
+          <Badge count={cartData?.total_quantity}>
+            <ShoppingBag
+              className="hover:text-primary ease-in-out duration-500 cursor-pointer"
+              onClick={handleOnClickCart}
+            />
+          </Badge>
+        </ConfigProvider>
       </div>
     </nav>
   );

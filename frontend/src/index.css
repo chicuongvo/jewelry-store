@@ -25,3 +25,9 @@
 .custom-pagination .ant-pagination-item {
   border: 1px solid rgb(255, 147, 160) !important;
 }
+.ant-badge-count {
+  background-color: rgb(255, 147, 160) !important;
+  color: white !important;
+  font-weight: bold;
+  font-family: "Lexend", sans-serif;
+}

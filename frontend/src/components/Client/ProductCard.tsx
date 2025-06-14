@@ -41,7 +41,7 @@ export default function ProductCard({ product }: { product: Product }) {
             </span>
           </div>
         </div>
-        <AddToCartButton product={product} />
+        <AddToCartButton product={product} quantity={1} />
 
         {/* <button
           className="flex w-full items-center justify-center gap-2 bg-primary border border-primary text-white px-5 py-2.5  font-bold hover:text-primary hover:bg-white hover:border hover:border-primary transition-all duration-300 text:md cursor-pointer "
