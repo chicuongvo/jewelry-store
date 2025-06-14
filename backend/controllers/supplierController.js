@@ -5,15 +5,28 @@ import {
 import { prisma } from "../config/db.js";
 
 export const getAllSuppliers = async (req, res) => {
+  const { limit = 10, page = 1 } = req.query;
+  const pageNumber = parseInt(page);
+  const limitNumber = parseInt(limit);
+  const skip = (pageNumber - 1) * limitNumber;
   try {
+    const totalItems = await prisma.suppliers.count();
     const suppliers = await prisma.suppliers.findMany({
+      skip,
+      take: limitNumber,
       include: {
         products: true,
         purchase_orders: true,
       },
     });
 
-    return res.status(200).json({ success: true, data: suppliers });
+    return res.status(200).json({
+      success: true,
+      data: suppliers,
+      totalItems,
+      totalPages: page ? Math.ceil(totalItems / parseInt(limit)) : 1,
+      currentPage: page ? parseInt(page) : 1,
+    });
   } catch (error) {
     console.log("Error get all suppliers:", error);
     return res
@@ -63,7 +76,7 @@ export const createSupplier = async (req, res) => {
     if (error.isJoi) {
       return res.status(400).json({
         success: false,
-        message: error.details.map((err) => err.message),
+        message: error.details.map(err => err.message),
       });
     }
 
@@ -146,7 +159,7 @@ export const updateSupplier = async (req, res) => {
     if (error.isJoi) {
       return res.status(400).json({
         success: false,
-        message: error.details.map((err) => err.message),
+        message: error.details.map(err => err.message),
       });
     } else {
       console.log("Error update supplier:", error);

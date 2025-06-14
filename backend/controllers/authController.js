@@ -13,8 +13,20 @@ import {
 
 export const getAllUsers = async (req, res) => {
   try {
-    const { username, email, fullname, phone_number, sortBy, sortOrder } =
-      req.query;
+    const {
+      username,
+      email,
+      fullname,
+      phone_number,
+      sortBy,
+      sortOrder,
+      page = 1,
+      limit = 6,
+    } = req.query;
+
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+    const skip = (pageNumber - 1) * limitNumber;
 
     const filters = {};
 
@@ -53,6 +65,8 @@ export const getAllUsers = async (req, res) => {
       orderBy[sortBy] = sortOrder === "desc" ? "desc" : "asc";
     }
 
+    const totalItems = await prisma.users.count();
+
     const users = await prisma.users.findMany({
       where: filters,
       orderBy: Object.keys(orderBy).length ? orderBy : undefined,
@@ -60,9 +74,17 @@ export const getAllUsers = async (req, res) => {
         sales_orders: true,
         service_orders: true,
       },
+      skip,
+      take: limitNumber,
     });
 
-    return res.status(200).json({ success: true, data: users });
+    return res.status(200).json({
+      success: true,
+      data: users,
+      totalItems,
+      totalPages: page ? Math.ceil(totalItems / parseInt(limit)) : 1,
+      currentPage: page ? parseInt(page) : 1,
+    });
   } catch (error) {
     console.error("Error get all users:", error);
     return res
@@ -81,7 +103,15 @@ export const getUser = async (req, res) => {
       where: { user_id },
       include: {
         sales_orders: true,
-        service_orders: true,
+        service_orders: {
+          include: {
+            service_order_details: {
+              include: {
+                service: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -219,7 +249,7 @@ export const signUp = async (req, res) => {
     if (error.isJoi) {
       return res.status(400).json({
         success: false,
-        message: error.details.map((err) => err.message),
+        message: error.details.map(err => err.message),
       });
     }
     console.log("Error signing up: ", error);
@@ -464,7 +494,7 @@ export const resetPassword = async (req, res) => {
     if (error.isJoi) {
       return res.status(400).json({
         success: false,
-        message: error.details.map((err) => err.message),
+        message: error.details.map(err => err.message),
       });
     }
     console.log("Error reset password: ", error);

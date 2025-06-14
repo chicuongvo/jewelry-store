@@ -1,4 +1,5 @@
 import type { SalesOrderDetailData } from "../SalesOrder/salesOrder";
+import type { ServiceOrderResponse } from "../ServiceOrder/ServiceOrder";
 
 export interface SignInData {
   identifier: string;
@@ -41,4 +42,5 @@ export interface UserProfile {
   verification_token_expires_at: string | null;
   is_banned: boolean;
   sales_orders: SalesOrderDetailData[];
+  service_orders: ServiceOrderResponse[];
 }
