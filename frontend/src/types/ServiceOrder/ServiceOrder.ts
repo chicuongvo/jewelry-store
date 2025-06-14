@@ -1,10 +1,10 @@
 import type { ServiceResponse } from "../service/service";
 export type ServiceOrderCreate = {
   client_id: string;
-  total_price: number;
-  total_paid: number;
-  total_remaining: number;
-  status: string;
+  total_price?: number;
+  total_paid?: number;
+  total_remaining?: number;
+  status?: string;
 };
 
 export type ServiceOrderUpdate = {

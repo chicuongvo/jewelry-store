@@ -4,7 +4,7 @@ import Footer from "./components/Client/Footer";
 
 function App() {
   return (
-    <div className="">
+    <div className="font-primary">
       <Navbar />
       <Outlet />
       <Footer />

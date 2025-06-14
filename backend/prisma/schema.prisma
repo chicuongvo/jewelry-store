@@ -41,13 +41,13 @@ model products {
   supplier_id              String?
   type                     String?
   unit                     String?
+  cart_details             cart_details[]
   inventory_report_details inventory_report_details[]
   supplier                 suppliers?                 @relation(fields: [supplier_id], references: [supplier_id])
   productType              product_types?             @relation(fields: [type], references: [name])
   productUnit              units?                     @relation(fields: [unit], references: [name])
   purchase_order_details   purchase_order_details[]
   sales_order_details      sales_order_details[]
-  cart_details           cart_details[]
 }
 
 model services {
@@ -94,9 +94,9 @@ model users {
   verification_token              String?          @unique
   verification_token_expires_at   DateTime?
   is_banned                       Boolean          @default(false)
+  carts                           carts?
   sales_orders                    sales_orders[]
   service_orders                  service_orders[]
-  carts                          carts?
 }
 
 /// *

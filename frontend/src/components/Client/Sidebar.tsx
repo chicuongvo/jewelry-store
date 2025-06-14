@@ -15,8 +15,9 @@ export default function Sidebar({ openSidebar }: { openSidebar: boolean }) {
   ];
 
   const renderOptions = (options: option[]) => {
-    return options.map((option) => (
+    return options.map(option => (
       <Link
+        key={option.name}
         to={option.page}
         className="w-4/5 text-center py-4 border-b border-primary font-bold"
       >

@@ -21,7 +21,6 @@ export const getAllInventoryReports = async (
   const res = await axiosClient.get("/inventory-reports", {
     params,
   });
-  console.log(res.data.data, " ", res.data.data.length);
   return res?.data.data;
 };
 

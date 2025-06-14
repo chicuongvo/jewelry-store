@@ -1,4 +1,5 @@
-import { getAllProducts } from "../api/product.api";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { getAllProductQueries } from "../api/product.api";
 import { getAllSuppliers } from "@/api/supplier.api";
 import { getAllProductTypes } from "@/api/productType";
 import {
@@ -13,7 +14,7 @@ export default function useProducts(query?: string) {
   const getAllProductQuery = useQuery<Product[]>({
     queryKey: ["products"],
     queryFn: () => {
-      return getAllProducts("");
+      return getAllProductQueries("");
     },
   });
   const getFilteredProductsQuery = useQuery<
@@ -25,7 +26,7 @@ export default function useProducts(query?: string) {
     queryKey: ["products", query],
     queryFn: ({ queryKey }) => {
       const [, query] = queryKey;
-      return getAllProducts(query);
+      return getAllProductQueries(query);
     },
   });
 

@@ -11,6 +11,11 @@ export interface ServiceOrderDetailData {
   service_order_id: string;
   service_id: string;
   quantity: number;
+  calculated_price?: number;
+  total_price?: number;
+  paid?: number;
+  remaining?: number;
+  status?: string;
 }
 
 export interface ServiceOrderDetailDataUpdate {

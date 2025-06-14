@@ -5,10 +5,10 @@ import { Bounce, ToastContainer } from "react-toastify";
 
 export default function Layout() {
   return (
-    <div className="flex font-admin h-screen w-min-screen relative">
+    <div className="flex font-admin h-screen relative">
       <Sidebar />
-      <div className="w-full flex-1 min-h-screen">
-        <div className="sticky left-0 top-0 w-full z-500">
+      <div className="w-full min-h-screen">
+        <div className="sticky left-0 top-0 w-full z-1">
           <Header />
         </div>
         <div className="p-6 bg-gray-50 h-min-screen">
@@ -16,6 +16,7 @@ export default function Layout() {
         </div>
       </div>
       <ToastContainer
+        aria-label={""}
         position="top-right"
         autoClose={3500}
         newestOnTop={false}

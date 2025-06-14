@@ -7,14 +7,17 @@ import cloudinary from "../config/cloudinary.js";
 
 export const getAllProducts = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || undefined;
-    const query = { skip: (page - 1) * limit || 0 };
-    if (limit) {
-      query.take = limit;
-    }
-    const { name, category, minPrice, maxPrice, supplier, sortBy, sortOrder } =
-      req.query;
+    const {
+      name,
+      category,
+      minPrice,
+      maxPrice,
+      supplier,
+      sortBy,
+      sortOrder,
+      page,
+      limit,
+    } = req.query;
 
     const filters = {};
 
@@ -25,19 +28,28 @@ export const getAllProducts = async (req, res) => {
       };
     }
 
+    let categoryArray = [];
     if (category) {
-      filters.productType = {
-        name: {
-          contains: category,
-          mode: "insensitive",
+      categoryArray = Array.isArray(category)
+        ? category
+        : category.split(",").map((c) => c.trim()); // tách chuỗi thành mảng, trim
+    }
+
+    if (categoryArray.length > 0) {
+      filters.OR = categoryArray.map((cat) => ({
+        productType: {
+          name: {
+            contains: cat,
+            mode: "insensitive",
+          },
         },
-      };
+      }));
     }
 
     if (minPrice || maxPrice) {
-      filters.price = {};
-      if (minPrice) filters.price.gte = parseFloat(minPrice);
-      if (maxPrice) filters.price.lte = parseFloat(maxPrice);
+      filters.sell_price = {};
+      if (minPrice) filters.sell_price.gte = parseFloat(minPrice);
+      if (maxPrice) filters.sell_price.lte = parseFloat(maxPrice);
     }
 
     if (supplier) {
@@ -49,16 +61,23 @@ export const getAllProducts = async (req, res) => {
       };
     }
 
-    const validSortFields = ["name", "price", "createdAt"];
+    const validSortFields = ["name", "sell_price", "createdAt"];
     const orderBy = {};
 
     if (sortBy && validSortFields.includes(sortBy)) {
       orderBy[sortBy] = sortOrder === "desc" ? "desc" : "asc";
     }
 
+    // 👇 Pagination logic
+    const take = limit ? parseInt(limit) : undefined;
+    const skip =
+      page && limit ? (parseInt(page) - 1) * parseInt(limit) : undefined;
+
     const products = await prisma.products.findMany({
       where: filters,
       orderBy: Object.keys(orderBy).length ? orderBy : undefined,
+      skip,
+      take,
       include: {
         inventory_report_details: true,
         supplier: true,
@@ -66,10 +85,20 @@ export const getAllProducts = async (req, res) => {
         purchase_order_details: true,
         sales_order_details: true,
       },
-      ...query,
     });
 
-    return res.status(200).json({ success: true, data: products });
+    const totalCount = await prisma.products.count({ where: filters });
+
+    return res.status(200).json({
+      success: true,
+      data: products,
+      pagination: {
+        total: totalCount,
+        page: page ? parseInt(page) : null,
+        limit: limit ? parseInt(limit) : null,
+        totalPages: limit ? Math.ceil(totalCount / parseInt(limit)) : 1,
+      },
+    });
   } catch (error) {
     console.error("Error get all products:", error);
     return res

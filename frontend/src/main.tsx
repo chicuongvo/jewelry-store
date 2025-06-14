@@ -25,6 +25,7 @@ import { NotificationProvider } from "./contexts/notificationContext.tsx";
 import InventoryReports from "./pages/Admin/InventoryReportPage/InventoryReport.tsx";
 import InventoryReportDetails from "./pages/Admin/InventoryReportDetailsPage/InventoryReportDetails.tsx";
 import Services from "./pages/Client/ServicesPage/Services.tsx";
+import History from "./components/Client/History.tsx";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ createRoot(document.getElementById("root")!).render(
             <Routes>
               <Route path="/" element={<App />}>
                 <Route index element={<Home />} />
+                <Route path="/history" element={<History />} />
               </Route>
 
               <Route path="/auth" element={<App />}>
@@ -51,7 +53,9 @@ createRoot(document.getElementById("root")!).render(
                 <Route index element={<ProductDetailsPage />} />
               </Route>
 
-              <Route path="/services" element={<Services />} />
+              <Route path="/services" element={<App />}>
+                <Route index element={<Services />} />
+              </Route>
 
               <Route path="/admin" element={<Layout />}>
                 <Route index element={<Dashboard />} />

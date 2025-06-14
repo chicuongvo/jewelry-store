@@ -6,6 +6,32 @@ import {
 } from "../validation/salesOrderDetailsValidation.js";
 import { prisma } from "../config/db.js";
 
+export const getAllSalesOrderDetails = async (req, res) => {
+  const sales_order_detail_id = req.params.sales_order_detail_id;
+  try {
+    const salesOrderDetails = await prisma.sales_order_details.findMany({
+      where: {
+        sales_order_id: sales_order_detail_id,
+      },
+      include: {
+        product: true,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Sales order details retrieved successfully",
+      data: salesOrderDetails,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};
+
 export const getSalesOrderDetails = async (req, res) => {
   const { sales_order_id, product_id } = req.params;
 
