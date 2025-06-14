@@ -24,7 +24,7 @@ function ServiceHistory() {
       </div>
       <div className="p-6">
         <ul className="space-y-6">
-          {serviceOrders?.map(order => (
+          {serviceOrders?.map((order) => (
             <li key={order.service_order_id}>
               <ServiceHistoryCard
                 createdAt={order.created_at}
