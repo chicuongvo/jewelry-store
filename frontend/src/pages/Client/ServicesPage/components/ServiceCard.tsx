@@ -13,7 +13,7 @@ export default function ServiceCard({
   return (
     <div
       key={service.service_id}
-      className={`bg-white rounded-xl shadow-sm border ${
+      className={`bg-white rounded-xl shadow-sm border h-[200px] ${
         isSelected
           ? "border-primary shadow-xl border-2"
           : "border-gray-200 border-2"

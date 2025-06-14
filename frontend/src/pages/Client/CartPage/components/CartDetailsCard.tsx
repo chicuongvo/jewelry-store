@@ -9,8 +9,12 @@ import { toast } from "react-toastify";
 
 export default function CartDetailsCard({
   cartDetails,
+  toggleCartDetails,
+  isSelected,
 }: {
   cartDetails: cartDetails;
+  toggleCartDetails: any;
+  isSelected: any;
 }) {
   const [quantity, setQuantity] = useState<number>(
     Number(cartDetails.quantity) || 1
@@ -81,7 +85,14 @@ export default function CartDetailsCard({
   };
 
   return (
-    <div className="flex flex-row justify-between rounded-xl shadow-sm border border-zinc-200 px-6 py-4">
+    <div
+      className={`flex flex-row justify-between rounded-md  px-6 py-4 cursor-pointer h-[170px] ${
+        isSelected
+          ? "border border-red-200 shadow-md"
+          : "shadow-sm border border-zinc-200"
+      }`}
+      onClick={() => toggleCartDetails(cartDetails)}
+    >
       <div className="flex flex-row gap-3">
         <div className="w-[100px] h-[100px] aspect-square">
           <img
@@ -137,6 +148,7 @@ export default function CartDetailsCard({
         />
 
         <div>
+          <span className="font-medium ">Tổng: </span>
           {(quantity * (cartDetails.product?.sell_price ?? 0)).toLocaleString()}
           ₫
         </div>

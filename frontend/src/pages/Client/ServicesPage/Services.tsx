@@ -13,8 +13,6 @@ export default function Services() {
     queryFn: getAllServices,
   });
 
-  console.log("Re render");
-
   const [chosenServices, setChosenServices] = useState<ServiceResponse[]>([]);
 
   const toggleService = (service: ServiceResponse) => {
@@ -64,8 +62,8 @@ export default function Services() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-x-10">
-          <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-x-10">
+          <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-6 col-span-2 ">
             {isLoading
               ? Array.from({ length: 4 }).map((_, idx) => (
                   <ServiceCardSkeleton key={idx} />
