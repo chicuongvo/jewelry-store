@@ -4,13 +4,14 @@ import {
   addToCart,
   removeFromCart,
 } from "../controllers/cartController.js";
+import { verifyToken } from "../middleware/verifyToken.js";
 import express from "express";
 
 const router = express.Router();
 
-router.get("/:user_id", getCartByUserId);
-router.post("/:user_id/add/:product_id", addToCart);
-router.post("/:user_id/remove/:product_id", removeFromCart);
-router.put("/:user_id/update/:product_id", updateCart);
+router.get("/", verifyToken, getCartByUserId);
+router.post("/add/:product_id", verifyToken, addToCart);
+router.post("/remove/:product_id", verifyToken, removeFromCart);
+router.put("/update/:product_id", verifyToken, updateCart);
 
 export default router;
