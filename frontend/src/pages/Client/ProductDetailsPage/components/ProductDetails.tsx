@@ -63,24 +63,6 @@ export default function ProductDetails() {
             </div>
           </div>
         </div>
-        {/* <div className="flex items-center gap-4">
-          <span className="font-medium">Số lượng:</span>
-          <div className="flex items-center border border-zinc-300 rounded overflow-hidden">
-            <button
-              className="px-3 py-1 bg-zinc-100 hover:bg-zinc-200 cursor-pointer"
-              onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-            >
-              -
-            </button>
-            <span className="h-full w-[40px] text-center">{quantity}</span>
-            <button
-              className="px-3 py-1 bg-zinc-100 hover:bg-zinc-200 cursor-pointer"
-              onClick={() => setQuantity((q) => q + 1)}
-            >
-              +
-            </button>
-          </div>
-        </div> */}
 
         <div className=" w-full grid grid-cols-2 gap-4 pb-6 border-b border-zinc-300 pt-3">
           <button className="bg-primary text-white hover:bg-primary/50 hover:border-2 hover:border-primary/50 cursor-pointer transition-all duration-300 border-2 border-primary px-6 py-3 text-sm font-semibold ">
