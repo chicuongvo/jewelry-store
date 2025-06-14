@@ -81,7 +81,15 @@ export const getUser = async (req, res) => {
       where: { user_id },
       include: {
         sales_orders: true,
-        service_orders: true,
+        service_orders: {
+          include: {
+            service_order_details: {
+              include: {
+                service: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -219,7 +227,7 @@ export const signUp = async (req, res) => {
     if (error.isJoi) {
       return res.status(400).json({
         success: false,
-        message: error.details.map((err) => err.message),
+        message: error.details.map(err => err.message),
       });
     }
     console.log("Error signing up: ", error);
@@ -464,7 +472,7 @@ export const resetPassword = async (req, res) => {
     if (error.isJoi) {
       return res.status(400).json({
         success: false,
-        message: error.details.map((err) => err.message),
+        message: error.details.map(err => err.message),
       });
     }
     console.log("Error reset password: ", error);
