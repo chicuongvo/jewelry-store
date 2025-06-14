@@ -23,7 +23,7 @@ export default function Users() {
   const queryClient = useQueryClient();
   const [deleting, setDeleting] = useState({} as unknown as UserProfile);
 
-  const limit = 2;
+  const limit = 5;
   console.log(page);
 
   const { data, isLoading } = useQuery({
@@ -81,14 +81,14 @@ export default function Users() {
               type="text"
               placeholder="Tìm kiếm người dùng..."
               value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
 
           <select
             value={roleFilter}
-            onChange={e => setRoleFilter(e.target.value)}
+            onChange={(e) => setRoleFilter(e.target.value)}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="">Tất cả vai trò</option>
@@ -98,7 +98,7 @@ export default function Users() {
 
           <select
             value={verifiedFilter}
-            onChange={e => setVerifiedFilter(e.target.value)}
+            onChange={(e) => setVerifiedFilter(e.target.value)}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="">Tất cả trạng thái</option>
@@ -242,7 +242,7 @@ export default function Users() {
         current={page}
         total={totalItems || 0}
         pageSize={limit}
-        onChange={current => {
+        onChange={(current) => {
           console.log("Current", current);
           setPage(current);
         }}
