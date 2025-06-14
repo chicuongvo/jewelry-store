@@ -13,6 +13,8 @@ export default function Services() {
     queryFn: getAllServices,
   });
 
+  console.log("Re render");
+
   const [chosenServices, setChosenServices] = useState<ServiceResponse[]>([]);
 
   const toggleService = (service: ServiceResponse) => {

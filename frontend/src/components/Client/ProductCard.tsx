@@ -37,19 +37,11 @@ export default function ProductCard({ product }: { product: Product }) {
           <div className="flex flex-row justify-between w-full">
             <span className="text-md text-primary font-medium">Price</span>
             <span className="text-md font-bold text-emerald-600">
-              {Number(product.sell_price).toLocaleString("vi-VN")}đ
+              {Number(product.sell_price).toLocaleString("vi-VN")}₫
             </span>
           </div>
         </div>
         <AddToCartButton product={product} quantity={1} />
-
-        {/* <button
-          className="flex w-full items-center justify-center gap-2 bg-primary border border-primary text-white px-5 py-2.5  font-bold hover:text-primary hover:bg-white hover:border hover:border-primary transition-all duration-300 text:md cursor-pointer "
-          onClick={() => console.log(`Added ${product.name} to cart`)}
-        >
-          <ShoppingBag size={18} />
-          THÊM VÀO GIỎ
-        </button> */}
       </div>
     </div>
   );

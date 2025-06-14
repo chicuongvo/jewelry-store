@@ -28,6 +28,7 @@ import Services from "./pages/Client/ServicesPage/Services.tsx";
 import History from "./components/Client/History.tsx";
 import ServiceHistory from "./components/Client/ServiceHistory.tsx";
 import { CartProvider } from "./contexts/cartContext.tsx";
+import Cart from "./pages/Client/CartPage/Cart.tsx";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +60,10 @@ createRoot(document.getElementById("root")!).render(
 
                 <Route path="/services" element={<App />}>
                   <Route index element={<Services />} />
+                </Route>
+
+                <Route path="/cart" element={<App />}>
+                  <Route index element={<Cart />} />
                 </Route>
 
                 <Route path="/admin" element={<Layout />}>

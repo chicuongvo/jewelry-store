@@ -25,7 +25,7 @@ export const updateCart = async (
   product_id: string,
   quantity: number
 ): Promise<Cart> => {
-  const res = await axiosClient.post(`/carts/update/${product_id}`, {
+  const res = await axiosClient.put(`/carts/update/${product_id}`, {
     quantity: quantity,
   });
   return res?.data.data;
