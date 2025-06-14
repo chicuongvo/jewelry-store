@@ -30,7 +30,7 @@ export default function PurchaseOrder() {
 
   let navigate = useNavigate();
   const routeChange = (purchase_order_id: String) => {
-    let path = `/purchase-orders-detail/${purchase_order_id}`;
+    let path = `/admin/purchase-orders-detail/${purchase_order_id}`;
     navigate(path);
   };
 
@@ -45,7 +45,7 @@ export default function PurchaseOrder() {
       purchaseOrder.supplier.phone_number
         .toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
-      purchaseOrder.created_at.toLowerCase().includes(searchTerm.toLowerCase()),
+      purchaseOrder.created_at.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleEdit = (purchaseOrder: PurchaseOrder) => {
@@ -253,8 +253,8 @@ function PurchaseOrderModal({
               {isPending
                 ? "Updating ..."
                 : purchaseOrderData.purchase_order_id
-                  ? "Update"
-                  : "Create"}{" "}
+                ? "Update"
+                : "Create"}{" "}
             </button>
           </div>
         </div>

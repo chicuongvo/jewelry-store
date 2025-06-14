@@ -494,7 +494,6 @@ export default function AdminServiceOrders() {
           total={filteredOrders.length}
           onChange={(page) => setCurrentPage(page)}
           showSizeChanger={false}
-          showTotal={(total) => `Tổng số ${total} đơn hàng`}
         />
       </div>
 

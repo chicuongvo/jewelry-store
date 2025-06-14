@@ -230,7 +230,6 @@ export default function AdminServices() {
           total={filteredServices.length}
           onChange={(page) => setCurrentPage(page)}
           showSizeChanger={false}
-          showTotal={(total) => `Tổng số ${total} dịch vụ`}
         />
       </div>
 

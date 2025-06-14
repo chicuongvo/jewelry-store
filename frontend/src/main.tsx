@@ -26,7 +26,7 @@ import InventoryReports from "./pages/Admin/InventoryReportPage/InventoryReport.
 import InventoryReportDetails from "./pages/Admin/InventoryReportDetailsPage/InventoryReportDetails.tsx";
 import Services from "./pages/Client/ServicesPage/Services.tsx";
 import History from "./components/Client/History.tsx";
-
+import PurchaseOrderDetail from "./pages/Admin/PurchaseOrderDetailPage/PurchaseOrderDetail.tsx";
 const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
@@ -72,6 +72,10 @@ createRoot(document.getElementById("root")!).render(
                 <Route
                   path="/admin/purchase-orders"
                   element={<PurchaseOrder />}
+                />
+                <Route
+                  path="/admin/purchase-orders-detail/:purchase_order_id"
+                  element={<PurchaseOrderDetail />}
                 />
                 <Route path="/admin/sales-orders" element={<SalesOrder />} />{" "}
                 <Route path="/admin/services" element={<AdminServices />} />
