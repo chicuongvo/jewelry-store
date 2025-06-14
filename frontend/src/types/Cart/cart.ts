@@ -7,8 +7,3 @@ export interface Cart {
   total_price: number;
   cart_details: cartDetails[];
 }
-
-export interface AddToCart {
-  quantity: number;
-  cart_id: string;
-}

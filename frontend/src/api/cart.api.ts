@@ -1,43 +1,39 @@
-import type { AddToCart, Cart } from "@/types/Cart/cart";
+import type { Cart } from "@/types/Cart/cart";
 import { axiosClient } from "../lib/axios";
 
-export const getCartByUserId = async (id: string): Promise<Cart> => {
-  const res = await axiosClient.get(`/carts/${id}`);
+export const getCartByUserId = async (user_id: string): Promise<Cart> => {
+  const res = await axiosClient.get(`/carts/${user_id}`);
   return res?.data.data;
 };
 
 export const addToCart = async (
   product_id: string,
   user_id: string,
-  data: AddToCart
+  quantity: number
 ): Promise<Cart> => {
   const res = await axiosClient.post(
     `/carts/${user_id}/add/${product_id}`,
-    data
+    quantity
   );
   return res?.data.data;
 };
 
 export const removeFromCart = async (
-  cart_id: string,
   user_id: string,
   product_id: string
 ): Promise<Cart> => {
-  const res = await axiosClient.post(
-    `/carts/${user_id}/add/${product_id}`,
-    cart_id
-  );
+  const res = await axiosClient.post(`/carts/${user_id}/add/${product_id}`);
   return res?.data.data;
 };
 
 export const updateCart = async (
-  data: AddToCart,
   user_id: string,
-  product_id: string
+  product_id: string,
+  quantity: number
 ): Promise<Cart> => {
   const res = await axiosClient.post(
     `/carts/${user_id}/add/${product_id}`,
-    data
+    quantity
   );
   return res?.data.data;
 };
