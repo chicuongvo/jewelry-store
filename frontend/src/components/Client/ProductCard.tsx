@@ -1,6 +1,7 @@
 import type { Product } from "@/types/Product/product";
-import { ShoppingBag, Tag } from "lucide-react";
+import { Tag } from "lucide-react";
 import { Link } from "react-router";
+import AddToCartButton from "./AddToCartButton";
 
 export default function ProductCard({ product }: { product: Product }) {
   return (
@@ -40,14 +41,15 @@ export default function ProductCard({ product }: { product: Product }) {
             </span>
           </div>
         </div>
+        <AddToCartButton product={product} />
 
-        <button
+        {/* <button
           className="flex w-full items-center justify-center gap-2 bg-primary border border-primary text-white px-5 py-2.5  font-bold hover:text-primary hover:bg-white hover:border hover:border-primary transition-all duration-300 text:md cursor-pointer "
           onClick={() => console.log(`Added ${product.name} to cart`)}
         >
           <ShoppingBag size={18} />
           THÊM VÀO GIỎ
-        </button>
+        </button> */}
       </div>
     </div>
   );

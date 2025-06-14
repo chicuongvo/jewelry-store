@@ -4,6 +4,7 @@ import ProductDetailsSkeleton from "./ProductDetailsSkeleton";
 import { getProduct } from "@/api/product.api";
 import { useState } from "react";
 import { Minus, Plus } from "lucide-react";
+import AddToCartButton from "@/components/Client/AddToCartButton";
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -65,12 +66,13 @@ export default function ProductDetails() {
         </div>
 
         <div className=" w-full grid grid-cols-2 gap-4 pb-6 border-b border-zinc-300 pt-3">
-          <button className="bg-primary text-white hover:bg-primary/50 hover:border-2 hover:border-primary/50 cursor-pointer transition-all duration-300 border-2 border-primary px-6 py-3 text-sm font-semibold ">
+          <button className="flex w-full items-center justify-center gap-2 bg-white border-2 border-primary text-primary px-5 py-2.5  font-bold hover:text-white hover:bg-primary hover:border-2 hover:border-primary transition-all duration-300 text:md cursor-pointer ">
             MUA NGAY
           </button>
-          <button className="bg-white text-primary hover:bg-zinc-100 transition-all border-2 border-primary px-6 py-3 text-sm font-semibold   transition-all duration-300  cursor-pointer                                                                                    ">
+          {/* <button className="bg-white text-primary hover:bg-zinc-100 transition-all border-2 border-primary px-6 py-3 text-sm font-semibold   transition-all duration-300  cursor-pointer                                                                                    ">
             THÊM VÀO GIỎ
-          </button>
+          </button> */}
+          {product && <AddToCartButton product={product} />}
         </div>
 
         <div className="pt-4 flex flex-col gap-3">
