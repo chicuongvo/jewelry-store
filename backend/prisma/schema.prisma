@@ -100,7 +100,7 @@ model users {
 }
 
 /// *
-///  * Purchase
+/// * Purchase
 model purchase_orders {
   purchase_order_id      String                   @id @default(cuid())
   created_at             DateTime                 @default(now())
@@ -121,7 +121,7 @@ model purchase_order_details {
 }
 
 /// *
-///  * Sale
+/// * Sale
 model sales_orders {
   sales_order_id      String                @id @default(cuid())
   created_at          DateTime              @default(now())
@@ -169,24 +169,30 @@ model service_order_details {
   @@id([service_order_id, service_id])
 }
 
-model cart_details {
-  cart_id     String
-  product_id  String
-  quantity    Int
-  total_price Int      @default(0)
-  carts       carts    @relation(fields: [cart_id], references: [cart_id], onDelete: Cascade)
-  products    products @relation(fields: [product_id], references: [product_id])
+model carts {
+    cart_id String @id @default(cuid())
 
-  @@id([cart_id, product_id])
+    user_id String @unique
+    user    users  @relation(fields: [user_id], references: [user_id])
+
+    total_quantity Int @default(0)
+    total_price    Int @default(0)
+
+    cart_details cart_details[]
+
 }
 
-model carts {
-  cart_id        String         @id
-  user_id        String         @unique
-  total_quantity Int            @default(0)
-  total_price    Int            @default(0)
-  cart_details   cart_details[]
-  users          users          @relation(fields: [user_id], references: [user_id])
+model cart_details {
+    cart_id String
+    cart    carts  @relation(fields: [cart_id], references: [cart_id], onDelete: Cascade)
+
+    product_id String
+    product   products   @relation(fields: [product_id], references: [product_id])
+
+    quantity    Int
+    total_price Int @default(0)
+
+    @@id([cart_id, product_id])
 }
 
 enum Role {

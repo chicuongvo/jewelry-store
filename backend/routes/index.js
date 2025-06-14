@@ -12,7 +12,7 @@ import inventoryReportDetailsRouter from "./inventoryReportDetailsRouter.js";
 import purchaseOrderDetailRouter from "./purchaseOrderDetailRouter.js";
 import purchaseOrdersRouter from "./purchaseOrdersRouter.js";
 import salesOrdersRouter from "./salesOrdersRouter.js";
-
+import cartRouter from "./cartRouter.js";
 export const routes = (app) => {
   app.use("/api/products", productRouter);
   app.use("/api/suppliers", supplierRouter);
@@ -28,4 +28,5 @@ export const routes = (app) => {
   app.use("/api/purchase-orders", purchaseOrdersRouter);
   app.use("/api/sales-orders", salesOrdersRouter);
   app.use("/api/purchase-order-details", purchaseOrderDetailRouter);
+  app.use("/api/carts", cartRouter);
 };

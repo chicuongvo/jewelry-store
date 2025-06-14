@@ -59,6 +59,7 @@ export const getAllUsers = async (req, res) => {
       include: {
         sales_orders: true,
         service_orders: true,
+        carts: { include: { cart_details: { include: { product: true } } } },
       },
     });
 
@@ -73,6 +74,7 @@ export const getAllUsers = async (req, res) => {
 
 export const getUser = async (req, res) => {
   const user_id = req.user_id;
+  console.log("User ID:", user_id);
   try {
     const user = await prisma.users.findUnique({
       omit: {
@@ -82,6 +84,7 @@ export const getUser = async (req, res) => {
       include: {
         sales_orders: true,
         service_orders: true,
+        carts: { include: { cart_details: { include: { product: true } } } },
       },
     });
 
