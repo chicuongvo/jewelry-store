@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Search, Plus, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router";
+import { toast } from "react-toastify";
 
 import type {
   SalesOrderRes,
@@ -27,13 +28,16 @@ export default function SalesOrder() {
     queryFn: getAllSalesOrder,
   });
 
-  let navigate = useNavigate();
-  const routeChange = (sales_order_id: String) => {
-    let path = `/admin/sales-orders-detail/${sales_order_id}`;
-    navigate(path);
-  };
+  const haveClient: string[] = [];
+  salesOrderData?.map((salesOrder) => {
+    haveClient.push(salesOrder.client_id);
+  });
 
-  console.log(salesOrderData);
+  let navigate = useNavigate();
+  const routeChange = (sales_order_id: string, name: string) => {
+    let path = `/admin/sales-orders-detail/${sales_order_id}`;
+    navigate(path, { state: name });
+  };
 
   const filteredSalesOrder = salesOrderData?.filter(
     (salesOrder) =>
@@ -61,29 +65,27 @@ export default function SalesOrder() {
 
   return (
     <div className="space-y-6 p-6">
-      {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Đơn bán hàng</h1>
-          <p className="text-gray-600">Quản lý các đơn bán hàng</p>
+          <p className="text-gray-600">Quản lý các khách hàng</p>
         </div>
         <button
           onClick={() => handleAdd()}
           className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Thêm đơn bán hàng
+          Thêm khách hàng
         </button>
       </div>
 
-      {/* Search and Filters */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <input
               type="text"
-              placeholder="Tìm kiếm đơn bán hàng..."
+              placeholder="Tìm kiếm khách hàng..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -117,7 +119,12 @@ export default function SalesOrder() {
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredSalesOrder?.map((salesOrder) => (
                 <tr
-                  onClick={() => routeChange(salesOrder.sales_order_id)}
+                  onClick={() =>
+                    routeChange(
+                      salesOrder.sales_order_id,
+                      salesOrder.client.username,
+                    )
+                  }
                   className="hover:bg-gray-50 transition-colors duration-150"
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -161,6 +168,7 @@ export default function SalesOrder() {
       </div>
       {showModal && (
         <PurchaseOrderModal
+          haveClient={haveClient}
           salesOrderData={editingSalesOrder}
           setShowModal={setShowModal}
         />
@@ -175,9 +183,11 @@ export default function SalesOrder() {
 import { getAllUsers } from "@/api/user.api";
 
 function PurchaseOrderModal({
+  haveClient,
   salesOrderData,
   setShowModal,
 }: {
+  haveClient: string[];
   salesOrderData: SalesOrderRes;
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
@@ -190,8 +200,6 @@ function PurchaseOrderModal({
     queryFn: getAllUsers,
   });
 
-  console.log(clientData);
-
   const queryClient = useQueryClient();
   const { mutate, isPending } = useMutation({
     mutationFn: (data: SalesOrderData) => createSalesOrder(data),
@@ -200,12 +208,18 @@ function PurchaseOrderModal({
         queryKey: ["salesOrder"],
       });
       setShowModal(false);
+      salesOrderData.client_id
+        ? toast.success("Cập nhập thành công!")
+        : toast.success("Tạo mới thành công!");
     },
   });
 
   const handleSubmit = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
-    if (!salesOder.client_id) return;
+    if (!salesOder.client_id) {
+      toast.error("Vui lòng chọn khách hàng.");
+      return;
+    }
     mutate(salesOder);
   };
 
@@ -227,10 +241,16 @@ function PurchaseOrderModal({
                 onChange={(e) =>
                   setSalesOrder({ ...salesOder, client_id: e.target.value })
                 }
+                className="text-wrap w-[80%]"
               >
-                {clientData?.map((client) => (
-                  <option value={client.user_id}>{client.username}</option>
-                ))}
+                <option value=""></option>
+                {clientData?.map((client) =>
+                  haveClient?.includes(client.user_id) ? (
+                    ""
+                  ) : (
+                    <option value={client.user_id}>{client.username}</option>
+                  ),
+                )}
               </select>
             </div>
           </form>
@@ -274,6 +294,7 @@ function ConfirmModal({
         queryKey: ["salesOrder"],
       });
       setDeleting({} as unknown as SalesOrderRes);
+      toast.success("Xóa thành công!");
     },
   });
 

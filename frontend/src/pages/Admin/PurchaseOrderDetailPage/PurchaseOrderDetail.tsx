@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Search, Plus, Edit2, Trash2 } from "lucide-react";
 import { useLocation } from "react-router-dom";
-
+import { toast } from "react-toastify";
 import type {
   PurchaseOrderDetail,
   PurchaseOrderDetailUpdateData,
@@ -202,7 +202,9 @@ function PurchaseOrderModal({
   const [purchaseOrderDetail, setPurchaseOrderDetail] = useState({
     purchase_order_id: purchase_order_id,
     product_id: purchaseOrderDetailData.product_id,
-    quantity: purchaseOrderDetailData.quantity,
+    quantity: purchaseOrderDetailData.quantity
+      ? purchaseOrderDetailData.quantity
+      : 1,
   } as PurchaseOrderDetailCreateData);
 
   const queryClient = useQueryClient();
@@ -221,6 +223,9 @@ function PurchaseOrderModal({
         queryKey: ["purchaseOrderDetailData", purchase_order_id],
       });
       setShowModal(false);
+      purchaseOrderDetailData.product_id
+        ? toast.success("Cập nhập thành công!")
+        : toast.success("Tạo mới thành công!");
     },
   });
 
@@ -237,8 +242,10 @@ function PurchaseOrderModal({
     if (
       !purchaseOrderDetail.purchase_order_id ||
       !purchaseOrderDetail.product_id
-    )
+    ) {
+      toast.error("Vui lòng chọn sản phẩm cần nhập");
       return;
+    }
     mutate(purchaseOrderDetail);
   };
 
@@ -257,11 +264,12 @@ function PurchaseOrderModal({
           <form className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Tên sản phẩm:
+                Sản phẩm:
               </label>
               <select
-                value={
-                  purchaseOrderDetail.product_id
+                className="text-wrap w-[80%]"
+                defaultValue={
+                  purchaseOrderDetailData.product_id
                     ? purchaseOrderDetail.product_id
                     : ""
                 }
@@ -275,10 +283,13 @@ function PurchaseOrderModal({
               >
                 <option value=""></option>
                 {productData?.map((product) =>
-                  haveProduct.includes(product.product_id) ? (
+                  haveProduct.includes(product.product_id) &&
+                  !purchaseOrderDetailData.product_id ? (
                     ""
                   ) : (
-                    <option value={product.product_id}>{product.name}</option>
+                    <option className="line-clamp-1" value={product.product_id}>
+                      {product.name}
+                    </option>
                   ),
                 )}
               </select>
@@ -339,9 +350,10 @@ function ConfirmModal({
     mutationFn: deletePurchaseOrderDetail,
     onSuccess() {
       queryClient.invalidateQueries({
-        queryKey: ["purchaseOrderDetail"],
+        queryKey: ["purchaseOrderDetailData"],
       });
       setDeleting({} as unknown as PurchaseOrderDetail);
+      toast.success("Xóa sản phầm thành công!");
     },
   });
 

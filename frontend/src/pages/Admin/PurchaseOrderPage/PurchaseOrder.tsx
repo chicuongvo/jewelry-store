@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Search, Plus, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router";
+import { toast } from "react-toastify";
 
 import type {
   PurchaseOrder,
@@ -26,6 +27,11 @@ export default function PurchaseOrder() {
   const { data: purchaseOrderData } = useQuery({
     queryKey: ["purchaseOrder"],
     queryFn: getAllPurchaseOrders,
+  });
+
+  const haveSupplier: string[] = [];
+  purchaseOrderData?.map((purchaseOrder) => {
+    haveSupplier.push(purchaseOrder.supplier.supplier_id);
   });
 
   let navigate = useNavigate();
@@ -62,14 +68,14 @@ export default function PurchaseOrder() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Nhập hàng</h1>
-          <p className="text-gray-600">Quản lý thông tin các đơn nhập hàng</p>
+          <p className="text-gray-600">Quản lý thông tin các nhà cung cấp</p>
         </div>
         <button
           onClick={() => handleAdd()}
           className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Thêm mới đơn nhập hàng
+          Thêm mới nhà cung cấp
         </button>
       </div>
 
@@ -79,7 +85,7 @@ export default function PurchaseOrder() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <input
               type="text"
-              placeholder="Tìm kiếm đơn nhập hàng..."
+              placeholder="Tìm kiếm nhà cung cấp..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -162,6 +168,7 @@ export default function PurchaseOrder() {
       </div>
       {showModal && (
         <PurchaseOrderModal
+          haveSupplier={haveSupplier}
           purchaseOrderData={editingPurchaseOrder}
           setShowModal={setShowModal}
         />
@@ -176,9 +183,11 @@ export default function PurchaseOrder() {
 import { getAllSuppliers } from "@/api/supplier.api";
 
 function PurchaseOrderModal({
+  haveSupplier,
   purchaseOrderData,
   setShowModal,
 }: {
+  haveSupplier: string[];
   purchaseOrderData: PurchaseOrder;
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
@@ -197,6 +206,9 @@ function PurchaseOrderModal({
         queryKey: ["purchaseOrder"],
       });
       setShowModal(false);
+      purchaseOrderData.supplier_id
+        ? toast.success("Cập nhập thành công!")
+        : toast.success("Tạo mới thành công!");
     },
   });
 
@@ -208,7 +220,10 @@ function PurchaseOrderModal({
   const handleSubmit = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
     console.log(purchaseOrder);
-    if (!purchaseOrder.supplier_id) return;
+    if (!purchaseOrder.supplier_id) {
+      toast.error("Vui lòng chọn nhà cung cấp.");
+      return;
+    }
     mutate(purchaseOrder);
   };
 
@@ -228,17 +243,25 @@ function PurchaseOrderModal({
                 Nhà cung cấp:
               </label>
               <select
-                value={purchaseOrder ? purchaseOrder.supplier_id : ""}
+                defaultValue={purchaseOrder ? purchaseOrder.supplier_id : ""}
                 onChange={(e) =>
                   setPurchaseOrder({
                     ...purchaseOrder,
                     supplier_id: e.target.value,
                   })
                 }
+                className="text-wrap w-[80%]"
               >
-                {supplierData?.map((supplier) => (
-                  <option value={supplier.supplier_id}>{supplier.name}</option>
-                ))}
+                <option value=""></option>
+                {supplierData?.map((supplier) =>
+                  haveSupplier?.includes(supplier.supplier_id) ? (
+                    ""
+                  ) : (
+                    <option value={supplier.supplier_id}>
+                      {supplier.name}
+                    </option>
+                  ),
+                )}
               </select>
             </div>
           </form>
@@ -282,6 +305,7 @@ function ConfirmModal({
         queryKey: ["purchaseOrder"],
       });
       setDeleting({} as unknown as PurchaseOrder);
+      toast.success("Xóa thành công!");
     },
   });
 
