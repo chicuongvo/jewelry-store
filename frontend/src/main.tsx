@@ -26,6 +26,7 @@ import InventoryReports from "./pages/Admin/InventoryReportPage/InventoryReport.
 import InventoryReportDetails from "./pages/Admin/InventoryReportDetailsPage/InventoryReportDetails.tsx";
 import Services from "./pages/Client/ServicesPage/Services.tsx";
 import History from "./components/Client/History.tsx";
+import { CartProvider } from "./contexts/cartContext.tsx";
 
 const queryClient = new QueryClient();
 
@@ -33,62 +34,67 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <NotificationProvider>
       <UserProvider>
-        <QueryClientProvider client={queryClient}>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<App />}>
-                <Route index element={<Home />} />
-                <Route path="/history" element={<History />} />
-              </Route>
+        <CartProvider>
+          <QueryClientProvider client={queryClient}>
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<App />}>
+                  <Route index element={<Home />} />
+                  <Route path="/history" element={<History />} />
+                </Route>
 
-              <Route path="/auth" element={<App />}>
-                <Route index element={<Auth />} />
-              </Route>
+                <Route path="/auth" element={<App />}>
+                  <Route index element={<Auth />} />
+                </Route>
 
-              <Route path="/products" element={<App />}>
-                <Route index element={<Products />} />
-              </Route>
+                <Route path="/products" element={<App />}>
+                  <Route index element={<Products />} />
+                </Route>
 
-              <Route path="/product/:id" element={<App />}>
-                <Route index element={<ProductDetailsPage />} />
-              </Route>
+                <Route path="/product/:id" element={<App />}>
+                  <Route index element={<ProductDetailsPage />} />
+                </Route>
 
-              <Route path="/services" element={<App />}>
-                <Route index element={<Services />} />
-              </Route>
+                <Route path="/services" element={<App />}>
+                  <Route index element={<Services />} />
+                </Route>
 
-              <Route path="/admin" element={<Layout />}>
-                <Route index element={<Dashboard />} />
-                <Route path="/admin/users" element={<UsersPage />} />
-                <Route path="/admin/suppliers" element={<Supplier />} />
-                <Route
-                  path="/admin/inventory-reports"
-                  element={<InventoryReports />}
-                />
-                <Route
-                  path="/admin/inventory-reports/:month/:year"
-                  element={<InventoryReportDetails />}
-                />
-                <Route path="/admin/products" element={<AdminProducts />} />
-                <Route path="/admin/product-types" element={<ProductType />} />
-                <Route
-                  path="/admin/purchase-orders"
-                  element={<PurchaseOrder />}
-                />
-                <Route path="/admin/sales-orders" element={<SalesOrder />} />{" "}
-                <Route path="/admin/services" element={<AdminServices />} />
-                <Route
-                  path="/admin/service-orders"
-                  element={<AdminServiceOrders />}
-                />
-              </Route>
+                <Route path="/admin" element={<Layout />}>
+                  <Route index element={<Dashboard />} />
+                  <Route path="/admin/users" element={<UsersPage />} />
+                  <Route path="/admin/suppliers" element={<Supplier />} />
+                  <Route
+                    path="/admin/inventory-reports"
+                    element={<InventoryReports />}
+                  />
+                  <Route
+                    path="/admin/inventory-reports/:month/:year"
+                    element={<InventoryReportDetails />}
+                  />
+                  <Route path="/admin/products" element={<AdminProducts />} />
+                  <Route
+                    path="/admin/product-types"
+                    element={<ProductType />}
+                  />
+                  <Route
+                    path="/admin/purchase-orders"
+                    element={<PurchaseOrder />}
+                  />
+                  <Route path="/admin/sales-orders" element={<SalesOrder />} />{" "}
+                  <Route path="/admin/services" element={<AdminServices />} />
+                  <Route
+                    path="/admin/service-orders"
+                    element={<AdminServiceOrders />}
+                  />
+                </Route>
 
-              <Route path="/admin/login">
-                <Route index element={<Login />} />
-              </Route>
-            </Routes>
-          </BrowserRouter>
-        </QueryClientProvider>
+                <Route path="/admin/login">
+                  <Route index element={<Login />} />
+                </Route>
+              </Routes>
+            </BrowserRouter>
+          </QueryClientProvider>
+        </CartProvider>
       </UserProvider>
     </NotificationProvider>
   </StrictMode>

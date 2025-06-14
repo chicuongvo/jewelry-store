@@ -1,8 +1,8 @@
 import type { Cart } from "@/types/Cart/cart";
 import { axiosClient } from "../lib/axios";
 
-export const getCartByUserId = async (user_id: string): Promise<Cart> => {
-  const res = await axiosClient.get(`/carts/${user_id}`);
+export const getCartByUserId = async (): Promise<Cart> => {
+  const res = await axiosClient.get(`/carts/`);
   return res?.data.data;
 };
 
