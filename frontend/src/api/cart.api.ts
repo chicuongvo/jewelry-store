@@ -22,7 +22,7 @@ export const removeFromCart = async (
   user_id: string,
   product_id: string
 ): Promise<Cart> => {
-  const res = await axiosClient.post(`/carts/${user_id}/add/${product_id}`);
+  const res = await axiosClient.post(`/carts/${user_id}/remove/${product_id}`);
   return res?.data.data;
 };
 
@@ -32,7 +32,7 @@ export const updateCart = async (
   quantity: number
 ): Promise<Cart> => {
   const res = await axiosClient.post(
-    `/carts/${user_id}/add/${product_id}`,
+    `/carts/${user_id}/update/${product_id}`,
     quantity
   );
   return res?.data.data;
