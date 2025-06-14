@@ -3,16 +3,20 @@ import { useParams } from "react-router";
 import ProductDetailsSkeleton from "./ProductDetailsSkeleton";
 import { getProduct } from "@/api/product.api";
 import { useState } from "react";
+import { Minus, Plus } from "lucide-react";
 
 export default function ProductDetails() {
   const { id } = useParams();
-  const [quantity, setQuantity] = useState(1);
 
   const { data: product, isLoading } = useQuery({
     queryKey: ["product", id],
     queryFn: () => getProduct(id as string),
     enabled: !!id,
   });
+  const [quantity, setQuantity] = useState(1);
+  const increaseQuantity = () => setQuantity((prev) => prev + 1);
+  const decreaseQuantity = () => setQuantity((prev) => Math.max(1, prev - 1));
+  const totalPrice = (Number(product?.sell_price ?? 0) * quantity).toFixed(2);
 
   if (isLoading) return <ProductDetailsSkeleton />;
 
@@ -33,7 +37,33 @@ export default function ProductDetails() {
           {Number(product?.sell_price).toLocaleString("vi-VN")}₫
         </div>
 
-        <div className="flex items-center gap-4">
+        <div>
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center border border-gray-300 ">
+              <button
+                onClick={decreaseQuantity}
+                className="p-2 disabled:opacity-50 cursor-pointer"
+                disabled={quantity <= 1}
+              >
+                <Minus className="h-4 w-4" />
+              </button>
+              <span className="w-[50px]  py-2 font-semibold text-gray-900 text-center">
+                {quantity}
+              </span>
+              <button
+                onClick={increaseQuantity}
+                className="p-2 disabled:opacity-50 cursor-pointer"
+              >
+                <Plus className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="text-md text-gray-800">
+              <span className="font-bold">Tổng:</span>{" "}
+              {Number(totalPrice).toLocaleString()}₫
+            </div>
+          </div>
+        </div>
+        {/* <div className="flex items-center gap-4">
           <span className="font-medium">Số lượng:</span>
           <div className="flex items-center border border-zinc-300 rounded overflow-hidden">
             <button
@@ -50,13 +80,13 @@ export default function ProductDetails() {
               +
             </button>
           </div>
-        </div>
+        </div> */}
 
-        <div className="flex gap-4 pb-6 border-b border-zinc-300">
-          <button className="bg-primary text-white hover:bg-primary/50 hover:border-2 hover:border-primary/50 cursor-pointer transition-all duration-300 border-2 border-primary px-6 py-3 text-sm font-semibold rounded">
+        <div className=" w-full grid grid-cols-2 gap-4 pb-6 border-b border-zinc-300 pt-3">
+          <button className="bg-primary text-white hover:bg-primary/50 hover:border-2 hover:border-primary/50 cursor-pointer transition-all duration-300 border-2 border-primary px-6 py-3 text-sm font-semibold ">
             MUA NGAY
           </button>
-          <button className="bg-white text-primary hover:bg-zinc-100 transition-all border-2 border-primary px-6 py-3 text-sm font-semibold rounded  transition-all duration-300  cursor-pointer                                                                                    ">
+          <button className="bg-white text-primary hover:bg-zinc-100 transition-all border-2 border-primary px-6 py-3 text-sm font-semibold   transition-all duration-300  cursor-pointer                                                                                    ">
             THÊM VÀO GIỎ
           </button>
         </div>
