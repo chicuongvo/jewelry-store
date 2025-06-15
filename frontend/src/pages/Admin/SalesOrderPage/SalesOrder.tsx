@@ -30,10 +30,10 @@ export default function SalesOrder() {
     queryFn: getAllSalesOrder,
   });
 
-  const haveClient: string[] = [];
-  salesOrderData?.map((salesOrder) => {
-    haveClient.push(salesOrder.client_id);
-  });
+  // const haveClient: string[] = [];
+  // salesOrderData?.map((salesOrder) => {
+  //   haveClient.push(salesOrder.client_id);
+  // });
 
   const navigate = useNavigate();
   const routeChange = (sales_order_id: string, name: string) => {
@@ -170,7 +170,6 @@ export default function SalesOrder() {
       </div>
       {showModal && (
         <PurchaseOrderModal
-          haveClient={haveClient}
           salesOrderData={editingSalesOrder}
           setShowModal={setShowModal}
         />
@@ -189,7 +188,6 @@ function PurchaseOrderModal({
   salesOrderData,
   setShowModal,
 }: {
-  haveClient: string[];
   salesOrderData: SalesOrderRes;
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
@@ -201,6 +199,8 @@ function PurchaseOrderModal({
     queryKey: ["clientData"],
     queryFn: () => getAllUsers(),
   });
+
+  console.log("abc", clientData.data);
 
   const queryClient = useQueryClient();
   const { mutate, isPending } = useMutation({
@@ -247,7 +247,7 @@ function PurchaseOrderModal({
                 className="text-wrap w-full border border-gray-300 rounded-lg px-3 py-2"
               >
                 <option value="">-- Chọn khách hàng --</option>
-                {clientData
+                {clientData.data
                   // ?.filter((client) => !haveClient.includes(client.user_id))
                   .map((client: UserProfile) => (
                     <option key={client.user_id} value={client.user_id}>

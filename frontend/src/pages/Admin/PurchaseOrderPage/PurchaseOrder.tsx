@@ -7,6 +7,7 @@ import type {
   PurchaseOrder,
   PurchaseOrderCreateData,
   PurchaseOrderUpdateData,
+  Supplier,
 } from "@/types/PurchaseOrder/purchaseOrder.ts";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -24,7 +25,7 @@ export default function PurchaseOrder() {
     useState<PurchaseOrder>({} as PurchaseOrder);
   const [deleting, setDeleting] = useState<PurchaseOrder>({} as PurchaseOrder);
 
-  const { data: purchaseOrderData } = useQuery({
+  const { data: purchaseOrderData, isLoading } = useQuery({
     queryKey: ["purchaseOrder"],
     queryFn: getAllPurchaseOrders,
   });
@@ -34,10 +35,10 @@ export default function PurchaseOrder() {
     haveSupplier.push(purchaseOrder.supplier.supplier_id);
   });
 
-  let navigate = useNavigate();
-  const routeChange = (purchase_order_id: String, supplier_name: String) => {
+  const navigate = useNavigate();
+  const routeChange = (purchase_order_id: string, supplier_name: string) => {
     const data = { message: supplier_name, id: 0 };
-    let path = `/admin/purchase-orders-detail/${purchase_order_id}`;
+    const path = `/admin/purchase-orders-detail/${purchase_order_id}`;
     navigate(path, { state: data });
   };
 
@@ -52,7 +53,7 @@ export default function PurchaseOrder() {
       purchaseOrder.supplier.phone_number
         .toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
-      purchaseOrder.created_at.toLowerCase().includes(searchTerm.toLowerCase()),
+      purchaseOrder.created_at.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleAdd = () => {
@@ -72,10 +73,10 @@ export default function PurchaseOrder() {
         </div>
         <button
           onClick={() => handleAdd()}
-          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+          className="flex cursor-pointer items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Thêm mới nhà cung cấp
+          Thêm mới đơn nhập hàng
         </button>
       </div>
 
@@ -100,7 +101,7 @@ export default function PurchaseOrder() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  STT
+                  Mã đơn
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Nhà cung cấp
@@ -116,59 +117,71 @@ export default function PurchaseOrder() {
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredPurchaseOrder?.map((purchaseOrder) => (
-                <tr
-                  onClick={() =>
-                    routeChange(
-                      purchaseOrder.purchase_order_id,
-                      purchaseOrder.supplier.name,
-                    )
-                  }
-                  className="hover:bg-gray-50 transition-colors duration-150"
-                >
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {filteredPurchaseOrder.indexOf(purchaseOrder) + 1}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {purchaseOrder.supplier.name}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {purchaseOrder.supplier.phone_number}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {purchaseOrder.created_at}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(purchaseOrder);
-                        }}
-                        className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+            <tbody className="bg-white divide-y divide-gray-200 cursor-pointer">
+              {isLoading ? (
+                <>
+                  <SkeletonRow />
+                  <SkeletonRow />
+                  <SkeletonRow />
+                </>
+              ) : (
+                filteredPurchaseOrder?.map((purchaseOrder) => (
+                  <tr
+                    key={purchaseOrder.purchase_order_id}
+                    onClick={() =>
+                      routeChange(
+                        purchaseOrder.purchase_order_id,
+                        purchaseOrder.supplier.name
+                      )
+                    }
+                    className="hover:bg-gray-50 transition-colors duration-150"
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">
+                        {purchaseOrder.purchase_order_id}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">
+                        {purchaseOrder.supplier.name}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">
+                        {purchaseOrder.supplier.phone_number}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">
+                        {new Intl.DateTimeFormat("vi-VN", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        }).format(new Date(purchaseOrder.created_at))}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(purchaseOrder);
+                          }}
+                          className="cursor-pointer text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
       </div>
       {showModal && (
         <PurchaseOrderModal
-          haveSupplier={haveSupplier}
           purchaseOrderData={editingPurchaseOrder}
           setShowModal={setShowModal}
         />
@@ -181,13 +194,12 @@ export default function PurchaseOrder() {
 }
 
 import { getAllSuppliers } from "@/api/supplier.api";
+import SkeletonRow from "./components/SkeletonRow";
 
 function PurchaseOrderModal({
-  haveSupplier,
   purchaseOrderData,
   setShowModal,
 }: {
-  haveSupplier: string[];
   purchaseOrderData: PurchaseOrder;
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
@@ -206,15 +218,17 @@ function PurchaseOrderModal({
         queryKey: ["purchaseOrder"],
       });
       setShowModal(false);
-      purchaseOrderData.supplier_id
-        ? toast.success("Cập nhập thành công!")
-        : toast.success("Tạo mới thành công!");
+      if (purchaseOrderData.supplier_id) {
+        toast.success("Cập nhập thành công!");
+      } else {
+        toast.success("Tạo mới thành công!");
+      }
     },
   });
 
   const { data: supplierData } = useQuery({
     queryKey: ["supplierData"],
-    queryFn: getAllSuppliers,
+    queryFn: () => getAllSuppliers(),
   });
 
   const handleSubmit = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -231,7 +245,7 @@ function PurchaseOrderModal({
     <div className="fixed inset-0 bg-gray-600/50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4 cursor-pointer">
             {purchaseOrder
               ? "Thêm mới đơn nhập hàng"
               : "Chỉnh sửa đơn nhập hàng"}
@@ -250,18 +264,17 @@ function PurchaseOrderModal({
                     supplier_id: e.target.value,
                   })
                 }
-                className="text-wrap w-[80%]"
+                className="w-full max-w-md cursor-pointer border border-gray-300 rounded-lg px-3 py-2 text-gray-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
               >
-                <option value=""></option>
-                {supplierData?.map((supplier) =>
-                  haveSupplier?.includes(supplier.supplier_id) ? (
-                    ""
-                  ) : (
-                    <option value={supplier.supplier_id}>
-                      {supplier.name}
-                    </option>
-                  ),
-                )}
+                <option value="">-- Chọn nhà cung cấp --</option>
+                {supplierData?.data.map((supplier: Supplier) => (
+                  <option
+                    key={supplier.supplier_id}
+                    value={supplier.supplier_id}
+                  >
+                    {supplier.name}
+                  </option>
+                ))}
               </select>
             </div>
           </form>
@@ -275,13 +288,13 @@ function PurchaseOrderModal({
             <button
               onClick={handleSubmit}
               disabled={isPending}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:bg-gray-600"
+              className="cursor-pointer disabled:cursor-not-allowed px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:bg-gray-600"
             >
               {isPending
-                ? "Cập nhật ..."
+                ? "Đang xử lý..."
                 : purchaseOrderData.purchase_order_id
-                  ? "Cập nhật"
-                  : "Tạo"}{" "}
+                ? "Cập nhật"
+                : "Tạo"}
             </button>
           </div>
         </div>
@@ -318,21 +331,21 @@ function ConfirmModal({
       <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Bạn chắc chắn muốn xóa đơn nhập hàng của nhà cung cấp{" "}
-            <b>{deleting.supplier.name}</b>?
+            Bạn chắc chắn muốn xóa đơn nhập hàng{" "}
+            <b>{deleting.purchase_order_id}</b>?
           </h2>
 
           <div className="flex justify-end space-x-3 mt-6 pt-4 border-t">
             <button
               onClick={() => setDeleting({} as unknown as PurchaseOrder)}
-              className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+              className="px-4 cursor-pointer py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
             >
               Hủy
             </button>
             <button
               onClick={handleSubmit}
               disabled={isPending}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:bg-gray-600"
+              className="px-4 py-2 cursor-pointer disabled:cursor-not-allowed bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:bg-gray-600"
             >
               {isPending ? "Đang xóa ..." : "Xóa"}
             </button>

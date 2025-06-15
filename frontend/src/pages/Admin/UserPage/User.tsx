@@ -315,16 +315,16 @@ function TableSkeleton() {
     <>
       {[...Array(5)].map((_, index) => (
         <tr key={index} className="animate-pulse">
-          <td className="px-6 py-4">
+          <td className="px-9 py-4">
             <div className="flex items-center">
-              <div className="w-10 h-10 bg-gray-200 rounded-lg"></div>
+              <div className="w-14 h-10 bg-gray-200 rounded-lg"></div>
               <div className="ml-3 space-y-2">
                 <div className="h-4 w-24 bg-gray-200 rounded"></div>
                 <div className="h-3 w-32 bg-gray-200 rounded"></div>
               </div>
             </div>
           </td>
-          <td className="px-6 py-4">
+          <td className="px-9 py-4">
             <div className="space-y-2">
               <div className="h-4 w-40 bg-gray-200 rounded"></div>
               <div className="h-4 w-32 bg-gray-200 rounded"></div>
@@ -344,7 +344,6 @@ function TableSkeleton() {
           </td>
           <td className="px-6 py-4">
             <div className="flex space-x-2">
-              <div className="h-8 w-8 bg-gray-200 rounded"></div>
               <div className="h-8 w-8 bg-gray-200 rounded"></div>
             </div>
           </td>
