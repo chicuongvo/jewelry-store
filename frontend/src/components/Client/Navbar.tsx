@@ -52,6 +52,7 @@ export default function Navbar() {
           className={`w-max font-bold text-center hover:text-primary ease-in-out duration-500 ${
             active ? "text-primary" : "text-black"
           }`}
+          onClick={() => setOpenMenu(false)}
         >
           {" "}
           {option.name}{" "}
@@ -101,7 +102,11 @@ export default function Navbar() {
         </div>
         <Sidebar openSidebar={openSidebar} />
       </div>
-      <Logo />
+      <Logo
+        onClick={() => {
+          setOpenMenu(false);
+        }}
+      />
 
       <div className="hidden md:flex md:flex-row justify-between gap-5">
         {" "}
@@ -117,18 +122,21 @@ export default function Navbar() {
             <Link
               to="/profile"
               className=" py-3 px-2 border-b border-primary  hover:bg-zinc-200  hover:text-primary transition-all duration-300 cursor-pointer rounded-t "
+              onClick={() => setOpenMenu(false)}
             >
               Tài khoản của tôi
             </Link>
             <Link
               to="/history"
               className=" py-3 px-2 border-b border-primary  hover:bg-zinc-200  hover:text-primary transition-all duration-300 cursor-pointer rounded-t "
+              onClick={() => setOpenMenu(false)}
             >
               Lịch sử mua hàng
             </Link>
             <Link
               to="/service-history"
               className=" py-3 px-2 border-b border-primary  hover:bg-zinc-200  hover:text-primary transition-all duration-300 cursor-pointer rounded-t "
+              onClick={() => setOpenMenu(false)}
             >
               Lịch sử dịch vụ
             </Link>
