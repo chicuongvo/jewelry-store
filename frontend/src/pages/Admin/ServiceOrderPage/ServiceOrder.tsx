@@ -97,7 +97,7 @@ export default function AdminServiceOrders() {
         `Đơn dịch vụ mới ${
           response.service_order_id
         } đã được tạo cho khách hàng ${
-          response.client_id || "Chưa có thông tin"
+          response.client?.username || "Chưa có thông tin"
         }.`
       );
       setShowCreateModal(false);
@@ -114,7 +114,7 @@ export default function AdminServiceOrders() {
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ["serviceOrders"] });
       toast.success("Cập nhật đơn dịch vụ thành công");
-      console.log(r);
+
       addNotification(
         `Đơn dịch vụ ${response.service_order_id} của khách hàng ${
           response.client?.username || "Chưa có thông tin"
