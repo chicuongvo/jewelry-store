@@ -13,19 +13,43 @@ import type { UserProfile } from "@/types/User/User";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { banUser, getAllUsers } from "@/api/user.api";
 import { toast } from "react-toastify";
+import { Pagination } from "antd";
 
 export default function Users() {
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [verifiedFilter, setVerifiedFilter] = useState("");
+  const [page, setPage] = useState(1);
+  const queryClient = useQueryClient();
   const [deleting, setDeleting] = useState({} as unknown as UserProfile);
 
-  const { data: usersData, isLoading } = useQuery({
-    queryKey: ["users"],
-    queryFn: getAllUsers,
+  const limit = 5;
+  console.log(page);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["users", page],
+    queryFn: () => getAllUsers({ page, limit }),
   });
 
-  const filteredUsers = usersData?.filter(user => {
+  const usersData = data?.data;
+  const totalItems = data?.totalItems;
+  const totalPages = data?.totalPages;
+  console.log(usersData);
+
+  if (page < totalPages) {
+    queryClient.prefetchQuery({
+      queryKey: ["users", page + 1],
+      queryFn: () => getAllUsers({ page: page + 1, limit }),
+    });
+  }
+
+  if (page > 1)
+    queryClient.prefetchQuery({
+      queryKey: ["users", page - 1],
+      queryFn: () => getAllUsers({ page: page - 1, limit }),
+    });
+
+  const filteredUsers = usersData?.filter((user: UserProfile) => {
     const matchesSearch =
       user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase());
@@ -57,14 +81,14 @@ export default function Users() {
               type="text"
               placeholder="Tìm kiếm người dùng..."
               value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
 
           <select
             value={roleFilter}
-            onChange={e => setRoleFilter(e.target.value)}
+            onChange={(e) => setRoleFilter(e.target.value)}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="">Tất cả vai trò</option>
@@ -74,7 +98,7 @@ export default function Users() {
 
           <select
             value={verifiedFilter}
-            onChange={e => setVerifiedFilter(e.target.value)}
+            onChange={(e) => setVerifiedFilter(e.target.value)}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="">Tất cả trạng thái</option>
@@ -120,7 +144,7 @@ export default function Users() {
               {isLoading ? (
                 <TableSkeleton />
               ) : (
-                filteredUsers?.map(user => (
+                filteredUsers?.map((user: UserProfile) => (
                   <tr
                     key={user.user_id}
                     className="hover:bg-gray-50 transition-colors duration-150"
@@ -137,7 +161,12 @@ export default function Users() {
                             {user.username}
                           </div>
                           <div className="text-sm text-gray-500">
-                            Tham gia {user.created_at}
+                            Ngày tạo:{" "}
+                            {new Date(user.created_at).toLocaleString("vn-VN", {
+                              month: "long",
+                              day: "numeric",
+                              year: "numeric",
+                            })}
                           </div>
                         </div>
                       </div>
@@ -207,6 +236,17 @@ export default function Users() {
           </table>
         </div>
       </div>
+
+      <Pagination
+        align="center"
+        current={page}
+        total={totalItems || 0}
+        pageSize={limit}
+        onChange={(current) => {
+          console.log("Current", current);
+          setPage(current);
+        }}
+      />
 
       {deleting.user_id && (
         <ConfirmModal deleting={deleting} setDeleting={setDeleting} />

@@ -17,13 +17,13 @@ import { verifyToken } from "../middleware/verifyToken.js";
 import { verifyAdmin } from "../middleware/verifyAdmin.js";
 import express from "express";
 import passport from "passport";
-
+import { upload } from "../middleware/multer.js";
 const router = express.Router();
 
 router.get("/me", verifyToken, getUser);
 router.get("/", verifyToken, verifyAdmin, getAllUsers);
 router.get("/:id", verifyToken, verifyAdmin, getUserById);
-router.put("/me", verifyToken, updateUser);
+router.put("/me", upload.single("avatar"), verifyToken, updateUser);
 router.post("/sign-up", signUp);
 router.post("/sign-in", signIn);
 router.post("/sign-out", signOut);

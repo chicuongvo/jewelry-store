@@ -26,6 +26,7 @@ import InventoryReports from "./pages/Admin/InventoryReportPage/InventoryReport.
 import InventoryReportDetails from "./pages/Admin/InventoryReportDetailsPage/InventoryReportDetails.tsx";
 import Services from "./pages/Client/ServicesPage/Services.tsx";
 import History from "./components/Client/History.tsx";
+import Profile from "./pages/Client/Profile/Profile.tsx";
 import ServiceHistory from "./components/Client/ServiceHistory.tsx";
 import { CartProvider } from "./contexts/cartContext.tsx";
 import Cart from "./pages/Client/CartPage/Cart.tsx";
@@ -44,6 +45,7 @@ createRoot(document.getElementById("root")!).render(
                   <Route index element={<Home />} />
                   <Route path="/history" element={<History />} />
                   <Route path="/service-history" element={<ServiceHistory />} />
+                  <Route path="/profile" element={<Profile />} />
                 </Route>
 
                 <Route path="/auth" element={<App />}>

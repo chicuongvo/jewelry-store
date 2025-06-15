@@ -7,15 +7,19 @@ import useProductTypes from "@/hooks/useProductTypes";
 import { Pagination } from "antd";
 import { useSearchParams } from "react-router";
 import InventoryReportSkeleton from "../InventoryReportPage/components/Skeleton";
+import ProducTable from "./Partials/ProductTable";
+const limit = 6;
 export default function ProductTypes() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [productModal, setProductModal] = useState(false);
+  const [productType, setProductType] = useState<string>("Vòng cổ");
   const [editingType, setEditingType] = useState<any>(null);
   const [modal, contextHolder] = Modal.useModal();
 
   const [searchParams, setSearchParams] = useSearchParams();
   const newSeachParams = new URLSearchParams(searchParams.toString());
-  newSeachParams.set("limit", "6");
+  newSeachParams.set("limit", limit.toString());
 
   const {
     getAllProductTypesQuery,
@@ -128,7 +132,7 @@ export default function ProductTypes() {
       {getAllProductTypesQuery.isLoading ||
       getFilteredProductTypesQuery.isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6">
-          {Array.from({ length: 6 }).map((_, index) => {
+          {Array.from({ length: limit }).map((_, index) => {
             return <InventoryReportSkeleton index={index} />;
           })}
         </div>
@@ -193,7 +197,14 @@ export default function ProductTypes() {
               </div>
 
               <div className="pt-3 border-t border-gray-100">
-                <button className="w-full text-sm text-blue-600 hover:text-blue-700 font-medium">
+                <button
+                  className="w-full text-sm text-blue-600 hover:text-blue-700 font-medium"
+                  onClick={() => {
+                    setProductModal(true);
+                    console.log(type.name);
+                    setProductType(type.name);
+                  }}
+                >
                   Xem các sản phẩm →
                 </button>
               </div>
@@ -212,6 +223,14 @@ export default function ProductTypes() {
         />
       </div>
       {/* Modal */}
+      {productModal && (
+        <ProducTable
+          productType={productType}
+          setModal={() => {
+            setProductModal(false);
+          }}
+        />
+      )}
       {showModal && (
         <div className="fixed inset-0 bg-gray-600/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full">

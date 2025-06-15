@@ -6,6 +6,7 @@ import {
 import { prisma } from "../config/db.js";
 import generateTokenAndSetCookie from "../utils/generateTokenAndSetCookie.js";
 import generateToken from "../utils/generateToken.js";
+import clourdinary from "../config/cloudinary.js";
 import {
   sendVerificationEmail,
   sendResetPasswordEmail,
@@ -13,8 +14,20 @@ import {
 
 export const getAllUsers = async (req, res) => {
   try {
-    const { username, email, fullname, phone_number, sortBy, sortOrder } =
-      req.query;
+    const {
+      username,
+      email,
+      fullname,
+      phone_number,
+      sortBy,
+      sortOrder,
+      page = 1,
+      limit = 6,
+    } = req.query;
+
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+    const skip = (pageNumber - 1) * limitNumber;
 
     const filters = {};
 
@@ -53,6 +66,8 @@ export const getAllUsers = async (req, res) => {
       orderBy[sortBy] = sortOrder === "desc" ? "desc" : "asc";
     }
 
+    const totalItems = await prisma.users.count();
+
     const users = await prisma.users.findMany({
       where: filters,
       orderBy: Object.keys(orderBy).length ? orderBy : undefined,
@@ -61,9 +76,17 @@ export const getAllUsers = async (req, res) => {
         service_orders: true,
         carts: { include: { cart_details: { include: { product: true } } } },
       },
+      skip,
+      take: limitNumber,
     });
 
-    return res.status(200).json({ success: true, data: users });
+    return res.status(200).json({
+      success: true,
+      data: users,
+      totalItems,
+      totalPages: page ? Math.ceil(totalItems / parseInt(limit)) : 1,
+      currentPage: page ? parseInt(page) : 1,
+    });
   } catch (error) {
     console.error("Error get all users:", error);
     return res
@@ -149,24 +172,34 @@ export const getUserById = async (req, res) => {
 
 export const updateUser = async (req, res) => {
   const user_id = req.user_id;
+  const file = req.file;
   const data = req.body;
+  console.log("Update user data:", user_id);
+
+  if (file) {
+    const profileBase64String = `data:${
+      file.mimetype
+    };base64,${file.buffer.toString("base64")}`;
+    try {
+      const UrlObject = await clourdinary.uploader.upload(profileBase64String);
+      data.profile_pic = UrlObject.secure_url;
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ success: false, message: "Internal Server Error" });
+    }
+  }
 
   try {
-    if (!data || Object.keys(data).length === 0) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Vui lòng cung cấp đủ thông tin." });
-    }
-
+    // if (!data || Object.keys(data).length === 0) {
+    //   return res
+    //     .status(400)
+    //     .json({ success: false, message: "Vui lòng cung cấp đủ thông tin." });
+    // }
+    console.log("Data to update:", data, "@@@");
     const updatedUser = await prisma.users.update({
       where: { user_id },
-      data: {
-        username: data.username,
-        fullname: data.fullname,
-        phone_number: data.phone_number,
-        email: data.email,
-        profile_pic: data.profile_pic,
-      },
+      data,
     });
 
     return res.status(200).json({

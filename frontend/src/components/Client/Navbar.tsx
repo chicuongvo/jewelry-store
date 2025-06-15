@@ -113,16 +113,28 @@ export default function Navbar() {
           onClick={handleOnClickProfile}
         />
         {openMenu && (
-          <div className="absolute right-14 top-12 flex flex-col justify-end bg-white font-semibold rounded shadow-xl ">
+          <div className="absolute right-14 top-12 flex flex-col bg-white font-semibold rounded shadow-xl ">
             <Link
               to="/profile"
-              className="text-end py-3 px-2 border-b border-primary  hover:bg-zinc-200  hover:text-primary transition-all duration-300 cursor-pointer rounded-t "
+              className=" py-3 px-2 border-b border-primary  hover:bg-zinc-200  hover:text-primary transition-all duration-300 cursor-pointer rounded-t "
             >
               Tài khoản của tôi
             </Link>
+            <Link
+              to="/history"
+              className=" py-3 px-2 border-b border-primary  hover:bg-zinc-200  hover:text-primary transition-all duration-300 cursor-pointer rounded-t "
+            >
+              Lịch sử mua hàng
+            </Link>
+            <Link
+              to="/service-history"
+              className=" py-3 px-2 border-b border-primary  hover:bg-zinc-200  hover:text-primary transition-all duration-300 cursor-pointer rounded-t "
+            >
+              Lịch sử dịch vụ
+            </Link>
             <div
               onClick={handleSignOut}
-              className="text-end py-3 px-2 hover:bg-zinc-200 hover:text-primary transition-all duration-300 cursor-pointer rounded-b"
+              className=" py-3 px-2 hover:bg-zinc-200 hover:text-primary transition-all duration-300 cursor-pointer rounded-b"
             >
               Đăng xuất
             </div>
