@@ -1,5 +1,5 @@
 import { axiosClient } from "../lib/axios";
-import type { SignInData, UserProfile } from "../types/User/User";
+import type { SignInData, SignUpData, UserProfile } from "../types/User/User";
 
 export const signIn = async (
   signInData: SignInData
@@ -9,9 +9,7 @@ export const signIn = async (
   return response.data.data;
 };
 
-export const signUp = async (
-  signUpData: Partial<UserProfile>
-): Promise<UserProfile> => {
+export const signUp = async (signUpData: SignUpData): Promise<UserProfile> => {
   const response = await axiosClient.post("/auth/sign-up", signUpData);
 
   return response.data.data;

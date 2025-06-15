@@ -7,13 +7,13 @@ export interface SignInData {
   password: string;
 }
 
-// export interface SignUpData {
-//   username: string;
-//   phone_number: string;
-//   email: string;
-//   password: string;
-//   confirm_password: string;
-// }
+export interface SignUpData {
+  username: string;
+  phone_number: string;
+  email: string;
+  password: string;
+  confirm_password: string;
+}
 
 // export interface UserProfile {
 //   user_id: string;

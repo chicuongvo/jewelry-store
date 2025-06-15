@@ -11,9 +11,11 @@ import { useCart } from "@/contexts/cartContext";
 export default function AddToCartButton({
   product,
   quantity,
+  end_stock,
 }: {
   product: Product;
   quantity: number;
+  end_stock: number;
 }) {
   const { userProfile } = useUser();
   const { setCartChanged } = useCart();
@@ -45,9 +47,9 @@ export default function AddToCartButton({
 
   return (
     <button
-      className={`flex w-full items-center disabled:cursor-not-allowed justify-center gap-2 bg-primary border border-primary text-white px-5 py-2.5 font-bold hover:text-white hover:bg-primary/80 hover:border hover:border-primary/80 transition-all duration-300 text:md cursor-pointer disabled:bg-primary/50`}
+      className={`flex w-full items-center disabled:cursor-not-allowed justify-center gap-2 bg-primary border border-primary text-white px-5 py-2.5 font-bold hover:text-white hover:bg-primary/80 hover:border hover:border-primary/80 transition-all duration-300 text:md cursor-pointer disabled:bg-primary/50 disabled:border-primary/50`}
       onClick={handleAddToCart}
-      disabled={mutation.isPending}
+      disabled={mutation.isPending || end_stock == 0 || quantity > end_stock}
     >
       <ShoppingBag size={18} />
       {mutation.isPending ? "ĐANG THÊM..." : "THÊM VÀO GIỎ"}

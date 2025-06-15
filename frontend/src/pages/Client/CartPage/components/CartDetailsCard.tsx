@@ -55,9 +55,7 @@ export default function CartDetailsCard({
     onSuccess() {
       toast.success("Đã xoá sản phẩm khỏi giỏ hàng.");
       setCartChanged(true);
-      setChosenCartDetails((prev: any) =>
-        prev.filter((item: any) => item.product_id !== cartDetails.product_id)
-      );
+      setChosenCartDetails([]);
 
       queryClient.invalidateQueries({ queryKey: ["cart"] });
     },
@@ -67,6 +65,22 @@ export default function CartDetailsCard({
       toast.error(message);
     },
   });
+
+  let end_stock = 0;
+  if (
+    cartDetails.product &&
+    cartDetails.product.inventory_report_details &&
+    cartDetails.product.inventory_report_details.length > 0
+  ) {
+    end_stock =
+      cartDetails.product.inventory_report_details[
+        cartDetails.product.inventory_report_details.length - 1
+      ]?.end_stock ?? 0;
+  }
+
+  if (end_stock < 0) {
+    end_stock = 0;
+  }
 
   const increaseQuantity = () => {
     const newQuantity = quantity + 1;
@@ -145,7 +159,7 @@ export default function CartDetailsCard({
             {Number(cartDetails.product?.sell_price).toLocaleString()}₫
           </div>
 
-          <div className="w-max">
+          <div className="w-max flex flex-col items-start gap-1">
             <div className="flex items-center border border-gray-300">
               <button
                 onClick={decreaseQuantity}
@@ -157,9 +171,29 @@ export default function CartDetailsCard({
               <span className="w-[30px] py-1 text-center font-semibold text-gray-900">
                 {quantity}
               </span>
-              <button onClick={increaseQuantity} className="p-2">
+              <button
+                onClick={increaseQuantity}
+                className="p-2 disabled:opacity-50"
+                disabled={quantity >= (end_stock ?? Infinity)}
+              >
                 <Plus className="h-3 w-3" />
               </button>
+            </div>
+
+            {/* 👇 Hiển thị tồn kho */}
+            <div className="text-[12px] text-gray-500 mt-1">
+              Còn lại:{" "}
+              <span
+                className={`font-semibold ${
+                  (end_stock ?? 0) === 0
+                    ? "text-red-500"
+                    : (end_stock ?? 0) <= 5
+                    ? "text-orange-500"
+                    : "text-green-600"
+                }`}
+              >
+                {end_stock ?? 0} sản phẩm
+              </span>
             </div>
           </div>
         </div>

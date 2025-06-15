@@ -21,6 +21,22 @@ export default function ProductDetails() {
 
   if (isLoading) return <ProductDetailsSkeleton />;
 
+  let end_stock = 0;
+  if (
+    product &&
+    product.inventory_report_details &&
+    product.inventory_report_details.length > 0
+  ) {
+    end_stock =
+      product.inventory_report_details[
+        product.inventory_report_details.length - 1
+      ]?.end_stock ?? 0;
+  }
+
+  if (end_stock < 0) {
+    end_stock = 0;
+  }
+
   return (
     <div className="font-primary flex flex-col md:flex-row px-4 md:px-30 pt-10 gap-20 ">
       <div className="md:w-1/2 h-[300px] md:h-[500px] overflow-hidden bg-zinc-100">
@@ -36,6 +52,20 @@ export default function ProductDetails() {
 
         <div className="text-xl font-semibold text-rose-600">
           {Number(product?.sell_price).toLocaleString("vi-VN")}₫
+        </div>
+        <div className="text-sm text-gray-500">
+          Còn lại:{" "}
+          <span
+            className={`font-semibold ${
+              end_stock === 0
+                ? "text-red-500"
+                : end_stock <= 5
+                ? "text-orange-500"
+                : "text-green-600"
+            }`}
+          >
+            {end_stock ?? 0} sản phẩm
+          </span>
         </div>
 
         <div>
@@ -54,6 +84,7 @@ export default function ProductDetails() {
               <button
                 onClick={increaseQuantity}
                 className="p-2 disabled:opacity-50 cursor-pointer"
+                disabled={quantity >= (end_stock ?? Infinity)}
               >
                 <Plus className="h-4 w-4" />
               </button>
@@ -69,7 +100,13 @@ export default function ProductDetails() {
           <button className="flex w-full items-center justify-center gap-2 bg-white border-2 border-primary text-primary px-5 py-2.5  font-bold hover:text-white hover:bg-primary hover:border-2 hover:border-primary transition-all duration-300 text:md cursor-pointer ">
             MUA NGAY
           </button>
-          {product && <AddToCartButton product={product} quantity={quantity} />}
+          {product && (
+            <AddToCartButton
+              product={product}
+              quantity={quantity}
+              end_stock={end_stock}
+            />
+          )}
         </div>
 
         <div className="pt-4 flex flex-col gap-3">
