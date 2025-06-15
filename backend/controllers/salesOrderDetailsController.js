@@ -8,11 +8,20 @@ import { prisma } from "../config/db.js";
 
 export const getAllSalesOrderDetails = async (req, res) => {
   const sales_order_id = req.params.sales_order_id;
+
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
   try {
+    const totalItems = await prisma.sales_order_details.count({
+      where: { sales_order_id },
+    });
+
     const salesOrderDetails = await prisma.sales_order_details.findMany({
-      where: {
-        sales_order_id: sales_order_id,
-      },
+      where: { sales_order_id },
+      skip,
+      take: limit,
       include: {
         product: true,
       },
@@ -22,6 +31,12 @@ export const getAllSalesOrderDetails = async (req, res) => {
       success: true,
       message: "Sales order details retrieved successfully",
       data: salesOrderDetails,
+      pagination: {
+        page,
+        limit,
+        totalItems,
+        totalPages: Math.ceil(totalItems / limit),
+      },
     });
   } catch (error) {
     return res.status(500).json({
