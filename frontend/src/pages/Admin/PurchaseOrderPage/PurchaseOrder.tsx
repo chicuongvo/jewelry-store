@@ -69,7 +69,7 @@ export default function PurchaseOrder() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Nhập hàng</h1>
-          <p className="text-gray-600">Quản lý thông tin các nhà cung cấp</p>
+          <p className="text-gray-600">Quản lý thông tin các đơn nhập hàng</p>
         </div>
         <button
           onClick={() => handleAdd()}
@@ -97,22 +97,22 @@ export default function PurchaseOrder() {
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-gray-200 text-center">
+            <thead className="bg-gray-50 text-center">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Mã đơn
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Nhà cung cấp
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Số điện thoại
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Ngày tạo
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Hành động
                 </th>
               </tr>
@@ -134,7 +134,7 @@ export default function PurchaseOrder() {
                         purchaseOrder.supplier.name
                       )
                     }
-                    className="hover:bg-gray-50 transition-colors duration-150"
+                    className="hover:bg-gray-50 transition-colors duration-150 text-center"
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
@@ -160,14 +160,14 @@ export default function PurchaseOrder() {
                         }).format(new Date(purchaseOrder.created_at))}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex items-center space-x-2">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex flex-row items-center justify-center">
+                      <div className="flex items-center space-x-2 ">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             handleDelete(purchaseOrder);
                           }}
-                          className="cursor-pointer text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150"
+                          className="cursor-pointer items-center text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -182,6 +182,7 @@ export default function PurchaseOrder() {
       </div>
       {showModal && (
         <PurchaseOrderModal
+          haveSupplier={haveSupplier}
           purchaseOrderData={editingPurchaseOrder}
           setShowModal={setShowModal}
         />
@@ -198,10 +199,12 @@ import SkeletonRow from "./components/SkeletonRow";
 
 function PurchaseOrderModal({
   purchaseOrderData,
+  haveSupplier,
   setShowModal,
 }: {
   purchaseOrderData: PurchaseOrder;
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
+  haveSupplier: string[];
 }) {
   const [purchaseOrder, setPurchaseOrder] = useState({
     supplier_id: purchaseOrderData.supplier_id,
@@ -267,14 +270,15 @@ function PurchaseOrderModal({
                 className="w-full max-w-md cursor-pointer border border-gray-300 rounded-lg px-3 py-2 text-gray-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
               >
                 <option value="">-- Chọn nhà cung cấp --</option>
-                {supplierData?.data.map((supplier: Supplier) => (
-                  <option
-                    key={supplier.supplier_id}
-                    value={supplier.supplier_id}
-                  >
-                    {supplier.name}
-                  </option>
-                ))}
+                {supplierData?.data.map((supplier: Supplier) =>
+                  haveSupplier?.includes(supplier.supplier_id) ? (
+                    ""
+                  ) : (
+                    <option value={supplier.supplier_id}>
+                      {supplier.name}
+                    </option>
+                  )
+                )}
               </select>
             </div>
           </form>

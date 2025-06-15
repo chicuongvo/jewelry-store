@@ -19,7 +19,7 @@ export default function SalesOrderDetail() {
   const [editingPurchaseOrderDetail, setEditingPurchaseOrderDetail] =
     useState<SalesOrderDetailData>({} as SalesOrderDetailData);
   const [deleting, setDeleting] = useState<SalesOrderDetailData>(
-    {} as SalesOrderDetailData,
+    {} as SalesOrderDetailData
   );
 
   const location = useLocation();
@@ -45,9 +45,9 @@ export default function SalesOrderDetail() {
         .toString()
         .toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
-      salesOrderDetail.product.name
+      salesOrderDetail.product?.name
         .toLowerCase()
-        .includes(searchTerm.toLowerCase()),
+        .includes(searchTerm.toLowerCase())
   );
 
   const handleEdit = (salesOrderDetail: SalesOrderDetailData) => {
@@ -269,7 +269,7 @@ function PurchaseOrderModal({
                     ""
                   ) : (
                     <option value={product.product_id}>{product.name}</option>
-                  ),
+                  )
                 )}
               </select>
             </div>
@@ -307,8 +307,8 @@ function PurchaseOrderModal({
               {isPending
                 ? "Đang cập nhập..."
                 : salesOrderDetailData.product_id
-                  ? "Cập nhập"
-                  : "Tạo mới"}{" "}
+                ? "Cập nhập"
+                : "Tạo mới"}{" "}
             </button>
           </div>
         </div>

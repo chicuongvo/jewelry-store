@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Search, Plus, Edit2, Trash2 } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import type {
   PurchaseOrderDetail,
@@ -22,15 +22,16 @@ export default function PurchaseOrderDetail() {
   const [editingPurchaseOrderDetail, setEditingPurchaseOrderDetail] =
     useState<PurchaseOrderDetail>({} as PurchaseOrderDetail);
   const [deleting, setDeleting] = useState<PurchaseOrderDetail>(
-    {} as PurchaseOrderDetail,
+    {} as PurchaseOrderDetail
   );
 
   const location = useLocation();
-  console.log(location);
-  const supplier_name = location.state.message;
-  console.log(location.pathname.split("/")[3]);
+  // console.log(location);
+  // const supplier_name = location.state.message;
+  // console.log(location.pathname.split("/")[3]);
+  const { purchase_order_id } = useParams();
 
-  const { data: purchaseOrderDetailData } = useQuery({
+  const { data: purchaseOrderDetailData, isLoading } = useQuery({
     queryKey: ["purchaseOrderDetailData", location.pathname.split("/")[3]],
     queryFn: () => getAllPurchaseOrderDetails(location.pathname.split("/")[3]),
   });
@@ -53,7 +54,7 @@ export default function PurchaseOrderDetail() {
         .includes(searchTerm.toLowerCase()) ||
       purchaseOrderDetail.product.name
         .toLowerCase()
-        .includes(searchTerm.toLowerCase()),
+        .includes(searchTerm.toLowerCase())
   );
 
   const handleEdit = (purchaseOrderDetail: PurchaseOrderDetail) => {
@@ -69,21 +70,33 @@ export default function PurchaseOrderDetail() {
     setDeleting(purchaseOrderDetail);
   };
 
+  const nav = useNavigate();
+
   return (
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Đơn nhập hàng của {supplier_name}
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-900">Đơn nhập hàng</h1>
+          <p className="text-gray-600">
+            <span className="font-bold">Mã đơn: </span>
+            <span>{purchase_order_id}</span>
+          </p>
         </div>
-        <button
-          onClick={() => handleAdd()}
-          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Thêm sản phẩm nhập hàng mới
-        </button>
+        <div className="flex flex-row gap-3">
+          <button
+            onClick={() => handleAdd()}
+            className="flex items-center cursor-pointer px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Thêm sản phẩm
+          </button>
+          <button
+            onClick={() => nav("/admin/purchase-orders")}
+            className="px-4 py-2 text-gray-700 cursor-pointer border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+          >
+            Quay lại
+          </button>
+        </div>
       </div>
 
       {/* Search and Filters */}
@@ -104,76 +117,98 @@ export default function PurchaseOrderDetail() {
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-gray-200 text-center">
+            <thead className="bg-gray-50 text-center">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   STT
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Sản phẩm
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Số lượng
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Đơn giá
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Hành động
                 </th>
               </tr>
             </thead>
+
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredPurchaseOrderDetail?.map((purchaseOrderDetail) => (
-                <tr className="hover:bg-gray-50 transition-colors duration-150">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {filteredPurchaseOrderDetail.indexOf(
-                        purchaseOrderDetail,
-                      ) + 1}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {purchaseOrderDetail.product.name}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {purchaseOrderDetail.quantity}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {purchaseOrderDetail.total_price}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => handleEdit(purchaseOrderDetail)}
-                        className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors duration-150"
+              {isLoading
+                ? Array.from({ length: 5 }).map((_, i) => (
+                    <tr
+                      key={i}
+                      className="animate-pulse hover:bg-gray-50 transition-colors duration-150 text-center"
+                    >
+                      {[...Array(5)].map((_, colIdx) => (
+                        <td
+                          key={colIdx}
+                          className="px-6 py-4 whitespace-nowrap"
+                        >
+                          <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto" />
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                : filteredPurchaseOrderDetail?.map(
+                    (purchaseOrderDetail, index) => (
+                      <tr
+                        key={index}
+                        className="hover:bg-gray-50 transition-colors duration-150 text-center"
                       >
-                        <Edit2 className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(purchaseOrderDetail)}
-                        className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">
+                            {index + 1}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">
+                            {purchaseOrderDetail.product.name}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">
+                            {purchaseOrderDetail.quantity}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">
+                            {Number(
+                              purchaseOrderDetail.total_price
+                            ).toLocaleString()}
+                            ₫
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex flex-row items-center justify-center">
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => handleEdit(purchaseOrderDetail)}
+                              className="cursor-pointer text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors duration-150"
+                            >
+                              <Edit2 className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(purchaseOrderDetail)}
+                              className="cursor-pointer text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  )}
             </tbody>
           </table>
         </div>
       </div>
       {showModal && (
         <PurchaseOrderModal
-          haveProduct={haveProduct}
           purchase_order_id={location.pathname.split("/")[3]}
           purchaseOrderDetailData={editingPurchaseOrderDetail}
           setShowModal={setShowModal}
@@ -189,12 +224,10 @@ export default function PurchaseOrderDetail() {
 import { getAllProducts } from "@/api/product.api";
 
 function PurchaseOrderModal({
-  haveProduct,
   purchase_order_id,
   purchaseOrderDetailData,
   setShowModal,
 }: {
-  haveProduct: string[];
   purchase_order_id: string;
   purchaseOrderDetailData: PurchaseOrderDetail;
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -214,7 +247,7 @@ function PurchaseOrderModal({
           updatePurchaseOrderDetail(
             purchaseOrderDetailData.purchase_order_id,
             purchaseOrderDetailData.product_id,
-            data,
+            data
           )
       : (data: PurchaseOrderDetailCreateData) =>
           createPurchaseOrderDetail(data),
@@ -223,17 +256,19 @@ function PurchaseOrderModal({
         queryKey: ["purchaseOrderDetailData", purchase_order_id],
       });
       setShowModal(false);
-      purchaseOrderDetailData.product_id
-        ? toast.success("Cập nhập thành công!")
-        : toast.success("Tạo mới thành công!");
+      if (purchaseOrderDetailData.product_id) {
+        toast.success("Cập nhật thành công!");
+      } else {
+        toast.success("Tạo mới thành công!");
+      }
     },
   });
 
-  console.log("haveProduct", haveProduct);
+  // console.log("haveProduct", haveProduct);
 
   const { data: productData } = useQuery({
     queryKey: ["productData"],
-    queryFn: getAllProducts,
+    queryFn: () => getAllProducts(),
   });
 
   const handleSubmit = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -267,7 +302,7 @@ function PurchaseOrderModal({
                 Sản phẩm:
               </label>
               <select
-                className="text-wrap w-[80%]"
+                className="w-full max-w-md border border-gray-300 rounded-lg px-3 py-2 text-gray-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 disabled:bg-gray-100"
                 defaultValue={
                   purchaseOrderDetailData.product_id
                     ? purchaseOrderDetail.product_id
@@ -281,19 +316,19 @@ function PurchaseOrderModal({
                   })
                 }
               >
-                <option value=""></option>
-                {productData?.map((product) =>
-                  haveProduct.includes(product.product_id) &&
-                  !purchaseOrderDetailData.product_id ? (
-                    ""
-                  ) : (
-                    <option className="line-clamp-1" value={product.product_id}>
-                      {product.name}
-                    </option>
-                  ),
-                )}
+                <option value="">-- Chọn sản phẩm --</option>
+                {productData?.map((product) => (
+                  <option
+                    key={product.product_id}
+                    value={product.product_id}
+                    className="truncate"
+                  >
+                    {product.name}
+                  </option>
+                ))}
               </select>
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Số lượng:
@@ -301,6 +336,7 @@ function PurchaseOrderModal({
               <input
                 disabled={isPending}
                 type="number"
+                min={1}
                 defaultValue={purchaseOrderDetail?.quantity || 1}
                 onChange={(e) =>
                   setPurchaseOrderDetail({
@@ -308,28 +344,29 @@ function PurchaseOrderModal({
                     quantity: parseInt(e.target.value),
                   })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter quantity"
+                className="w-full max-w-md px-3 py-2 border border-gray-300 rounded-lg text-gray-800 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 disabled:bg-gray-100"
+                placeholder="Nhập số lượng"
               />
             </div>
           </form>
+
           <div className="flex justify-end space-x-3 mt-6 pt-4 border-t">
             <button
               onClick={() => setShowModal(false)}
-              className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+              className="px-4 py-2 cursor-pointer text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
             >
               Hủy
             </button>
             <button
               onClick={handleSubmit}
               disabled={isPending}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:bg-gray-600"
+              className="px-4 py-2 cursor-pointer disabled:cursor-not-allowed bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:bg-gray-600"
             >
               {isPending
-                ? "Đang cập nhập..."
+                ? "Đang xử lý..."
                 : purchaseOrderDetailData.product_id
-                  ? "Cập nhập"
-                  : "Tạo mới"}{" "}
+                ? "Cập nhật"
+                : "Tạo mới"}{" "}
             </button>
           </div>
         </div>
