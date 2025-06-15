@@ -2,8 +2,8 @@ import { axiosClient } from "../lib/axios";
 import type { SignInData, SignUpData, UserProfile } from "../types/User/User";
 
 export interface GetUsersParams {
-  page?: string;
-  limit?: string;
+  page?: number;
+  limit?: number;
 }
 
 export const signIn = async (
@@ -70,9 +70,7 @@ export const verifyEmail = async (
   return response.data.message;
 };
 
-export const geytPasswordResetToken = async (
-  email: string
-): Promise<string> => {
+export const getPasswordResetToken = async (email: string): Promise<string> => {
   const response = await axiosClient.post("/auth/reset-password-token", {
     email,
   });
@@ -98,8 +96,7 @@ export const resetPassword = async (
 
 export const getAllUsers = async (params: GetUsersParams = {}) => {
   const res = await axiosClient.get("/auth", { params });
-  console.log(res.data);
-  return res?.data.data;
+  return res?.data;
 };
 
 export const banUser = async (id: string) => {

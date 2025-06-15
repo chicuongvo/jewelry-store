@@ -89,7 +89,7 @@ export default function Users() {
           <select
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="px-4 py-2 cursor-pointer border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="">Tất cả vai trò</option>
             <option value="USER">Người dùng</option>
@@ -99,7 +99,7 @@ export default function Users() {
           <select
             value={verifiedFilter}
             onChange={(e) => setVerifiedFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="px-4 cursor-pointer py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="">Tất cả trạng thái</option>
             <option value="verified">Đã xác thực</option>
@@ -107,7 +107,7 @@ export default function Users() {
           </select>
 
           <div className="flex items-center space-x-2">
-            <button className="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+            <button className="cursor-pointer px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors duration-200">
               Xuất dữ liệu
             </button>
           </div>
@@ -224,7 +224,7 @@ export default function Users() {
                             onClick={() => setDeleting(user)}
                             className=" text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150"
                           >
-                            <Ban className="h-4 w-4" />
+                            <Ban className="h-4 w-4 cursor-pointer" />
                           </button>
                         )}
                       </div>
@@ -292,14 +292,14 @@ function ConfirmModal({
           <div className="flex justify-end space-x-3 mt-6 pt-4 border-t">
             <button
               onClick={() => setDeleting({} as unknown as UserProfile)}
-              className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+              className="px-4 py-2 cursor-pointer text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
             >
               Hủy
             </button>
             <button
               onClick={handleSubmit}
               disabled={isPending}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:bg-gray-600"
+              className="px-4 cursor-pointer disabled:cursor-not-allowed py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:bg-gray-600"
             >
               {isPending ? "Đang cập nhật..." : "Cấm"}
             </button>
