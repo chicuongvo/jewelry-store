@@ -33,10 +33,7 @@ export default function ProductDetails({
     product.inventory_report_details &&
     product.inventory_report_details.length > 0
   ) {
-    end_stock =
-      product.inventory_report_details[
-        product.inventory_report_details.length - 1
-      ]?.end_stock ?? 0;
+    end_stock = product.inventory_report_details[0]?.end_stock ?? 0;
   }
 
   if (end_stock < 0) {

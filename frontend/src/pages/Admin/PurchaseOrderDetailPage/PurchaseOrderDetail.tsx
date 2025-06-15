@@ -1,15 +1,16 @@
 import { useState } from "react";
 import { Search, Plus, Edit2, Trash2 } from "lucide-react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import type {
   PurchaseOrderDetail,
   PurchaseOrderDetailUpdateData,
   PurchaseOrderDetailCreateData,
+  // PurchaseOrderDetail,
 } from "@/types/PurchaseOrder/purchaseOrder.ts";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  getAllPurchaseOrderDetails,
+  // getAllPurchaseOrderDetails,
   updatePurchaseOrderDetail,
   createPurchaseOrderDetail,
   deletePurchaseOrderDetail,
@@ -25,25 +26,22 @@ export default function PurchaseOrderDetail() {
     {} as PurchaseOrderDetail
   );
 
-  const location = useLocation();
-  // console.log(location);
-  // const supplier_name = location.state.message;
-  // console.log(location.pathname.split("/")[3]);
   const { purchase_order_id } = useParams();
+  const [page, setPage] = useState(1);
+  const limit = 6;
 
   const { data: purchaseOrderDetailData, isLoading } = useQuery({
-    queryKey: ["purchaseOrderDetailData", location.pathname.split("/")[3]],
-    queryFn: () => getAllPurchaseOrderDetails(location.pathname.split("/")[3]),
+    queryKey: ["purchaseOrderDetailData", purchase_order_id, page, limit],
+    queryFn: () =>
+      getPurchaseOrderDetail({
+        purchase_order_id: purchase_order_id as string,
+        page,
+        limit,
+      }),
   });
 
-  const haveProduct: string[] = [];
-  purchaseOrderDetailData?.map((purchaseOrderDetail) => {
-    haveProduct.push(purchaseOrderDetail.product.product_id);
-  });
-  console.log("haveProduct", haveProduct);
-
-  const filteredPurchaseOrderDetail = purchaseOrderDetailData?.filter(
-    (purchaseOrderDetail) =>
+  const filteredPurchaseOrderDetail = purchaseOrderDetailData?.data.filter(
+    (purchaseOrderDetail: PurchaseOrderDetail) =>
       purchaseOrderDetail.quantity
         .toString()
         .toLowerCase()
@@ -207,6 +205,15 @@ export default function PurchaseOrderDetail() {
           </table>
         </div>
       </div>
+      <Pagination
+        align="center"
+        total={purchaseOrderDetailData?.pagination.total}
+        onChange={(current) => {
+          setPage(current);
+        }}
+        current={page}
+        pageSize={6}
+      />
       {showModal && (
         <PurchaseOrderModal
           purchase_order_id={location.pathname.split("/")[3]}
@@ -222,6 +229,8 @@ export default function PurchaseOrderDetail() {
 }
 
 import { getAllProducts } from "@/api/product.api";
+import { getPurchaseOrderDetail } from "@/api/purchaseOrder.api";
+import { Pagination } from "antd";
 
 function PurchaseOrderModal({
   purchase_order_id,
@@ -291,7 +300,7 @@ function PurchaseOrderModal({
       <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            {purchaseOrderDetail.product_id
+            {purchaseOrderDetailData.product_id
               ? "Chỉnh sửa đơn hàng"
               : "Thêm đơn hàng"}
           </h2>

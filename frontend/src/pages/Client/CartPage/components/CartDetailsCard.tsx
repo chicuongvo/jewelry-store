@@ -72,10 +72,7 @@ export default function CartDetailsCard({
     cartDetails.product.inventory_report_details &&
     cartDetails.product.inventory_report_details.length > 0
   ) {
-    end_stock =
-      cartDetails.product.inventory_report_details[
-        cartDetails.product.inventory_report_details.length - 1
-      ]?.end_stock ?? 0;
+    end_stock = cartDetails.product.inventory_report_details[0]?.end_stock ?? 0;
   }
 
   if (end_stock < 0) {

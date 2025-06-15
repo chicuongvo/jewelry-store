@@ -19,6 +19,8 @@ import {
 import * as React from "react";
 
 export default function PurchaseOrder() {
+  const limit = 6;
+  const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = React.useState(false);
   const [editingPurchaseOrder, setEditingPurchaseOrder] =
@@ -26,12 +28,12 @@ export default function PurchaseOrder() {
   const [deleting, setDeleting] = useState<PurchaseOrder>({} as PurchaseOrder);
 
   const { data: purchaseOrderData, isLoading } = useQuery({
-    queryKey: ["purchaseOrder"],
-    queryFn: getAllPurchaseOrders,
+    queryKey: ["purchaseOrder", limit, page],
+    queryFn: () => getAllPurchaseOrders({ limit: limit, page: page }),
   });
 
   const haveSupplier: string[] = [];
-  purchaseOrderData?.map((purchaseOrder) => {
+  purchaseOrderData?.data.map((purchaseOrder) => {
     haveSupplier.push(purchaseOrder.supplier.supplier_id);
   });
 
@@ -42,7 +44,7 @@ export default function PurchaseOrder() {
     navigate(path, { state: data });
   };
 
-  const filteredPurchaseOrder = purchaseOrderData?.filter(
+  const filteredPurchaseOrder = purchaseOrderData?.data.filter(
     (purchaseOrder) =>
       purchaseOrder.purchase_order_id
         .toLowerCase()
@@ -180,6 +182,15 @@ export default function PurchaseOrder() {
           </table>
         </div>
       </div>
+      <Pagination
+        align="center"
+        total={purchaseOrderData?.pagination.total}
+        onChange={(current) => {
+          setPage(current);
+        }}
+        current={page}
+        pageSize={6}
+      />
       {showModal && (
         <PurchaseOrderModal
           haveSupplier={haveSupplier}
@@ -196,6 +207,7 @@ export default function PurchaseOrder() {
 
 import { getAllSuppliers } from "@/api/supplier.api";
 import SkeletonRow from "./components/SkeletonRow";
+import { Pagination } from "antd";
 
 function PurchaseOrderModal({
   purchaseOrderData,

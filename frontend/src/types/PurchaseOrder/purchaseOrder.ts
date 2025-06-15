@@ -47,3 +47,23 @@ export type PurchaseOrderDetailUpdateData = {
   product_id: string;
   quantity: number;
 };
+
+export type PurchaseOrderResponse = {
+  data: PurchaseOrder[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+};
+
+export type PurchaseOrderDetailsResposne = {
+  data: PurchaseOrderDetail[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+};

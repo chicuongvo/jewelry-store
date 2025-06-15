@@ -2,19 +2,40 @@ import { axiosClient } from "../lib/axios";
 import type {
   PurchaseOrder,
   PurchaseOrderCreateData,
+  PurchaseOrderDetailsResposne,
+  PurchaseOrderResponse,
   PurchaseOrderUpdateData,
 } from "../types/PurchaseOrder/purchaseOrder";
 
-export const getAllPurchaseOrders = async (): Promise<PurchaseOrder[]> => {
-  const res = await axiosClient.get("/purchase-orders");
-  return res?.data.data;
+export interface GetPurchaseOrdersParams {
+  page?: number;
+  limit?: number;
+}
+
+export const getAllPurchaseOrders = async (
+  params: GetPurchaseOrdersParams = {}
+): Promise<PurchaseOrderResponse> => {
+  const res = await axiosClient.get("/purchase-orders", { params });
+  return res?.data;
 };
 
-export const getPurchaseOrder = async (
-  orderId: string
-): Promise<PurchaseOrder> => {
-  const res = await axiosClient.get(`/purchase-orders/${orderId}`);
-  return res?.data.data;
+export const getPurchaseOrderDetail = async ({
+  purchase_order_id,
+  page,
+  limit,
+}: {
+  purchase_order_id: string;
+  page?: number;
+  limit?: number;
+}): Promise<PurchaseOrderDetailsResposne> => {
+  const res = await axiosClient.get(
+    `/purchase-order-details/${purchase_order_id}`,
+    {
+      params: { page, limit },
+    }
+  );
+
+  return res.data;
 };
 
 export const createPurchaseOrder = async (
