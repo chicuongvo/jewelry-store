@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Search, Plus, Edit2, Trash2 } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import type { SalesOrderDetailData } from "@/types/SalesOrder/salesOrder.ts";
@@ -22,12 +22,10 @@ export default function SalesOrderDetail() {
     {} as SalesOrderDetailData
   );
 
-  const location = useLocation();
-  const username = location.state;
-
+  const { sales_order_id } = useParams();
   const { data: salesOrderDetailData } = useQuery({
-    queryKey: ["salesOrderDetailData", location.pathname.split("/")[3]],
-    queryFn: () => getAllSalesOrderDetail(location.pathname.split("/")[3]),
+    queryKey: ["salesOrderDetailData", sales_order_id],
+    queryFn: () => getAllSalesOrderDetail(sales_order_id as string),
   });
 
   const haveProduct: string[] = [];
@@ -67,13 +65,15 @@ export default function SalesOrderDetail() {
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Đơn mua hàng của {username}
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-900">Đơn mua hàng</h1>
+          <p className="text-gray-600">
+            <span className="font-bold">Mã đơn: </span>
+            <span>{sales_order_id}</span>
+          </p>
         </div>
         <button
           onClick={() => handleAdd()}
-          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+          className="cursor-pointer disabled:cursor-not-allowed flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
         >
           <Plus className="h-4 w-4 mr-2" />
           Thêm sản phầm
@@ -127,7 +127,7 @@ export default function SalesOrderDetail() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">
-                      {salesOrderDetail.product.name}
+                      {salesOrderDetail?.product?.name}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -164,7 +164,6 @@ export default function SalesOrderDetail() {
       </div>
       {showModal && (
         <PurchaseOrderModal
-          haveProduct={haveProduct}
           sales_order_id={location.pathname.split("/")[3]}
           salesOrderDetailData={editingPurchaseOrderDetail}
           setShowModal={setShowModal}
@@ -180,12 +179,10 @@ export default function SalesOrderDetail() {
 import { getAllProducts } from "@/api/product.api";
 
 function PurchaseOrderModal({
-  haveProduct,
   sales_order_id,
   salesOrderDetailData,
   setShowModal,
 }: {
-  haveProduct: string[];
   sales_order_id: string;
   salesOrderDetailData: SalesOrderDetailData;
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -199,7 +196,7 @@ function PurchaseOrderModal({
 
   const { data: productData } = useQuery({
     queryKey: ["productData"],
-    queryFn: getAllProducts,
+    queryFn: () => getAllProducts(),
   });
 
   const queryClient = useQueryClient();
@@ -212,9 +209,11 @@ function PurchaseOrderModal({
         queryKey: ["salesOrderDetailData", sales_order_id],
       });
       setShowModal(false);
-      salesOrderDetailData.product_id
-        ? toast.success("Cập nhập thành công!")
-        : toast.success("Tạo mới thành công!");
+      if (salesOrderDetailData.product_id) {
+        toast.success("Cập nhật thành công!");
+      } else {
+        toast.success("Tạo đơn mua hàng thành công!");
+      }
     },
     onError() {
       toast.error("Quá số lượng hàng tồn kho.");
@@ -239,42 +238,36 @@ function PurchaseOrderModal({
       <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            {salesOrderDetail ? "Cập nhập sản phẩm" : "Thêm mới sản phẩm"}
+            {salesOrderDetail ? "Cập nhật sản phẩm" : "Thêm mới sản phẩm"}
           </h2>
 
-          <form className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+          <form className="space-y-6 p-4 bg-white rounded-xl w-full max-w-md mx-auto">
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold text-gray-700 mb-2">
                 Sản phẩm:
               </label>
               <select
-                defaultValue={
-                  salesOrderDetailData.product_id
-                    ? salesOrderDetailData.product_id
-                    : ""
-                }
-                disabled={salesOrderDetailData.product_id ? true : false}
-                className="text-wrap w-[80%]"
+                defaultValue={salesOrderDetailData.product_id || ""}
+                disabled={!!salesOrderDetailData.product_id}
                 onChange={(e) =>
                   setSalesOrderDetail({
                     ...salesOrderDetail,
                     product_id: e.target.value,
                   })
                 }
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none disabled:bg-gray-100 disabled:text-gray-500"
               >
-                <option value=""></option>
-                {productData?.map((product) =>
-                  haveProduct.includes(product.product_id) &&
-                  !salesOrderDetailData.product_id ? (
-                    ""
-                  ) : (
-                    <option value={product.product_id}>{product.name}</option>
-                  )
-                )}
+                <option value="">-- Chọn sản phẩm --</option>
+                {productData?.map((product) => (
+                  <option key={product.product_id} value={product.product_id}>
+                    {product.name}
+                  </option>
+                ))}
               </select>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold text-gray-700 mb-2">
                 Số lượng:
               </label>
               <input
@@ -287,25 +280,26 @@ function PurchaseOrderModal({
                     quantity: parseInt(e.target.value),
                   })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter quantity"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg  disabled:bg-gray-100"
+                placeholder="Nhập số lượng"
               />
             </div>
           </form>
+
           <div className="flex justify-end space-x-3 mt-6 pt-4 border-t">
             <button
               onClick={() => setShowModal(false)}
-              className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+              className="px-4 cursor-pointer py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
             >
               Hủy
             </button>
             <button
               onClick={handleSubmit}
               disabled={isPending}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:bg-gray-600"
+              className="px-4 py-2 cursor-pointer disabled:cursor-not-allowed bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:bg-gray-600"
             >
               {isPending
-                ? "Đang cập nhập..."
+                ? "Đang xử lý..."
                 : salesOrderDetailData.product_id
                 ? "Cập nhập"
                 : "Tạo mới"}{" "}
@@ -345,7 +339,7 @@ function ConfirmModal({
       <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Bạn chắc chắn muốn xóa sản phẩm <b>{deleting.product.name}</b>?
+            Bạn chắc chắn muốn xóa sản phẩm <b>{deleting?.product?.name}</b>?
           </h2>
 
           <div className="flex justify-end space-x-3 mt-6 pt-4 border-t">
