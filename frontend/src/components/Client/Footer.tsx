@@ -1,3 +1,5 @@
+import { Link } from "react-router";
+
 export default function Footer() {
   return (
     <footer className="bg-zinc-100 w-full font-primary px-10 py-10">
@@ -9,9 +11,12 @@ export default function Footer() {
           <div className="font-medium italic text-gray-600">
             Nhận ưu đãi hấp dẫn cho khách hàng mới
           </div>
-          <button className="mt-4 font-extrabold px-4 py-3 text-white bg-black hover:bg-primary transition">
+          <Link
+            to="/auth"
+            className="mt-4 text-center transition-all duration-500 font-extrabold px-4 py-3 text-white bg-black hover:bg-primary transition"
+          >
             ĐĂNG KÝ NGAY
-          </button>
+          </Link>
         </div>
 
         <div className="flex flex-col gap-2 text-md text-gray-900">

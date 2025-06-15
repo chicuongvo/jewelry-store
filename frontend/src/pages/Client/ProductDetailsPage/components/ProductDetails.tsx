@@ -1,3 +1,4 @@
+/* eslint-disable no-constant-binary-expression */
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router";
 import ProductDetailsSkeleton from "./ProductDetailsSkeleton";
@@ -5,9 +6,15 @@ import { getProduct } from "@/api/product.api";
 import { useState } from "react";
 import { Minus, Plus } from "lucide-react";
 import AddToCartButton from "@/components/Client/AddToCartButton";
+import { useCart } from "@/contexts/cartContext";
 
 export default function ProductDetails() {
   const { id } = useParams();
+  const { cartData } = useCart();
+
+  const cartQuantity =
+    cartData?.cart_details?.find((item) => item.product_id === id)?.quantity ??
+    0;
 
   const { data: product, isLoading } = useQuery({
     queryKey: ["product", id],
@@ -84,7 +91,7 @@ export default function ProductDetails() {
               <button
                 onClick={increaseQuantity}
                 className="p-2 disabled:opacity-50 cursor-pointer"
-                disabled={quantity >= (end_stock ?? Infinity)}
+                disabled={quantity + cartQuantity >= end_stock}
               >
                 <Plus className="h-4 w-4" />
               </button>
@@ -97,7 +104,7 @@ export default function ProductDetails() {
         </div>
 
         <div className=" w-full grid grid-cols-2 gap-4 pb-6 border-b border-zinc-300 pt-3">
-          <button className="flex w-full items-center justify-center gap-2 bg-white border-2 border-primary text-primary px-5 py-2.5  font-bold hover:text-white hover:bg-primary hover:border-2 hover:border-primary transition-all duration-300 text:md cursor-pointer ">
+          <button className="flex w-full items-center justify-center gap-2 bg-white border-2 border-primary text-primary px-5 py-2.5  font-bold hover:text-primary hover:bg-zinc-100 hover:border-2 hover:border-primary transition-all duration-300 text:md cursor-pointer ">
             MUA NGAY
           </button>
           {product && (
@@ -105,6 +112,7 @@ export default function ProductDetails() {
               product={product}
               quantity={quantity}
               end_stock={end_stock}
+              setQuantity={setQuantity}
             />
           )}
         </div>
