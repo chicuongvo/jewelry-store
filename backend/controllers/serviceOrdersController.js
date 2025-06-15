@@ -23,6 +23,9 @@ export const createServiceOrders = async (req, res) => {
         total_paid,
         total_remaining,
       },
+      include: {
+        client: true,
+      },
     });
 
     return res.status(201).json({

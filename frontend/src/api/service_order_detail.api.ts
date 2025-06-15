@@ -21,12 +21,13 @@ export interface ServiceOrderDetailData {
 export interface ServiceOrderDetailDataUpdate {
   paid: number;
   status?: string;
+  extra_cost?: number;
 }
 
 export interface ServiceOrderDetailRes {
   service_order_id: string;
   service_id: string;
-  extra_price: number;
+  extra_cost: number;
   calculated_price: number;
   quantity: number;
   total_price: number;
@@ -81,6 +82,15 @@ export const deleteServiceOrderDetail = async (
 ) => {
   const response = await axiosClient.delete(
     `/service-order-details/${ServiceOrderDetailInput.service_order_id}/${ServiceOrderDetailInput.service_id}`
+  );
+  return response.data.data;
+};
+
+export const getAllServiceOrderDetail = async (
+  service_order_id: string
+): Promise<ServiceOrderDetailRes[]> => {
+  const response = await axiosClient.get(
+    `/service-order-details/${service_order_id}`
   );
   return response.data.data;
 };

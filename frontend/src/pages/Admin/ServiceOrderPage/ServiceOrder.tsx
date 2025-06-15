@@ -21,22 +21,24 @@ import {
   createServiceOrder,
   updateServiceOrder,
   deleteServiceOrder,
-  getServiceOrderById,
 } from "../../../api/serviceOrder.api";
 import { getAllServices } from "../../../api/service.api";
 import {
   createServiceOrderDetail,
   deleteServiceOrderDetail,
   updateServiceOrderDetail,
+  getAllServiceOrderDetail,
 } from "../../../api/service_order_detail.api";
 import { toast } from "react-toastify";
 import { getAllUsers } from "../../../api/user.api";
 import type { UserProfile } from "../../../types/User/User";
 import type { ServiceResponse } from "../../../types/service/service";
+import { useNotification } from "@/contexts/notificationContext";
 
 export default function AdminServiceOrders() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
   const [selectedOrder, setSelectedOrder] =
@@ -54,8 +56,9 @@ export default function AdminServiceOrders() {
     ServiceOrderResponse["service_order_details"][0] | null
   >(null);
   const queryClient = useQueryClient();
+  const { addNotification } = useNotification();
 
-  const { data: orders = [], isLoading } = useQuery({
+  const { data: orders = [], isLoading: isLoadingOrders } = useQuery({
     queryKey: ["serviceOrders"],
     queryFn: getAllServiceOrders,
   });
@@ -74,12 +77,29 @@ export default function AdminServiceOrders() {
     queryFn: getAllServices,
   });
 
+  const { data: orderDetails = [], isLoading: isLoadingDetails } = useQuery({
+    queryKey: ["serviceOrderDetails", selectedOrder?.service_order_id],
+    queryFn: () => {
+      if (!selectedOrder?.service_order_id) return Promise.resolve([]);
+      return getAllServiceOrderDetail(selectedOrder.service_order_id);
+    },
+    enabled: !!selectedOrder?.service_order_id,
+  });
+
   console.log(users);
   const createMutation = useMutation({
     mutationFn: (data: ServiceOrderCreate) => createServiceOrder(data),
-    onSuccess: () => {
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ["serviceOrders"] });
       toast.success("Tạo đơn dịch vụ thành công");
+      console.log(response);
+      addNotification(
+        `Đơn dịch vụ mới ${
+          response.service_order_id
+        } đã được tạo cho khách hàng ${
+          response.client_id || "Chưa có thông tin"
+        }.`
+      );
       setShowCreateModal(false);
     },
     onError: (error) => {
@@ -91,10 +111,19 @@ export default function AdminServiceOrders() {
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: ServiceOrderUpdate }) =>
       updateServiceOrder(id, data),
-    onSuccess: () => {
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ["serviceOrders"] });
       toast.success("Cập nhật đơn dịch vụ thành công");
-      setSelectedOrder(null);
+      console.log(r);
+      addNotification(
+        `Đơn dịch vụ ${response.service_order_id} của khách hàng ${
+          response.client?.username || "Chưa có thông tin"
+        } đã được cập nhật. Tổng tiền: ${Number(
+          response.total_price
+        ).toLocaleString("vi-VN")}đ, Đã thanh toán: ${Number(
+          response.total_paid
+        ).toLocaleString("vi-VN")}đ.`
+      );
     },
     onError: (error) => {
       toast.error("Không thể cập nhật đơn dịch vụ");
@@ -107,6 +136,11 @@ export default function AdminServiceOrders() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["serviceOrders"] });
       toast.success("Xóa đơn dịch vụ thành công");
+      addNotification(
+        `Đơn dịch vụ ${deletingOrder?.service_order_id} của khách hàng ${
+          deletingOrder?.client?.username || "Chưa có thông tin"
+        } đã được xóa.`
+      );
       setShowDeleteModal(false);
       setDeletingOrder(null);
     },
@@ -129,23 +163,28 @@ export default function AdminServiceOrders() {
         extra_cost: 0,
         calculated_price: data.service.base_price,
         total_price: data.service.base_price,
-        paid: Math.floor(data.service.base_price * 0.5), // 50% of base price
-        remaining: Math.floor(data.service.base_price * 0.5), // 50% remaining
+        paid: Math.ceil(data.service.base_price * 0.5),
+        remaining:
+          data.service.base_price - Math.ceil(data.service.base_price * 0.5),
       }),
-    onSuccess: async () => {
-      await queryClient.refetchQueries({ queryKey: ["serviceOrders"] });
-      if (selectedOrder) {
-        const updatedOrder = await getServiceOrderById(
-          selectedOrder.service_order_id
-        );
-        setSelectedOrder(updatedOrder[0]);
-      }
+    onSuccess: async (response) => {
+      await queryClient.invalidateQueries({ queryKey: ["serviceOrders"] });
+      await queryClient.invalidateQueries({
+        queryKey: ["serviceOrderDetails", selectedOrder?.service_order_id],
+      });
       toast.success("Thêm dịch vụ thành công");
+      addNotification(
+        `Dịch vụ ${response.service?.name} đã được thêm vào đơn hàng ${
+          selectedOrder?.service_order_id
+        }. Giá: ${Number(response.total_price).toLocaleString(
+          "vi-VN"
+        )}đ, Đặt cọc: ${Number(response.paid).toLocaleString("vi-VN")}đ.`
+      );
       setShowAddServiceModal(false);
     },
     onError: (error) => {
       toast.error("Không thể thêm dịch vụ");
-      console.error("Lỗi thêm dịch vụ:", error);
+      console.error("Lỗi thêm dịch vụ:", error.toString());
     },
   });
 
@@ -158,14 +197,14 @@ export default function AdminServiceOrders() {
       service_id: string;
     }) => deleteServiceOrderDetail({ service_order_id, service_id }),
     onSuccess: async () => {
-      await queryClient.refetchQueries({ queryKey: ["serviceOrders"] });
-      if (selectedOrder) {
-        const updatedOrder = await getServiceOrderById(
-          selectedOrder.service_order_id
-        );
-        setSelectedOrder(updatedOrder[0]);
-      }
+      await queryClient.invalidateQueries({ queryKey: ["serviceOrders"] });
+      await queryClient.invalidateQueries({
+        queryKey: ["serviceOrderDetails", selectedOrder?.service_order_id],
+      });
       toast.success("Xóa chi tiết đơn hàng thành công");
+      addNotification(
+        `Dịch vụ ${deletingDetail?.service?.name} đã được xóa khỏi đơn hàng ${selectedOrder?.service_order_id}.`
+      );
       setDeletingDetail(null);
     },
     onError: (error) => {
@@ -181,6 +220,7 @@ export default function AdminServiceOrders() {
       total_price: number;
       paid: number;
       status?: string;
+      extra_cost?: number;
     }) => {
       return updateServiceOrderDetail(
         {
@@ -190,18 +230,27 @@ export default function AdminServiceOrders() {
         {
           paid: data.paid,
           status: data.status,
+          extra_cost: data.extra_cost,
         }
       );
     },
-    onSuccess: async () => {
-      await queryClient.refetchQueries({ queryKey: ["serviceOrders"] });
-      if (selectedOrder) {
-        const updatedOrder = await getServiceOrderById(
-          selectedOrder.service_order_id
-        );
-        setSelectedOrder(updatedOrder[0]);
-      }
+    onSuccess: async (response) => {
+      await queryClient.invalidateQueries({ queryKey: ["serviceOrders"] });
+      await queryClient.invalidateQueries({
+        queryKey: ["serviceOrderDetails", selectedOrder?.service_order_id],
+      });
       toast.success("Cập nhật chi tiết đơn hàng thành công");
+      addNotification(
+        `Chi tiết dịch vụ ${response.service?.name} trong đơn hàng ${
+          selectedOrder?.service_order_id
+        } đã được cập nhật. Tổng tiền: ${Number(
+          response.total_price
+        ).toLocaleString("vi-VN")}đ, Đã thanh toán: ${Number(
+          response.paid
+        ).toLocaleString("vi-VN")}đ, Trạng thái: ${
+          response.status === "DELIVERED" ? "Đã giao" : "Đang xử lý"
+        }.`
+      );
       setEditingDetail(null);
     },
     onError: (error) => {
@@ -225,7 +274,14 @@ export default function AdminServiceOrders() {
     if (statusFilter === "paid") matchesStatus = order.total_remaining === 0;
     if (statusFilter === "unpaid") matchesStatus = order.total_remaining > 0;
 
-    return matchesSearch && matchesStatus;
+    let matchesDate = true;
+    if (dateFilter) {
+      const orderDate = new Date(order.created_at);
+      const filterDate = new Date(dateFilter);
+      matchesDate = orderDate.toDateString() === filterDate.toDateString();
+    }
+
+    return matchesSearch && matchesStatus && matchesDate;
   });
 
   const getDeliveryStatus = (status: string) => {
@@ -322,8 +378,82 @@ export default function AdminServiceOrders() {
     }
   };
 
-  if (isLoading) {
-    return <div>Đang tải...</div>;
+  if (isLoadingOrders) {
+    return (
+      <div className="space-y-6">
+        {/* Page Header Skeleton */}
+        <div className="flex items-center justify-between">
+          <div className="flex-shrink-0">
+            <div className="h-8 w-48 bg-gray-200 rounded animate-pulse"></div>
+            <div className="h-4 w-64 bg-gray-200 rounded mt-2 animate-pulse"></div>
+          </div>
+          <div className="h-10 w-40 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+
+        {/* Search and Filters Skeleton */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
+            <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
+            <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
+            <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+        </div>
+
+        {/* Orders List Skeleton */}
+        <div className="grid grid-cols-1 gap-6">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div
+              key={index}
+              className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 animate-pulse"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
+                  <div>
+                    <div className="h-5 w-32 bg-gray-200 rounded mb-2"></div>
+                    <div className="flex items-center space-x-4">
+                      <div className="h-4 w-24 bg-gray-200 rounded"></div>
+                      <div className="h-4 w-24 bg-gray-200 rounded"></div>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="h-6 w-20 bg-gray-200 rounded"></div>
+                  <div className="h-6 w-20 bg-gray-200 rounded"></div>
+                  <div className="h-8 w-8 bg-gray-200 rounded"></div>
+                  <div className="h-8 w-8 bg-gray-200 rounded"></div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                  <div className="h-4 w-16 bg-gray-200 rounded"></div>
+                  <div className="h-4 w-12 bg-gray-200 rounded"></div>
+                </div>
+                <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                  <div className="h-4 w-16 bg-gray-200 rounded"></div>
+                  <div className="h-4 w-24 bg-gray-200 rounded"></div>
+                </div>
+                <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                  <div className="h-4 w-24 bg-gray-200 rounded"></div>
+                  <div className="h-4 w-24 bg-gray-200 rounded"></div>
+                </div>
+                <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                  <div className="h-4 w-16 bg-gray-200 rounded"></div>
+                  <div className="h-4 w-24 bg-gray-200 rounded"></div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Pagination Skeleton */}
+        <div className="mt-6 flex justify-center">
+          <div className="h-8 w-64 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -338,16 +468,17 @@ export default function AdminServiceOrders() {
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="flex-shrink-0 flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+          className="flex-shrink-0 flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={createMutation.isPending}
         >
           <Plus className="h-4 w-4 mr-2" />
-          Tạo Đơn Dịch Vụ
+          {createMutation.isPending ? "Đang tạo..." : "Tạo đơn dịch vụ"}
         </button>
       </div>
 
       {/* Search and Filters */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <input
@@ -373,6 +504,8 @@ export default function AdminServiceOrders() {
 
           <input
             type="date"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
@@ -430,13 +563,13 @@ export default function AdminServiceOrders() {
                     </span>
                     <button
                       onClick={() => setSelectedOrder(order)}
-                      className="text-blue-600 hover:text-blue-900 p-2 rounded hover:bg-blue-50 transition-colors duration-150"
+                      className="text-blue-600 hover:text-blue-900 p-2 rounded hover:bg-blue-50 transition-colors duration-150 hover:cursor-pointer"
                     >
                       <Eye className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => handleDelete(order)}
-                      className="text-red-600 hover:text-red-900 p-2 rounded hover:bg-red-50 transition-colors duration-150"
+                      className="text-red-600 hover:text-red-900 p-2 rounded hover:bg-red-50 transition-colors duration-150 hover:cursor-pointer"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -535,10 +668,13 @@ export default function AdminServiceOrders() {
                     </h3>
                     <button
                       onClick={() => setShowAddServiceModal(true)}
-                      className="flex items-center px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                      disabled={addServiceDetailMutation.isPending}
+                      className="flex items-center px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Plus className="h-4 w-4 mr-1" />
-                      Thêm dịch vụ
+                      {addServiceDetailMutation.isPending
+                        ? "Đang thêm..."
+                        : "Thêm dịch vụ"}
                     </button>
                   </div>
 
@@ -573,93 +709,129 @@ export default function AdminServiceOrders() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200">
-                        {selectedOrder.service_order_details.map((detail) => (
-                          <tr
-                            key={`${detail.service_order_id}-${detail.service_id}`}
-                          >
-                            <td className="px-4 py-3 text-sm text-gray-900">
-                              {detail.service?.name}
+                        {isLoadingDetails ? (
+                          <tr className="animate-pulse">
+                            <td className="px-4 py-3">
+                              <div className="h-4 bg-gray-200 rounded w-32"></div>
                             </td>
-                            <td className="px-4 py-3 text-sm text-gray-900">
-                              {Number(
-                                detail.service?.base_price || 0
-                              ).toLocaleString("vi-VN")}
-                              đ
+                            <td className="px-4 py-3">
+                              <div className="h-4 bg-gray-200 rounded w-24"></div>
                             </td>
-                            <td className="px-4 py-3 text-sm text-gray-900">
-                              {Number(detail.extra_price || 0).toLocaleString(
-                                "vi-VN"
-                              )}
-                              đ
+                            <td className="px-4 py-3">
+                              <div className="h-4 bg-gray-200 rounded w-24"></div>
                             </td>
-                            <td className="px-4 py-3 text-sm font-medium text-gray-900">
-                              {Number(detail.total_price || 0).toLocaleString(
-                                "vi-VN"
-                              )}
-                              đ
+                            <td className="px-4 py-3">
+                              <div className="h-4 bg-gray-200 rounded w-24"></div>
                             </td>
-                            <td className="px-4 py-3 text-sm text-emerald-600">
-                              {Number(detail.paid || 0).toLocaleString("vi-VN")}
-                              đ
+                            <td className="px-4 py-3">
+                              <div className="h-4 bg-gray-200 rounded w-24"></div>
                             </td>
-                            <td className="px-4 py-3 text-sm text-red-600">
-                              {Number(detail.remaining || 0).toLocaleString(
-                                "vi-VN"
-                              )}
-                              đ
+                            <td className="px-4 py-3">
+                              <div className="h-4 bg-gray-200 rounded w-24"></div>
                             </td>
-                            <td className="px-4 py-3 text-sm">
-                              <span
-                                className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                  detail.status === "DELIVERED"
-                                    ? "bg-green-100 text-green-800"
-                                    : "bg-yellow-100 text-yellow-800"
-                                }`}
-                              >
-                                {detail.status === "DELIVERED"
-                                  ? "Đã giao"
-                                  : "Đang xử lý"}
-                              </span>
+                            <td className="px-4 py-3">
+                              <div className="h-6 bg-gray-200 rounded w-20"></div>
                             </td>
-                            <td className="px-4 py-3 text-sm">
+                            <td className="px-4 py-3">
                               <div className="flex items-center space-x-2">
-                                <button
-                                  onClick={() => handleEditDetail(detail)}
-                                  disabled={updateDetailMutation.isPending}
-                                  className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors duration-150 disabled:opacity-50"
-                                >
-                                  <Edit2 className="h-4 w-4" />
-                                </button>
-                                <button
-                                  onClick={() => handleDeleteDetail(detail)}
-                                  disabled={deleteDetailMutation.isPending}
-                                  className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150 disabled:opacity-50"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </button>
-                                <select
-                                  value={detail.status}
-                                  disabled={updateDetailMutation.isPending}
-                                  onChange={(e) => {
-                                    updateDetailMutation.mutate({
-                                      service_order_id: detail.service_order_id,
-                                      service_id: detail.service_id,
-                                      total_price: detail.total_price,
-                                      paid: detail.paid,
-                                      status: e.target.value,
-                                    });
-                                  }}
-                                  className="text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
-                                >
-                                  <option value="NOT_DELIVERED">
-                                    Đang xử lý
-                                  </option>
-                                  <option value="DELIVERED">Đã giao</option>
-                                </select>
+                                <div className="h-8 w-8 bg-gray-200 rounded"></div>
+                                <div className="h-8 w-8 bg-gray-200 rounded"></div>
+                                <div className="h-8 w-24 bg-gray-200 rounded"></div>
                               </div>
                             </td>
                           </tr>
-                        ))}
+                        ) : (
+                          orderDetails.map((detail) => (
+                            <tr
+                              key={`${detail.service_order_id}-${detail.service_id}`}
+                            >
+                              <td className="px-4 py-3 text-sm text-gray-900">
+                                {detail.service?.name}
+                              </td>
+                              <td className="px-4 py-3 text-sm text-gray-900">
+                                {Number(
+                                  detail.service?.base_price || 0
+                                ).toLocaleString("vi-VN")}
+                                đ
+                              </td>
+                              <td className="px-4 py-3 text-sm text-gray-900">
+                                {Number(detail.extra_cost || 0).toLocaleString(
+                                  "vi-VN"
+                                )}
+                                đ
+                              </td>
+                              <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                                {Number(detail.total_price || 0).toLocaleString(
+                                  "vi-VN"
+                                )}
+                                đ
+                              </td>
+                              <td className="px-4 py-3 text-sm text-emerald-600">
+                                {Number(detail.paid || 0).toLocaleString(
+                                  "vi-VN"
+                                )}
+                                đ
+                              </td>
+                              <td className="px-4 py-3 text-sm text-red-600">
+                                {Number(detail.remaining || 0).toLocaleString(
+                                  "vi-VN"
+                                )}
+                                đ
+                              </td>
+                              <td className="px-4 py-3 text-sm">
+                                <span
+                                  className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                    detail.status === "DELIVERED"
+                                      ? "bg-green-100 text-green-800"
+                                      : "bg-yellow-100 text-yellow-800"
+                                  }`}
+                                >
+                                  {detail.status === "DELIVERED"
+                                    ? "Đã giao"
+                                    : "Đang xử lý"}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3 text-sm">
+                                <div className="flex items-center space-x-2">
+                                  <button
+                                    onClick={() => handleEditDetail(detail)}
+                                    disabled={updateDetailMutation.isPending}
+                                    className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors duration-150 disabled:opacity-50 hover:cursor-pointer"
+                                  >
+                                    <Edit2 className="h-4 w-4" />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteDetail(detail)}
+                                    disabled={deleteDetailMutation.isPending}
+                                    className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150 disabled:opacity-50 hover:cursor-pointer"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </button>
+                                  <select
+                                    value={detail.status}
+                                    disabled={updateDetailMutation.isPending}
+                                    onChange={(e) => {
+                                      updateDetailMutation.mutate({
+                                        service_order_id:
+                                          detail.service_order_id,
+                                        service_id: detail.service_id,
+                                        total_price: detail.total_price,
+                                        paid: detail.paid,
+                                        status: e.target.value,
+                                      });
+                                    }}
+                                    className="text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+                                  >
+                                    <option value="NOT_DELIVERED">
+                                      Đang xử lý
+                                    </option>
+                                    <option value="DELIVERED">Đã giao</option>
+                                  </select>
+                                </div>
+                              </td>
+                            </tr>
+                          ))
+                        )}
                       </tbody>
                     </table>
                   </div>
@@ -790,13 +962,13 @@ export default function AdminServiceOrders() {
                   <button
                     type="button"
                     onClick={() => setShowPaymentModal(false)}
-                    className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                    className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 hover:cursor-pointer"
                   >
                     Hủy
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors duration-200"
+                    className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors duration-200 hover:cursor-pointer"
                   >
                     Ghi nhận thanh toán
                   </button>
@@ -854,14 +1026,14 @@ export default function AdminServiceOrders() {
                   <button
                     type="button"
                     onClick={() => setShowCreateModal(false)}
-                    className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                    className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 hover:cursor-pointer"
                   >
                     Hủy
                   </button>
                   <button
                     type="submit"
                     disabled={createMutation.isPending}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 hover:cursor-pointer"
                   >
                     {createMutation.isPending
                       ? "Đang tạo..."
@@ -894,14 +1066,14 @@ export default function AdminServiceOrders() {
                     setShowDeleteModal(false);
                     setDeletingOrder(null);
                   }}
-                  className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                  className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 hover:cursor-pointer"
                 >
                   Hủy
                 </button>
                 <button
                   onClick={confirmDelete}
                   disabled={deleteMutation.isPending}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:bg-gray-400"
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:bg-gray-400 hover:cursor-pointer"
                 >
                   {deleteMutation.isPending ? "Đang xóa..." : "Xóa"}
                 </button>
@@ -924,10 +1096,12 @@ export default function AdminServiceOrders() {
                 onSubmit={(e) => {
                   e.preventDefault();
                   const formData = new FormData(e.currentTarget);
-                  const total_price = parseFloat(
-                    formData.get("total_price") as string
+                  const extra_cost = parseFloat(
+                    formData.get("extra_cost") as string
                   );
                   const paid = parseFloat(formData.get("paid") as string);
+                  const total_price =
+                    editingDetail.calculated_price + extra_cost;
 
                   if (paid > total_price) {
                     toast.error(
@@ -940,6 +1114,7 @@ export default function AdminServiceOrders() {
                     service_order_id: editingDetail.service_order_id,
                     service_id: editingDetail.service_id,
                     total_price,
+                    extra_cost,
                     paid,
                   });
                 }}
@@ -947,12 +1122,12 @@ export default function AdminServiceOrders() {
               >
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Thành tiền
+                    Chi phí phát sinh
                   </label>
                   <input
                     type="number"
-                    name="total_price"
-                    defaultValue={editingDetail.total_price}
+                    name="extra_cost"
+                    defaultValue={editingDetail.extra_cost || 0}
                     min="0"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
@@ -977,14 +1152,14 @@ export default function AdminServiceOrders() {
                   <button
                     type="button"
                     onClick={() => setEditingDetail(null)}
-                    className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                    className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 hover:cursor-pointer"
                   >
                     Hủy
                   </button>
                   <button
                     type="submit"
                     disabled={updateDetailMutation.isPending}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:cursor-pointer"
                   >
                     {updateDetailMutation.isPending
                       ? "Đang cập nhật..."
@@ -1036,15 +1211,18 @@ export default function AdminServiceOrders() {
                   <button
                     type="button"
                     onClick={() => setShowAddServiceModal(false)}
-                    className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                    className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 hover:cursor-pointer"
                   >
                     Hủy
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={addServiceDetailMutation.isPending}
                   >
-                    Thêm
+                    {addServiceDetailMutation.isPending
+                      ? "Đang thêm..."
+                      : "Thêm"}
                   </button>
                 </div>
               </form>
@@ -1070,14 +1248,14 @@ export default function AdminServiceOrders() {
               <div className="flex justify-end space-x-3">
                 <button
                   onClick={() => setDeletingDetail(null)}
-                  className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                  className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 hover:cursor-pointer"
                 >
                   Hủy
                 </button>
                 <button
                   onClick={confirmDeleteDetail}
                   disabled={deleteDetailMutation.isPending}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:opacity-50"
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:opacity-50 hover:cursor-pointer"
                 >
                   {deleteDetailMutation.isPending ? "Đang xóa..." : "Xóa"}
                 </button>

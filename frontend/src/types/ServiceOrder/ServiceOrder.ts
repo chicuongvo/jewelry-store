@@ -20,7 +20,7 @@ export type ServiceOrderDetail = {
   service_order_id: string;
   service_id: string;
   quantity: number;
-  extra_price: number;
+  extra_cost: number;
   calculated_price: number;
   total_price: number;
   paid: number;

@@ -32,6 +32,7 @@ export default function AdminServices() {
     null
   );
   const queryClient = useQueryClient();
+  const { addNotification } = useNotification();
 
   const { data: services = [], isLoading } = useQuery({
     queryKey: ["services"],
@@ -40,9 +41,16 @@ export default function AdminServices() {
 
   const createMutation = useMutation({
     mutationFn: (data: ServiceCreate) => createService(data),
-    onSuccess: () => {
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ["services"] });
       toast.success("Tạo dịch vụ thành công");
+      addNotification(
+        `Dịch vụ mới ${response.name} (ID: ${
+          response.service_id
+        }) đã được tạo với giá ${Number(response.base_price).toLocaleString(
+          "vi-VN"
+        )}đ.`
+      );
       setShowModal(false);
     },
     onError: (error) => {
@@ -54,9 +62,16 @@ export default function AdminServices() {
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: ServiceUpdate }) =>
       updateService(id, data),
-    onSuccess: () => {
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ["services"] });
       toast.success("Cập nhật dịch vụ thành công");
+      addNotification(
+        `Dịch vụ ${response.name} (ID: ${
+          response.service_id
+        }) đã được cập nhật. Giá mới: ${Number(
+          response.base_price
+        ).toLocaleString("vi-VN")}đ.`
+      );
       setShowModal(false);
     },
     onError: (error) => {
@@ -117,7 +132,66 @@ export default function AdminServices() {
   };
 
   if (isLoading) {
-    return <div>Đang tải...</div>;
+    return (
+      <div className="space-y-6">
+        {/* Page Header Skeleton */}
+        <div className="flex items-center justify-between">
+          <div className="flex-shrink-0">
+            <div className="h-8 w-48 bg-gray-200 rounded animate-pulse"></div>
+            <div className="h-4 w-64 bg-gray-200 rounded mt-2 animate-pulse"></div>
+          </div>
+          <div className="h-10 w-40 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+
+        {/* Search Skeleton */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="h-10 w-96 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+
+        {/* Services Grid Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div
+              key={index}
+              className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 animate-pulse"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center">
+                  <div className="w-10 h-10 bg-gray-200 rounded-lg"></div>
+                  <div className="ml-3">
+                    <div className="h-5 w-32 bg-gray-200 rounded"></div>
+                    <div className="h-4 w-24 bg-gray-200 rounded mt-2"></div>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="h-8 w-8 bg-gray-200 rounded"></div>
+                  <div className="h-8 w-8 bg-gray-200 rounded"></div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="h-4 w-24 bg-gray-200 rounded"></div>
+                  <div className="h-4 w-32 bg-gray-200 rounded"></div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="h-4 w-24 bg-gray-200 rounded"></div>
+                  <div className="h-4 w-16 bg-gray-200 rounded"></div>
+                </div>
+                <div className="pt-3 border-t border-gray-100">
+                  <div className="h-4 w-32 bg-gray-200 rounded"></div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Pagination Skeleton */}
+        <div className="mt-6 flex justify-center">
+          <div className="h-8 w-64 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -130,7 +204,7 @@ export default function AdminServices() {
         </div>
         <button
           onClick={handleAdd}
-          className="flex-shrink-0 flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+          className="flex-shrink-0 flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 hover:cursor-pointer"
         >
           <Plus className="h-4 w-4 mr-2" />
           Thêm Dịch Vụ
@@ -178,14 +252,14 @@ export default function AdminServices() {
                   <button
                     onClick={() => handleEdit(service)}
                     disabled={updateMutation.isPending}
-                    className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors duration-150 disabled:opacity-50"
+                    className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors duration-150 disabled:opacity-50 hover:cursor-pointer"
                   >
                     <Edit2 className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => handleDelete(service)}
                     disabled={deleteMutation.isPending}
-                    className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150 disabled:opacity-50"
+                    className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150 disabled:opacity-50 hover:cursor-pointer"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -212,7 +286,7 @@ export default function AdminServices() {
                 <div className="pt-3 border-t border-gray-100">
                   <button
                     onClick={() => handleViewOrders(service)}
-                    className="w-full text-sm text-blue-600 hover:text-blue-700 font-medium"
+                    className="w-full text-sm text-blue-600 hover:text-blue-700 font-medium hover:cursor-pointer"
                   >
                     Xem đơn hàng →
                   </button>
@@ -289,7 +363,7 @@ export default function AdminServices() {
                     disabled={
                       createMutation.isPending || updateMutation.isPending
                     }
-                    className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50"
+                    className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50 hover:cursor-pointer"
                   >
                     Hủy
                   </button>
@@ -298,7 +372,7 @@ export default function AdminServices() {
                     disabled={
                       createMutation.isPending || updateMutation.isPending
                     }
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 hover:cursor-pointer"
                   >
                     {createMutation.isPending || updateMutation.isPending
                       ? "Đang xử lý..."
@@ -329,7 +403,7 @@ export default function AdminServices() {
                 </h2>
                 <button
                   onClick={() => setShowOrdersModal(false)}
-                  className="text-gray-400 hover:text-gray-500 disabled:opacity-50"
+                  className="text-gray-400 hover:text-gray-500 disabled:opacity-50 hover:cursor-pointer"
                   disabled={
                     createMutation.isPending || updateMutation.isPending
                   }
@@ -434,17 +508,24 @@ function ConfirmModal({
   const { addNotification } = useNotification();
   const { mutate, isPending } = useMutation({
     mutationFn: deleteService,
-    /**
-     * After successfully deleting the service, invalidate the "services" query, reset `deleting` to an empty object, and
-     * show a notification to the user that the service has been deleted.
-     */
     onSuccess() {
       queryClient.invalidateQueries({
         queryKey: ["services"],
       });
       setDeleting({} as unknown as ServiceResponse);
       toast.success("Xóa dịch vụ thành công");
-      addNotification(`Dịch vụ ${deleting.name} vừa được xóa.`);
+      addNotification(
+        `Dịch vụ ${deleting.name} (ID: ${
+          deleting.service_id
+        }) đã được xóa. Giá cũ: ${Number(deleting.base_price).toLocaleString(
+          "vi-VN"
+        )}đ.`
+      );
+    },
+
+    onError: (error) => {
+      toast.error("Không thể xóa dịch vụ");
+      console.error("Lỗi xóa dịch vụ:", error);
     },
   });
 
@@ -463,14 +544,14 @@ function ConfirmModal({
           <div className="flex justify-end space-x-3 mt-6 pt-4 border-t">
             <button
               onClick={() => setDeleting({} as unknown as ServiceResponse)}
-              className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+              className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 hover:cursor-pointer"
             >
               Hủy
             </button>
             <button
               onClick={handleSubmit}
               disabled={isPending}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:opacity-50"
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:opacity-50 hover:cursor-pointer"
             >
               {isPending ? "Đang xóa..." : "Xóa"}
             </button>
