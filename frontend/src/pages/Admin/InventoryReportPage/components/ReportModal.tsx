@@ -52,7 +52,7 @@ export default function ReportModal({
   });
 
   return (
-    <div className="fixed inset-0 bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-gray-600/50 z-50 flex items-center justify-center p-4">
       {contextHolder}
       <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
         <div className="p-6">
