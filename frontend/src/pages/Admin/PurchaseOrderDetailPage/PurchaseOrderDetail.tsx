@@ -1,8 +1,12 @@
 import { useState } from "react";
 import { Search, Plus, Edit2, Trash2 } from "lucide-react";
 import { useLocation } from "react-router-dom";
-
-import type { PurchaseOrderDetail } from "@/types/PurchaseOrder/purchaseOrder.ts";
+import { toast } from "react-toastify";
+import type {
+  PurchaseOrderDetail,
+  PurchaseOrderDetailUpdateData,
+  PurchaseOrderDetailCreateData,
+} from "@/types/PurchaseOrder/purchaseOrder.ts";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getAllPurchaseOrderDetails,
@@ -22,14 +26,20 @@ export default function PurchaseOrderDetail() {
   );
 
   const location = useLocation();
-  console.log(location.pathname.split("/")[2]);
+  console.log(location);
+  const supplier_name = location.state.message;
+  console.log(location.pathname.split("/")[3]);
 
   const { data: purchaseOrderDetailData } = useQuery({
-    queryKey: ["purchaseOrderDetailData", location.pathname.split("/")[2]],
-    queryFn: () => getAllPurchaseOrderDetails(location.pathname.split("/")[2]),
+    queryKey: ["purchaseOrderDetailData", location.pathname.split("/")[3]],
+    queryFn: () => getAllPurchaseOrderDetails(location.pathname.split("/")[3]),
   });
 
-  console.log(purchaseOrderDetailData);
+  const haveProduct: string[] = [];
+  purchaseOrderDetailData?.map((purchaseOrderDetail) => {
+    haveProduct.push(purchaseOrderDetail.product.product_id);
+  });
+  console.log("haveProduct", haveProduct);
 
   const filteredPurchaseOrderDetail = purchaseOrderDetailData?.filter(
     (purchaseOrderDetail) =>
@@ -61,20 +71,18 @@ export default function PurchaseOrderDetail() {
 
   return (
     <div className="space-y-6 p-6">
-      {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Purchase Order</h1>
-          <p className="text-gray-600">
-            Manage your purchase order detail information and relationships
-          </p>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Đơn nhập hàng của {supplier_name}
+          </h1>
         </div>
         <button
           onClick={() => handleAdd()}
           className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Add Purchase Order Detail
+          Thêm sản phẩm nhập hàng mới
         </button>
       </div>
 
@@ -85,7 +93,7 @@ export default function PurchaseOrderDetail() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <input
               type="text"
-              placeholder="Search purchase order..."
+              placeholder="Tìm kiếm sản phẩm nhập hàng..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -100,7 +108,7 @@ export default function PurchaseOrderDetail() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ID
+                  STT
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Sản phẩm
@@ -112,7 +120,7 @@ export default function PurchaseOrderDetail() {
                   Đơn giá
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Action
+                  Hành động
                 </th>
               </tr>
             </thead>
@@ -165,7 +173,8 @@ export default function PurchaseOrderDetail() {
       </div>
       {showModal && (
         <PurchaseOrderModal
-          purchase_order_id={location.pathname.split("/")[2]}
+          haveProduct={haveProduct}
+          purchase_order_id={location.pathname.split("/")[3]}
           purchaseOrderDetailData={editingPurchaseOrderDetail}
           setShowModal={setShowModal}
         />
@@ -177,11 +186,15 @@ export default function PurchaseOrderDetail() {
   );
 }
 
+import { getAllProducts } from "@/api/product.api";
+
 function PurchaseOrderModal({
+  haveProduct,
   purchase_order_id,
   purchaseOrderDetailData,
   setShowModal,
 }: {
+  haveProduct: string[];
   purchase_order_id: string;
   purchaseOrderDetailData: PurchaseOrderDetail;
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -189,74 +202,106 @@ function PurchaseOrderModal({
   const [purchaseOrderDetail, setPurchaseOrderDetail] = useState({
     purchase_order_id: purchase_order_id,
     product_id: purchaseOrderDetailData.product_id,
-    quantity: purchaseOrderDetailData.quantity,
-  } as PurchaseOrderDetail);
+    quantity: purchaseOrderDetailData.quantity
+      ? purchaseOrderDetailData.quantity
+      : 1,
+  } as PurchaseOrderDetailCreateData);
 
   const queryClient = useQueryClient();
   const { mutate, isPending } = useMutation({
     mutationFn: purchaseOrderDetailData.product_id
-      ? (data: PurchaseOrderDetail) =>
+      ? (data: PurchaseOrderDetailUpdateData) =>
           updatePurchaseOrderDetail(
             purchaseOrderDetailData.purchase_order_id,
             purchaseOrderDetailData.product_id,
             data,
           )
-      : (data: PurchaseOrderDetail) => createPurchaseOrderDetail(data),
+      : (data: PurchaseOrderDetailCreateData) =>
+          createPurchaseOrderDetail(data),
     onSuccess() {
       queryClient.invalidateQueries({
         queryKey: ["purchaseOrderDetailData", purchase_order_id],
       });
       setShowModal(false);
+      purchaseOrderDetailData.product_id
+        ? toast.success("Cập nhập thành công!")
+        : toast.success("Tạo mới thành công!");
     },
+  });
+
+  console.log("haveProduct", haveProduct);
+
+  const { data: productData } = useQuery({
+    queryKey: ["productData"],
+    queryFn: getAllProducts,
   });
 
   const handleSubmit = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
+    console.log(purchaseOrderDetail);
     if (
       !purchaseOrderDetail.purchase_order_id ||
       !purchaseOrderDetail.product_id
-    )
+    ) {
+      toast.error("Vui lòng chọn sản phẩm cần nhập");
       return;
+    }
     mutate(purchaseOrderDetail);
   };
+
+  console.log(productData);
 
   return (
     <div className="fixed inset-0 bg-gray-600/50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            {purchaseOrderDetail
-              ? "Edit Purchase Order"
-              : "Add New Purchase Order"}
+            {purchaseOrderDetail.product_id
+              ? "Chỉnh sửa đơn hàng"
+              : "Thêm đơn hàng"}
           </h2>
 
           <form className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Product_id:
+                Sản phẩm:
               </label>
-              <input
-                disabled={isPending}
-                type="text"
-                defaultValue={purchaseOrderDetail?.product_id || ""}
+              <select
+                className="text-wrap w-[80%]"
+                defaultValue={
+                  purchaseOrderDetailData.product_id
+                    ? purchaseOrderDetail.product_id
+                    : ""
+                }
+                disabled={purchaseOrderDetailData.product_id ? true : false}
                 onChange={(e) =>
                   setPurchaseOrderDetail({
                     ...purchaseOrderDetail,
                     product_id: e.target.value,
                   })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter supplier name"
-              />
+              >
+                <option value=""></option>
+                {productData?.map((product) =>
+                  haveProduct.includes(product.product_id) &&
+                  !purchaseOrderDetailData.product_id ? (
+                    ""
+                  ) : (
+                    <option className="line-clamp-1" value={product.product_id}>
+                      {product.name}
+                    </option>
+                  ),
+                )}
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Quantity:
+                Số lượng:
               </label>
               <input
                 disabled={isPending}
                 type="number"
-                defaultValue={purchaseOrderDetail?.quantity || 0}
+                defaultValue={purchaseOrderDetail?.quantity || 1}
                 onChange={(e) =>
                   setPurchaseOrderDetail({
                     ...purchaseOrderDetail,
@@ -273,7 +318,7 @@ function PurchaseOrderModal({
               onClick={() => setShowModal(false)}
               className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
             >
-              Cancel
+              Hủy
             </button>
             <button
               onClick={handleSubmit}
@@ -281,10 +326,10 @@ function PurchaseOrderModal({
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:bg-gray-600"
             >
               {isPending
-                ? "Updating ..."
+                ? "Đang cập nhập..."
                 : purchaseOrderDetailData.product_id
-                  ? "Update"
-                  : "Create"}{" "}
+                  ? "Cập nhập"
+                  : "Tạo mới"}{" "}
             </button>
           </div>
         </div>
@@ -305,9 +350,10 @@ function ConfirmModal({
     mutationFn: deletePurchaseOrderDetail,
     onSuccess() {
       queryClient.invalidateQueries({
-        queryKey: ["purchaseOrderDetail"],
+        queryKey: ["purchaseOrderDetailData"],
       });
       setDeleting({} as unknown as PurchaseOrderDetail);
+      toast.success("Xóa sản phầm thành công!");
     },
   });
 
@@ -320,8 +366,7 @@ function ConfirmModal({
       <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Bạn chắc chắn muốn xóa Đơn đặt hàng{" "}
-            <b>{deleting.purchase_order_id}</b>?
+            Bạn chắc chắn muốn xóa sản phẩm <b>{deleting.product.name}</b>?
           </h2>
 
           <div className="flex justify-end space-x-3 mt-6 pt-4 border-t">
@@ -329,14 +374,14 @@ function ConfirmModal({
               onClick={() => setDeleting({} as unknown as PurchaseOrderDetail)}
               className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
             >
-              Cancel
+              Hủy
             </button>
             <button
               onClick={handleSubmit}
               disabled={isPending}
               className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:bg-gray-600"
             >
-              {isPending ? "Deleting ..." : "Delete"}
+              {isPending ? "Đang xóa ..." : "Xóa"}
             </button>
           </div>
         </div>

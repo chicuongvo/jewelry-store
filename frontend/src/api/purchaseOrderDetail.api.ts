@@ -6,7 +6,7 @@ import type {
 } from "../types/PurchaseOrder/purchaseOrder";
 
 export const getAllPurchaseOrderDetails = async (
-  id: String,
+  id: string,
 ): Promise<PurchaseOrderDetail[]> => {
   const res = await axiosClient.get(`/purchase-order-details/${id}`);
   return res?.data.data;

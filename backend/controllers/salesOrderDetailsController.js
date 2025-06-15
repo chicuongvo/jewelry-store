@@ -7,11 +7,11 @@ import {
 import { prisma } from "../config/db.js";
 
 export const getAllSalesOrderDetails = async (req, res) => {
-  const sales_order_detail_id = req.params.sales_order_detail_id;
+  const sales_order_id = req.params.sales_order_id;
   try {
     const salesOrderDetails = await prisma.sales_order_details.findMany({
       where: {
-        sales_order_id: sales_order_detail_id,
+        sales_order_id: sales_order_id,
       },
       include: {
         product: true,
