@@ -32,7 +32,7 @@ export default function StatsCards() {
   const statsData: StatsCardProps[] = [
     {
       title: "Tổng số sản phẩm",
-      value: (productsData?.pagination.total ?? 0).toString(),
+      value: (productsData?.length ?? 0).toString(),
       change: "+12%",
       changeType: "positive",
       icon: Package,

@@ -1,11 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { axiosClient, axiosClientFormData } from "../lib/axios";
 
-import type {
-  Product,
-  ProductCreateData,
-  ProductResponse,
-} from "../types/Product/product";
+import type { Product, ProductCreateData } from "../types/Product/product";
 
 export interface GetProductParams {
   name?: string;
@@ -21,9 +17,9 @@ export interface GetProductParams {
 
 export const getAllProducts = async (
   params: GetProductParams = {}
-): Promise<ProductResponse> => {
+): Promise<Product[]> => {
   const res = await axiosClient.get("/products", { params: params });
-  return res?.data;
+  return res?.data.data;
 };
 
 export const getAllProductQueries = async (
