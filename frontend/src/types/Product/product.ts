@@ -34,3 +34,13 @@ export type ProductUpdateData = {
   type?: string;
   unit?: string;
 };
+
+export type ProductResponse = {
+  data: Product[];
+  pagination: {
+    total: number;
+    page: number | null;
+    limit: number | null;
+    totalPages: number;
+  };
+};

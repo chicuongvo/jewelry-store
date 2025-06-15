@@ -46,3 +46,10 @@ export interface UserProfile {
   service_orders: ServiceOrderResponse[];
   carts: Cart;
 }
+
+export interface UserResponse {
+  data: UserProfile[];
+  totalItems: number;
+  totalPages: number;
+  currentPage: number;
+}

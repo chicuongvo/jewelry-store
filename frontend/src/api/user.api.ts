@@ -1,5 +1,10 @@
 import { axiosClient } from "../lib/axios";
-import type { SignInData, SignUpData, UserProfile } from "../types/User/User";
+import type {
+  SignInData,
+  SignUpData,
+  UserProfile,
+  UserResponse,
+} from "../types/User/User";
 
 export interface GetUsersParams {
   page?: number;
@@ -94,7 +99,9 @@ export const resetPassword = async (
   return response.data.message;
 };
 
-export const getAllUsers = async (params: GetUsersParams = {}) => {
+export const getAllUsers = async (
+  params: GetUsersParams = {}
+): Promise<UserResponse> => {
   const res = await axiosClient.get("/auth", { params });
   return res?.data;
 };

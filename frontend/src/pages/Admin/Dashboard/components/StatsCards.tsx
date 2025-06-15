@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useQuery } from "@tanstack/react-query";
 import { Package, Users, ShoppingCart } from "lucide-react";
@@ -7,23 +8,23 @@ import type { StatsCardProps } from "./StatsCard";
 
 import { getAllUsers } from "@/api/user.api";
 import { getAllProducts } from "@/api/product.api";
-import { getAllSalesOrder } from "@/api/sales_order.api";
+import { getAllSalesOrders } from "@/api/sales_order.api";
 import StatsCardSkeleton from "./StatsCardSkeleton";
 
 export default function StatsCards() {
-  const { data: usersData = [], isPending: isUsersLoading } = useQuery({
+  const { data: usersData, isPending: isUsersLoading } = useQuery({
     queryKey: ["getAllUsers"],
-    queryFn: getAllUsers,
+    queryFn: () => getAllUsers(),
   });
 
-  const { data: productsData = [], isPending: isProductsLoading } = useQuery({
+  const { data: productsData, isPending: isProductsLoading } = useQuery({
     queryKey: ["getAllProducts"],
-    queryFn: getAllProducts,
+    queryFn: () => getAllProducts(),
   });
 
-  const { data: ordersData = [], isPending: isOrdersLoading } = useQuery({
+  const { data: ordersData, isPending: isOrdersLoading } = useQuery({
     queryKey: ["getAllSalesOrders"],
-    queryFn: getAllSalesOrder,
+    queryFn: () => getAllSalesOrders(),
   });
 
   const isLoading = isUsersLoading || isProductsLoading || isOrdersLoading;
@@ -31,7 +32,7 @@ export default function StatsCards() {
   const statsData: StatsCardProps[] = [
     {
       title: "Tổng số sản phẩm",
-      value: productsData.length.toString(),
+      value: (productsData?.pagination.total ?? 0).toString(),
       change: "+12%",
       changeType: "positive",
       icon: Package,
@@ -39,7 +40,7 @@ export default function StatsCards() {
     },
     {
       title: "Tổng số người dùng",
-      value: usersData.length.toString(),
+      value: (usersData?.totalItems ?? 0).toString(),
       change: "+8%",
       changeType: "positive",
       icon: Users,
@@ -47,7 +48,7 @@ export default function StatsCards() {
     },
     {
       title: "Tổng số đơn hàng",
-      value: ordersData.length.toString(),
+      value: (ordersData?.pagination.total ?? 0).toString(),
       change: "-4%",
       changeType: "negative",
       icon: ShoppingCart,
