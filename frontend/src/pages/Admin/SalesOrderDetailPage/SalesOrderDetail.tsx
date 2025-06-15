@@ -6,7 +6,6 @@ import { toast } from "react-toastify";
 import type { SalesOrderDetailData } from "@/types/SalesOrder/salesOrder.ts";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  getAllSalesOrderDetail,
   createSalesOrderDetail,
   updateSalesOrderDetail,
   deleteSalesOrderDetail,
@@ -23,17 +22,24 @@ export default function SalesOrderDetail() {
   );
 
   const { sales_order_id } = useParams();
-  const { data: salesOrderDetailData } = useQuery({
-    queryKey: ["salesOrderDetailData", sales_order_id],
-    queryFn: () => getAllSalesOrderDetail(sales_order_id as string),
+  const [page, setPage] = useState(1);
+  const limit = 6;
+  const { data: salesOrderDetailData, isLoading } = useQuery({
+    queryKey: ["salesOrderDetailData", sales_order_id, page, limit],
+    queryFn: () =>
+      getSalesOrderDetail({
+        sales_order_id: sales_order_id as string,
+        page,
+        limit,
+      }),
   });
 
   const haveProduct: string[] = [];
-  salesOrderDetailData?.map((salesOrder) => {
+  salesOrderDetailData?.data.map((salesOrder) => {
     haveProduct.push(salesOrder.product_id);
   });
 
-  const filteredSalesOrderDetail = salesOrderDetailData?.filter(
+  const filteredSalesOrderDetail = salesOrderDetailData?.data.filter(
     (salesOrderDetail) =>
       salesOrderDetail.quantity
         .toString()
@@ -97,71 +103,100 @@ export default function SalesOrderDetail() {
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-gray-200 text-center">
+            <thead className="bg-gray-50 text-center">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   STT
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Sản phẩm
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Số lượng
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Đơn giá
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Hành động
                 </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredSalesOrderDetail?.map((salesOrderDetail) => (
-                <tr className="hover:bg-gray-50 transition-colors duration-150">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {filteredSalesOrderDetail.indexOf(salesOrderDetail) + 1}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {salesOrderDetail?.product?.name}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {salesOrderDetail.quantity}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {salesOrderDetail.total_price}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => handleEdit(salesOrderDetail)}
-                        className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors duration-150"
-                      >
-                        <Edit2 className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(salesOrderDetail)}
-                        className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {isLoading
+                ? Array.from({ length: 5 }).map((_, i) => (
+                    <tr
+                      key={i}
+                      className="animate-pulse hover:bg-gray-50 transition-colors duration-150 text-center"
+                    >
+                      {[...Array(5)].map((_, colIdx) => (
+                        <td
+                          key={colIdx}
+                          className="px-6 py-4 whitespace-nowrap"
+                        >
+                          <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto" />
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                : filteredSalesOrderDetail?.map((salesOrderDetail) => (
+                    <tr className="hover:bg-gray-50 transition-colors duration-150">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">
+                          {filteredSalesOrderDetail.indexOf(salesOrderDetail) +
+                            1}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">
+                          {salesOrderDetail?.product?.name}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">
+                          {salesOrderDetail.quantity}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900 text-center">
+                          {Number(
+                            salesOrderDetail.total_price
+                          ).toLocaleString()}
+                          ₫
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex flex-row items-center justify-center">
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => handleEdit(salesOrderDetail)}
+                            className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors duration-150"
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(salesOrderDetail)}
+                            className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
             </tbody>
           </table>
         </div>
       </div>
+      <Pagination
+        align="center"
+        total={salesOrderDetailData?.pagination.totalItems}
+        onChange={(current) => {
+          setPage(current);
+        }}
+        current={page}
+        pageSize={6}
+      />
       {showModal && (
         <PurchaseOrderModal
           sales_order_id={location.pathname.split("/")[3]}
@@ -177,6 +212,8 @@ export default function SalesOrderDetail() {
 }
 
 import { getAllProducts } from "@/api/product.api";
+import { getSalesOrderDetail } from "@/api/sales_order.api";
+import { Pagination } from "antd";
 
 function PurchaseOrderModal({
   sales_order_id,

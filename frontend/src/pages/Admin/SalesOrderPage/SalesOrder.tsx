@@ -15,15 +15,19 @@ import {
 } from "@/api/sales_order.api";
 import { getAllUsers } from "@/api/user.api";
 import type { UserProfile } from "@/types/User/User";
+import { Pagination } from "antd";
+import SkeletonRow from "@/components/Admin/SkeletonRow";
 
 export default function SalesOrder() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [deleting, setDeleting] = useState<SalesOrderRes>({} as SalesOrderRes);
+  const limit = 6;
+  const [page, setPage] = useState(1);
 
-  const { data: salesOrderData } = useQuery({
-    queryKey: ["salesOrder"],
-    queryFn: () => getAllSalesOrders(),
+  const { isLoading, data: salesOrderData } = useQuery({
+    queryKey: ["salesOrder", limit, page],
+    queryFn: () => getAllSalesOrders({ limit: limit, page: page }),
   });
 
   const navigate = useNavigate();
@@ -59,7 +63,6 @@ export default function SalesOrder() {
           Tạo đơn bán hàng
         </button>
       </div>
-
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
@@ -74,7 +77,6 @@ export default function SalesOrder() {
           </div>
         </div>
       </div>
-
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
@@ -97,59 +99,82 @@ export default function SalesOrder() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {(filteredSalesOrder ?? []).map((salesOrder) => (
-                <tr
-                  key={salesOrder.sales_order_id}
-                  onClick={() =>
-                    routeChange(
-                      salesOrder.sales_order_id,
-                      salesOrder.client.username
-                    )
-                  }
-                  className="hover:bg-gray-50 transition-colors duration-150 text-center cursor-pointer"
-                >
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {salesOrder.sales_order_id}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {salesOrder.client.username}{" "}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {salesOrder.client.phone_number}{" "}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {new Intl.DateTimeFormat("vi-VN", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                      }).format(new Date(salesOrder.created_at))}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setDeleting(salesOrder);
-                      }}
-                      className="text-red-600 hover:text-red-900 p-1 cursor-pointer rounded hover:bg-red-50 transition-colors duration-150"
-                    >
-                      <Trash2 className="h-4 w-4 " />
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {isLoading ? (
+                <>
+                  <SkeletonRow />
+                  <SkeletonRow />
+                  <SkeletonRow />
+                  <SkeletonRow />
+                  <SkeletonRow />
+                  <SkeletonRow />
+                </>
+              ) : (
+                (filteredSalesOrder ?? []).map((salesOrder: SalesOrderRes) => (
+                  <tr
+                    key={salesOrder.sales_order_id}
+                    onClick={() =>
+                      routeChange(
+                        salesOrder.sales_order_id,
+                        salesOrder.client.username
+                      )
+                    }
+                    className="hover:bg-gray-50 transition-colors duration-150 text-center cursor-pointer text-center"
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm font-medium text-gray-900">
+                        {salesOrder.sales_order_id}
+                      </span>
+                    </td>
+
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm font-medium text-gray-900">
+                        {salesOrder.client.username}
+                      </span>
+                    </td>
+
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm font-medium text-gray-900">
+                        {salesOrder.client.phone_number}
+                      </span>
+                    </td>
+
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm font-medium text-gray-900">
+                        {new Intl.DateTimeFormat("vi-VN", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        }).format(new Date(salesOrder.created_at))}
+                      </span>
+                    </td>
+
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeleting(salesOrder);
+                        }}
+                        className="text-red-600 hover:text-red-900 p-1 cursor-pointer rounded hover:bg-red-50 transition-colors duration-150"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
-      </div>
-
+      </div>{" "}
+      <Pagination
+        align="center"
+        total={salesOrderData?.pagination.total}
+        onChange={(current) => {
+          setPage(current);
+        }}
+        current={page}
+        pageSize={6}
+      />
       {showModal && <PurchaseOrderModal setShowModal={setShowModal} />}
       {deleting.sales_order_id && (
         <ConfirmModal deleting={deleting} setDeleting={setDeleting} />

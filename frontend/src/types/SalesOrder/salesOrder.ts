@@ -45,3 +45,13 @@ export type SalesOrderResponse = {
     totalPages: number;
   };
 };
+
+export type SalesOrderDetailResponse = {
+  data: SalesOrderDetailData[];
+  pagination: {
+    page: number;
+    limit: number;
+    totalItems: number;
+    totalPages: number;
+  };
+};

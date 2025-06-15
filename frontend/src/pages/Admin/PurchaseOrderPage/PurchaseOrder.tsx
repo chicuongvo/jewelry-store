@@ -125,6 +125,9 @@ export default function PurchaseOrder() {
                   <SkeletonRow />
                   <SkeletonRow />
                   <SkeletonRow />
+                  <SkeletonRow />
+                  <SkeletonRow />
+                  <SkeletonRow />
                 </>
               ) : (
                 filteredPurchaseOrder?.map((purchaseOrder) => (
@@ -206,7 +209,7 @@ export default function PurchaseOrder() {
 }
 
 import { getAllSuppliers } from "@/api/supplier.api";
-import SkeletonRow from "./components/SkeletonRow";
+import SkeletonRow from "../../../components/Admin/SkeletonRow";
 import { Pagination } from "antd";
 
 function PurchaseOrderModal({
