@@ -19,9 +19,6 @@ export const getAllPurchaseOrderDetails = async (req, res) => {
       include: {
         product: true,
       },
-      orderBy: {
-        created_at: "desc",
-      },
     });
 
     return res.status(200).json({
