@@ -41,7 +41,7 @@ export default function ProductDetails({
   }
 
   return (
-    <div className="font-primary flex flex-col md:flex-row px-4 md:px-30 gap-20 ">
+    <div className="font-primary flex flex-col md:flex-row gap-20 ">
       <div className="md:w-1/2 h-[300px] md:h-[500px] overflow-hidden bg-zinc-100">
         <img
           src={product?.image}

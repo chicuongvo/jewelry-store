@@ -26,10 +26,10 @@ export default function ProductDetailsPage() {
       }),
   });
   return (
-    <div className="flex flex-col gap-20 py-10">
+    <div className="flex flex-col gap-20 pb-10  px-4 md:px-30">
       <ToastContainer />
       <ProductDetails product={product} isLoading={isLoading} />
-      <div className="w-full">
+      <div className="w-full ">
         <RelatedProducts
           product={product}
           relatedProducts={relatedProducts}
