@@ -43,12 +43,12 @@ export const createServiceOrderDetails = async (req, res) => {
   const { service_order_id, service_id, quantity, total_price } = req.body;
   // const { service_order_id, service_id } = req.body;
   try {
-    // await createServiceOrderDetailsValidator.validateAsync({
-    //   ...req.body,
-    //   ...req.params,
-    // });
-    // console.log(service_order_id, service_id);
-
+    await createServiceOrderDetailsValidator.validateAsync({
+      ...req.body,
+      ...req.params,
+    });
+    console.log(service_order_id, service_id);
+    console.log(req.body, req.params, "REQ BODY AND PARAMS");
     const existingServiceOrderDetail =
       await prisma.service_order_details.findMany({
         where: {
@@ -66,7 +66,11 @@ export const createServiceOrderDetails = async (req, res) => {
     }
     const newServiceOrderDetail = await prisma.service_order_details.create({
       data: req.body,
+      include: {
+        service: true,
+      },
     });
+
     return res.status(201).json({
       success: true,
       message: "Service order detail created successfully",
@@ -88,6 +92,7 @@ export const updateServiceOrderDetails = async (req, res) => {
     //   ...req.body,
     //   ...req.params,
     // });
+    console.log(req.body, req.params, "@@");
     const updatedServiceOrderDetail = await prisma.service_order_details.update(
       {
         where: {
@@ -96,10 +101,14 @@ export const updateServiceOrderDetails = async (req, res) => {
             service_id,
           },
         },
+
         data: req.body,
+        include: {
+          service: true,
+        },
       }
     );
-    console.log(req.body, req.params, "@@");
+
     return res.status(200).json({
       success: true,
       message: "Service order detail updated successfully",
@@ -122,14 +131,53 @@ export const deleteServiceOrderDetails = async (req, res) => {
     await deleteServiceOrderDetailsValidator.validateAsync(req.params);
     await prisma.service_order_details.delete({
       where: {
-        service_id,
-        service_order_id,
+        service_order_id_service_id: {
+          service_order_id,
+          service_id,
+        },
       },
     });
+    return res.status(200).json({
+      success: true,
+      message: "Service order detail deleted successfully",
+    });
   } catch (error) {
+    console.log(error.toString());
     return res.status(500).json({
       success: false,
       error: error.toString(),
+    });
+  }
+};
+
+// ... existing code ...
+export const getAllServiceOrderDetails = async (req, res) => {
+  const { service_order_id } = req.params;
+  try {
+    const serviceOrderDetails = await prisma.service_order_details.findMany({
+      where: {
+        service_order_id,
+      },
+      include: {
+        service: true,
+        service_order: {
+          include: {
+            client: true,
+          },
+        },
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: serviceOrderDetails,
+    });
+  } catch (error) {
+    console.log(error.toString());
+    return res.status(500).json({
+      success: false,
+      error: error.toString(),
+      message: "Internal server error",
     });
   }
 };

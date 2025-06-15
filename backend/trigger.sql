@@ -341,12 +341,12 @@ BEGIN
 
   IF row_count_not_done = 0 THEN
     UPDATE service_orders
-    SET service_orders.status = 'DELIVERED'
-    WHERE service_orders.service_order_id = NEW.service_order_id;
+    SET status = 'DELIVERED'
+    WHERE service_order_id = NEW.service_order_id;
   ELSE
     UPDATE service_orders
-    SET service_orders.status = 'NOT_DELIVERED'
-    WHERE service_orders.service_order_id = NEW.service_order_id;
+    SET status = 'NOT_DELIVERED'
+    WHERE service_order_id = NEW.service_order_id;
   END IF;
 
   RETURN NEW;
@@ -354,7 +354,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER update_status_order_trigger
-BEFORE UPDATE OF status ON service_order_details
+AFTER UPDATE OF status ON service_order_details
 FOR EACH ROW
 EXECUTE FUNCTION update_status_order();
 

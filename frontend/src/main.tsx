@@ -15,7 +15,6 @@ import Dashboard from "./pages/Admin/Dashboard/Dashboard.tsx";
 import Login from "./pages/Admin/LoginPage/Login.tsx";
 import UsersPage from "./pages/Admin/UserPage/User.tsx";
 import PurchaseOrder from "@/pages/Admin/PurchaseOrderPage/PurchaseOrder.tsx";
-import PurchaseOrderDetail from "@/pages/Admin/PurchaseOrderDetailPage/PurchaseOrderDetail.tsx";
 import SalesOrder from "@/pages/Admin/SalesOrderPage/SalesOrder.tsx";
 import SalesOrderDetail from "@/pages/Admin/SalesOrderDetailPage/SalesOrderDetail.tsx";
 import Supplier from "./pages/Admin/SupplierPage/Supplier.tsx";
@@ -32,7 +31,7 @@ import Profile from "./pages/Client/Profile/Profile.tsx";
 import ServiceHistory from "./components/Client/ServiceHistory.tsx";
 import { CartProvider } from "./contexts/cartContext.tsx";
 import Cart from "./pages/Client/CartPage/Cart.tsx";
-
+import PurchaseOrderDetail from "./pages/Admin/PurchaseOrderDetailPage/PurchaseOrderDetail.tsx";
 const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
