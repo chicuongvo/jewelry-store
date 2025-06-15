@@ -78,7 +78,7 @@ export default function PurchaseOrder() {
           className="flex cursor-pointer items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Thêm mới đơn nhập hàng
+          Tạo đơn nhập hàng
         </button>
       </div>
 
@@ -234,9 +234,9 @@ function PurchaseOrderModal({
       });
       setShowModal(false);
       if (purchaseOrderData.supplier_id) {
-        toast.success("Cập nhập thành công!");
+        toast.success("Cập nhật thành công!");
       } else {
-        toast.success("Tạo mới thành công!");
+        toast.success("Tạo đơn nhập hàng thành công!");
       }
     },
   });
@@ -261,9 +261,7 @@ function PurchaseOrderModal({
       <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4 cursor-pointer">
-            {purchaseOrder
-              ? "Thêm mới đơn nhập hàng"
-              : "Chỉnh sửa đơn nhập hàng"}
+            {purchaseOrder ? "Tạo đơn nhập hàng" : "Chỉnh sửa đơn nhập hàng"}
           </h2>
 
           <form className="space-y-4">

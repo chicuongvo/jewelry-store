@@ -6,6 +6,11 @@ export type SalesOrderInput = {
 
 export type SalesOrderData = {
   client_id: string;
+  sales_order_id: string;
+  created_at: string;
+  client: Client;
+  product: Product;
+  sales_order_details: SalesOrderDetailData[];
 };
 
 export type SalesOrderDetailData = {
@@ -29,4 +34,14 @@ export type SalesOrderRes = {
   client: Client;
   product: Product;
   sales_order_details: SalesOrderDetailData[];
+};
+
+export type SalesOrderResponse = {
+  data: SalesOrderData[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 };

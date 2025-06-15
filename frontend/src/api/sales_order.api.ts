@@ -3,11 +3,18 @@ import type {
   SalesOrderInput,
   SalesOrderData,
   SalesOrderRes,
+  SalesOrderResponse,
 } from "../types/SalesOrder/salesOrder";
 
-export const getAllSalesOrder = async (): Promise<SalesOrderRes[]> => {
-  const response = await axiosClient.get("/sales-orders");
-  return response?.data.data;
+export interface GetSalesOrdersParams {
+  page?: number;
+  limit?: number;
+}
+export const getAllSalesOrders = async (
+  params: GetSalesOrdersParams = {}
+): Promise<SalesOrderResponse> => {
+  const res = await axiosClient.get("/sales-orders", { params });
+  return res?.data;
 };
 
 export const getSalesOrder = async (
