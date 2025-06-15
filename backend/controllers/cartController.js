@@ -5,7 +5,21 @@ export const getCartByUserId = async (req, res) => {
   try {
     const cart = await prisma.carts.findUnique({
       where: { user_id },
-      include: { cart_details: { include: { product: true } } },
+      include: {
+        cart_details: {
+          include: {
+            product: {
+              include: {
+                inventory_report_details: true,
+                supplier: true,
+                productType: true,
+                purchase_order_details: true,
+                sales_order_details: true,
+              },
+            },
+          },
+        },
+      },
     });
     return res.status(200).json({
       data: cart,
