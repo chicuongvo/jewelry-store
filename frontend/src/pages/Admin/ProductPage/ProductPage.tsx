@@ -102,7 +102,7 @@ export default function Products() {
         <div className="flex items-center space-x-3">
           <button
             onClick={handleAdd}
-            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-700 transition-colors duration-200"
           >
             <Plus className="h-4 w-4 mr-2" />
             Thêm sản phẩm
@@ -260,7 +260,7 @@ export default function Products() {
         <div className="fixed inset-0 bg-gray-600/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4 cursor-pointer">
                 {editingProduct ? "Chỉnh sửa sản phẩm" : "Tạo sản phẩm"}
               </h2>
 

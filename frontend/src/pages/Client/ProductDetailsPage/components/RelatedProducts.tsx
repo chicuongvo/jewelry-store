@@ -26,7 +26,7 @@ export default function RelatedProducts({
       <div className="text-3xl font-extrabold w-full text-center ">
         SẢN PHẨM CÙNG LOẠI
       </div>
-      <div className="flex flex-row w-full overflow-x-scroll gap-5 px-4 py-5 justify-center items-center">
+      <div className="md:flex md:flex-row flex flex-col w-full overflow-x-scroll gap-5 px-4 py-5 justify-center items-center">
         {isLoading || isFetching ? (
           Array.from({ length: 4 }).map((_, i) => (
             <ProductCardSkeleton key={i} />

@@ -14,7 +14,7 @@ export default function ProductCard({ product }: { product: Product }) {
   }
 
   return (
-    <div className="bg-white font-primary overflow-hidden transition-all group transition-all duration-500 w-[340px]">
+    <div className="bg-white font-primary overflow-hidden transition-all group transition-all duration-500 min-w-[340px] max-w-[340px]">
       <div className="relative">
         <div className="w-full h-70 overflow-hidden bg-zinc-100">
           <img
