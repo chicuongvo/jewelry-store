@@ -49,7 +49,7 @@ export const getAllPurchaseOrders = async (req, res) => {
 };
 
 export const getPurchaseOrder = async (req, res) => {
-  const purchase_order_id = req.params.id;
+  const purchase_order_id = req.params.orderId;
 
   try {
     const purchaseOrder = await prisma.purchase_orders.findUnique({
