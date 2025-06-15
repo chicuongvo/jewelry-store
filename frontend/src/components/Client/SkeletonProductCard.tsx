@@ -1,6 +1,6 @@
 export default function ProductCardSkeleton() {
   return (
-    <div className="bg-white font-primary overflow-hidden animate-pulse">
+    <div className="bg-white font-primary overflow-hidden animate-pulse w-[340px]">
       <div className="relative">
         <div className="w-full h-70 bg-zinc-200 roun" />
         <div className="absolute bottom-4 w-full flex items-center justify-center">

@@ -130,11 +130,11 @@ export default function Products() {
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="">Tất cả nhà cung cấp</option>
-            {getAllSuppliersQuery.data?.map((supplier) => {
+            {/* {getAllSuppliersQuery.data?.map((supplier) => {
               return (
                 <option value={supplier.supplier_id}>{supplier.name}</option>
               );
-            })}
+            })} */}
           </select>
         </div>
       </div>
@@ -309,7 +309,7 @@ export default function Products() {
                     defaultValue={editingProduct?.supplier_id || ""}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    {getAllSuppliersQuery.data?.map((supplier) => (
+                    {getAllSuppliersQuery.data?.map((supplier: any) => (
                       <option
                         key={supplier.supplier_id}
                         value={supplier.supplier_id}

@@ -32,8 +32,9 @@ export default function useProducts(query?: string) {
 
   const getAllSuppliersQuery = useQuery({
     queryKey: ["suppliers"],
-    queryFn: getAllSuppliers,
+    queryFn: () => getAllSuppliers(), // không truyền gì, sẽ lấy page 1, limit 6
   });
+
   const getAllProductTypesQuery = useQuery({
     queryKey: ["productTypes"],
     queryFn: () => {

@@ -1,14 +1,18 @@
-/* eslint-disable no-constant-binary-expression */
-import { useQuery } from "@tanstack/react-query";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useParams } from "react-router";
 import ProductDetailsSkeleton from "./ProductDetailsSkeleton";
-import { getProduct } from "@/api/product.api";
 import { useState } from "react";
 import { Minus, Plus } from "lucide-react";
 import AddToCartButton from "@/components/Client/AddToCartButton";
 import { useCart } from "@/contexts/cartContext";
 
-export default function ProductDetails() {
+export default function ProductDetails({
+  product,
+  isLoading,
+}: {
+  product: any;
+  isLoading: any;
+}) {
   const { id } = useParams();
   const { cartData } = useCart();
 
@@ -16,11 +20,6 @@ export default function ProductDetails() {
     cartData?.cart_details?.find((item) => item.product_id === id)?.quantity ??
     0;
 
-  const { data: product, isLoading } = useQuery({
-    queryKey: ["product", id],
-    queryFn: () => getProduct(id as string),
-    enabled: !!id,
-  });
   const [quantity, setQuantity] = useState(1);
   const increaseQuantity = () => setQuantity((prev) => prev + 1);
   const decreaseQuantity = () => setQuantity((prev) => Math.max(1, prev - 1));
@@ -45,7 +44,7 @@ export default function ProductDetails() {
   }
 
   return (
-    <div className="font-primary flex flex-col md:flex-row px-4 md:px-30 pt-10 gap-20 ">
+    <div className="font-primary flex flex-col md:flex-row px-4 md:px-30 gap-20 ">
       <div className="md:w-1/2 h-[300px] md:h-[500px] overflow-hidden bg-zinc-100">
         <img
           src={product?.image}
