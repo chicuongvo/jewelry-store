@@ -8,34 +8,20 @@ import { prisma } from "../config/db.js";
 
 export const getAllSalesOrderDetails = async (req, res) => {
   const sales_order_id = req.params.sales_order_id;
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
-  const skip = (page - 1) * limit;
-
   try {
-    const [salesOrderDetails, total] = await Promise.all([
-      prisma.sales_order_details.findMany({
-        where: { sales_order_id },
-        skip,
-        take: limit,
-        include: {
-          product: true,
-        },
-      }),
-      prisma.sales_order_details.count({
-        where: { sales_order_id },
-      }),
-    ]);
+    const salesOrderDetails = await prisma.sales_order_details.findMany({
+      where: {
+        sales_order_id: sales_order_id,
+      },
+      include: {
+        product: true,
+      },
+    });
 
     return res.status(200).json({
       success: true,
+      message: "Sales order details retrieved successfully",
       data: salesOrderDetails,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
     });
   } catch (error) {
     return res.status(500).json({
@@ -71,11 +57,43 @@ export const getSalesOrderDetails = async (req, res) => {
     });
   }
 };
+
 export const createSalesOrderDetails = async (req, res) => {
   const { sales_order_id, product_id, quantity, total_price } = req.body;
 
   try {
     await createSalesOrderDetailsValidator.validateAsync(req.body);
+
+    const existingDetail = await prisma.sales_order_details.findUnique({
+      where: {
+        sales_order_id_product_id: {
+          sales_order_id,
+          product_id,
+        },
+      },
+    });
+
+    if (existingDetail) {
+      const updatedDetail = await prisma.sales_order_details.update({
+        where: {
+          sales_order_id_product_id: {
+            sales_order_id,
+            product_id,
+          },
+        },
+        data: {
+          quantity: existingDetail.quantity + quantity,
+          total_price: existingDetail.total_price + total_price,
+        },
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Cập nhật sản phẩm trong đơn hàng thành công",
+        data: updatedDetail,
+      });
+    }
+
     const newSalesOrderDetail = await prisma.sales_order_details.create({
       data: {
         sales_order_id,
@@ -87,7 +105,7 @@ export const createSalesOrderDetails = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: "Sales order detail created successfully",
+      message: "Thêm sản phẩm vào đơn hàng thành công",
       data: newSalesOrderDetail,
     });
   } catch (error) {
