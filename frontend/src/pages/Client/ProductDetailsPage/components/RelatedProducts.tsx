@@ -22,7 +22,7 @@ export default function RelatedProducts({
   };
 
   return (
-    <div>
+    <div className="flex flex-col gap-10">
       <div className="text-3xl font-extrabold w-full text-center ">
         SẢN PHẨM CÙNG LOẠI
       </div>

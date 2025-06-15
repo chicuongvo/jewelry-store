@@ -31,7 +31,7 @@ export default function FeaturedProducts() {
         <Sparkles />
       </div>
 
-      <div className="bg-white flex flex-col gap-10 px-10 md:px-15 py-8 md:grid md:grid-cols-2 lg:grid-cols-4">
+      <div className="bg-white flex flex-col gap-10 px-4  md:px-15 py-8 md:grid md:grid-cols-2 lg:grid-cols-4">
         {isLoading || isFetching
           ? Array.from({ length: 4 }).map((_, i) => (
               <ProductCardSkeleton key={i} />
