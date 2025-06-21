@@ -15,7 +15,7 @@ function ServiceHistory() {
   }
 
   return (
-    <div className="py-6 border max-w-[1000px] mx-auto h-dvh">
+    <div className="py-6 max-w-[1000px] mx-auto min-h-dvh">
       <div className="flex justify-center items-center gap-2 px-6 py-4">
         <HistoryIcon className="w-6 h-6 text-primary" />
         <h2 className="text-2xl uppercase font-bold text-gray-800">
@@ -24,7 +24,7 @@ function ServiceHistory() {
       </div>
       <div className="px-10 mt-6">
         <ul className="space-y-6">
-          {serviceOrders?.map((order) => (
+          {serviceOrders?.map(order => (
             <li key={order.service_order_id}>
               <ServiceHistoryCard
                 createdAt={order.created_at}

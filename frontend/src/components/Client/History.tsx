@@ -8,7 +8,7 @@ function History() {
   const saleOrders = userProfile?.sales_orders;
   if (!saleOrders?.length) return <p>Không có đơn hàng nào</p>;
   return (
-    <div className="py-6 border max-w-[1000px] mx-auto h-dvh">
+    <div className="py-6 max-w-[1000px] mx-auto min-h-dvh">
       <div className="flex justify-center items-center gap-2 px-6 py-4">
         <HistoryIcon className="inline text-primary" />
         <h2 className="uppercase text-2xl font-bold text-center">
