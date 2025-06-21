@@ -34,7 +34,7 @@ export const getAllProducts = async (req, res) => {
     if (category) {
       categoryArray = Array.isArray(category)
         ? category
-        : category.split(",").map((c) => c.trim()); // tách chuỗi thành mảng, trim
+        : category.split(",").map((c) => c.trim());
     }
     console.log("Category Array:", categoryArray);
     if (categoryArray.length > 0) {

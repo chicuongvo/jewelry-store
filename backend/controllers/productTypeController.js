@@ -15,6 +15,7 @@ export const getAllTypes = async (req, res) => {
     }
     const types = await prisma.product_types.findMany({
       include: { products: true },
+      where: { is_deleted: false },
       ...query,
     });
 
@@ -101,12 +102,16 @@ export const deleteType = async (req, res) => {
         .json({ success: false, messages: "Product type not found" });
     }
 
-    await prisma.product_types.delete({ where: { type_id } });
+    await prisma.product_types.update({
+      where: { type_id },
+      data: { is_deleted: true },
+    });
 
     return res
       .status(200)
       .json({ success: true, messages: "Delete product type successfully" });
   } catch (error) {
+    console.log(error);
     return res
       .status(500)
       .json({ success: false, messages: "Internal Server Error" });
