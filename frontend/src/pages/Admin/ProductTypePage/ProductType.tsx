@@ -39,8 +39,6 @@ export default function ProductTypes() {
     deleteProductTypeMutation,
   } = useProductTypes(newSeachParams.toString());
 
-  console.log(getAllProductTypesQuery.data?.length);
-  console.log(getFilteredProductTypesQuery.data?.length);
   const filteredTypes = getFilteredProductTypesQuery.data?.filter((type) =>
     type.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -222,7 +220,6 @@ export default function ProductTypes() {
                   className="w-full text-sm text-blue-600 hover:text-blue-700 font-medium"
                   onClick={() => {
                     setProductModal(true);
-                    console.log(type.name);
                     setProductType(type.name);
                   }}
                 >

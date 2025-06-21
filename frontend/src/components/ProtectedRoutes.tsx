@@ -11,7 +11,6 @@ const ProtectedRoute = ({
   requiredRole?: "ADMIN" | "USER";
 }) => {
   const { userProfile, isLoading } = useUser();
-  console.log("userProfile:", userProfile, "loading", isLoading);
 
   if (!userProfile && !isLoading) return <Navigate to="/auth" replace />;
 

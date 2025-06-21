@@ -247,7 +247,6 @@ export default function Users() {
         total={totalItems || 0}
         pageSize={limit}
         onChange={(current) => {
-          console.log("Current", current);
           setPage(current);
         }}
       />

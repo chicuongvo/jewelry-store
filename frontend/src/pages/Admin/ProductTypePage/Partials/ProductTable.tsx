@@ -19,9 +19,7 @@ export default function ProducTable({
   const searchParams = new URLSearchParams();
 
   searchParams.set("category", productType);
-  console.log(searchParams.toString());
   const { getFilteredProductsQuery } = useProducts(searchParams.toString());
-  console.log(getFilteredProductsQuery.data);
   return (
     <div className="fixed rounded-lg w-[100vw] h-[100vh] bg-gray-900/50 z-60 top-0 left-0 flex items-center justify-center">
       <div className="w-[80vw] h-[80vh] bg-gray-50 overflow-y-auto rounded-xl py-6">

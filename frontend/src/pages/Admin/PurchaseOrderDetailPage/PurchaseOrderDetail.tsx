@@ -285,8 +285,6 @@ function PurchaseOrderModal({
     },
   });
 
-  // console.log("haveProduct", haveProduct);
-
   const { data: productData } = useQuery({
     queryKey: ["productData"],
     queryFn: () => getAllProducts(),
@@ -294,7 +292,6 @@ function PurchaseOrderModal({
 
   const handleSubmit = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
-    console.log(purchaseOrderDetail);
     if (
       !purchaseOrderDetail.purchase_order_id ||
       !purchaseOrderDetail.product_id
@@ -304,8 +301,6 @@ function PurchaseOrderModal({
     }
     mutate(purchaseOrderDetail);
   };
-
-  console.log(productData);
 
   return (
     <div className="fixed inset-0 bg-gray-600/50 z-50 flex items-center justify-center p-4">

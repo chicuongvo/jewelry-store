@@ -18,7 +18,6 @@ export const getServiceOrderById = async (
   return response.data.data;
 };
 export const createServiceOrder = async (serviceOrder: ServiceOrderCreate) => {
-  console.log(serviceOrder);
   const response = await axiosClient.post("/service-orders", serviceOrder);
   return response.data.data;
 };

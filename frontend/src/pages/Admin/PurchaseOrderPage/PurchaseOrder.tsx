@@ -265,7 +265,6 @@ function PurchaseOrderModal({
 
   const handleSubmit = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
-    console.log(purchaseOrder);
     if (!purchaseOrder.supplier_id) {
       toast.error("Vui lòng chọn nhà cung cấp.");
       return;

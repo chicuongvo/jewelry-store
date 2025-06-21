@@ -31,7 +31,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [userChanged, setUserChanged] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  console.log("context: ", userProfile);
 
   useEffect(() => {
     const fetchUserProfile = async () => {

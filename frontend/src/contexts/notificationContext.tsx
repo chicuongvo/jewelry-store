@@ -30,7 +30,6 @@ export const NotificationProvider = ({
       time: new Date().toLocaleString(),
     };
     setNotifications((prev) => [newNotification, ...prev]);
-    console.log(newNotification, " ", notifications);
   };
 
   return (

@@ -85,13 +85,11 @@ export default function AdminServiceOrders() {
     enabled: !!selectedOrder?.service_order_id,
   });
 
-  console.log(users);
   const createMutation = useMutation({
     mutationFn: (data: ServiceOrderCreate) => createServiceOrder(data),
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ["serviceOrders"] });
       toast.success("Tạo đơn dịch vụ thành công");
-      console.log(response);
       addNotification(
         `Đơn dịch vụ mới ${
           response.service_order_id

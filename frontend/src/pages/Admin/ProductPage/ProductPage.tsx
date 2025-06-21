@@ -30,8 +30,6 @@ export default function Products() {
     getFilteredProductsQuery,
   } = useProducts(newSearchParams.toString());
 
-  // console.log("all ", getAllSuppliersQuery);
-
   const filteredProducts = getFilteredProductsQuery.data?.filter((product) => {
     const matchesSearch = product.name
       .toLowerCase()
@@ -53,7 +51,7 @@ export default function Products() {
     const formElement = document.getElementById(
       "product-form"
     ) as HTMLFormElement;
-    console.log("formElement", formElement);
+
     const formData = new FormData(formElement);
     formData.append("unit", "VND");
     try {

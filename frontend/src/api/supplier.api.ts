@@ -12,7 +12,6 @@ export interface GetSupplierParams {
 
 export const getAllSuppliers = async (params: GetSupplierParams = {}) => {
   const res = await axiosClient.get("/suppliers", { params });
-  console.log(res.data);
   return res?.data;
 };
 
