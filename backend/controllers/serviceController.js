@@ -4,6 +4,7 @@ import { prisma } from "../config/db.js";
 export const getAllServices = async (req, res) => {
   try {
     const services = await prisma.services.findMany({
+      where: { is_deleted: false },
       include: {
         service_order_details: {
           include: {
@@ -162,6 +163,7 @@ export const updateService = async (req, res) => {
 // Delete service
 export const deleteService = async (req, res) => {
   const service_id = req.params.id;
+  console.log(service_id);
   try {
     const existingService = await prisma.services.findUnique({
       where: { service_id },
@@ -174,19 +176,24 @@ export const deleteService = async (req, res) => {
     }
 
     // Check if service is being used in any service orders
-    const serviceOrders = await prisma.service_order_details.findFirst({
-      where: { service_id },
-    });
+    // const serviceOrders = await prisma.service_order_details.findFirst({
+    //   where: { service_id },
+    // });
 
-    if (serviceOrders) {
-      return res.status(400).json({
-        success: false,
-        message: "Cannot delete service that is associated with service orders",
-      });
-    }
+    // if (serviceOrders) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "Cannot delete service that is associated with service orders",
+    //   });
+    // }
 
-    await prisma.services.delete({
-      where: { service_id },
+    // await prisma.services.delete({
+    //   where: { service_id },
+    // });
+
+    await prisma.services.update({
+      where: { service_id: service_id },
+      data: { is_deleted: true },
     });
 
     return res
