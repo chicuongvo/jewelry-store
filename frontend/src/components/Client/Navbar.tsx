@@ -100,7 +100,7 @@ export default function Navbar() {
             <Menu onClick={handleOnClick} className="md:hidden block" />
           )}
         </div>
-        <Sidebar openSidebar={openSidebar} />
+        <Sidebar openSidebar={openSidebar} setOpenSidebar={setOpenSidebar} />
       </div>
       <Logo
         onClick={() => {

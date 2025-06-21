@@ -15,9 +15,10 @@ export default function RelatedProducts({
   isLoading: any;
   isFetching: any;
 }) {
-  const renderProducts = (relatedProducts: Product[]) => {
-    return relatedProducts
+  const renderProducts = (products: Product[]) => {
+    return products
       .filter((p) => p.product_id !== product.product_id)
+      .slice(0, 4)
       .map((p) => <ProductCard key={p.product_id} product={p} />);
   };
 
