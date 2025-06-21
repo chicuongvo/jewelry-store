@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
-import { Search, Plus, Edit2, Download } from "lucide-react";
+import { Search, Plus, Edit2, Download, Trash, Trash2 } from "lucide-react";
 import { Modal } from "antd";
 import useProducts from "@/hooks/useProducts";
 import { Pagination } from "antd";
@@ -27,6 +27,7 @@ export default function Products() {
     getAllProductTypesQuery,
     updateProductMutation,
     createProductMutation,
+    deleteProductMutation,
     getFilteredProductsQuery,
   } = useProducts(newSearchParams.toString());
 
@@ -46,6 +47,10 @@ export default function Products() {
   const handleEdit = (product: any) => {
     setEditingProduct(product);
     setShowModal(true);
+  };
+  const confirmModalConfig = {
+    title: "Xóa sản phẩm",
+    message: "Bạn có chắc chắn muốn xóa sản phẩm này?",
   };
   const handleAddAndUpdateProduct = async () => {
     const formElement = document.getElementById(
@@ -183,6 +188,31 @@ export default function Products() {
                     >
                       <Edit2 className="h-3 w-3" />
                     </button>
+                    <button className="text-red-600 cursor-pointer hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150">
+                      <Trash2
+                        className="h-3 w-3"
+                        onClick={async () => {
+                          const confirmed = await modal.confirm(
+                            confirmModalConfig
+                          );
+                          if (confirmed) {
+                            try {
+                              await deleteProductMutation.mutateAsync(
+                                product.product_id
+                              );
+                              await modal.success({
+                                content: "Đã xóa sản phẩm thành công",
+                              });
+                            } catch (error) {
+                              console.error("Error deleting product:", error);
+                              await modal.error({
+                                content: "Xóa sản phẩm thất bại",
+                              });
+                            }
+                          }
+                        }}
+                      />
+                    </button>
                   </div>
                 </div>
 
@@ -234,7 +264,7 @@ export default function Products() {
             setSearchParams(newSearchParams);
           }}
           defaultCurrent={1}
-          pageSize={6}
+          pageSize={8}
         />
       </div>
       {/* Modal */}

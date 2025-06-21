@@ -9,19 +9,23 @@ datasource db {
 }
 
 model suppliers {
-  supplier_id     String            @id @default(cuid())
-  name            String
-  address         String
-  phone_number    String
+  supplier_id  String  @id @default(cuid())
+  name         String
+  address      String
+  phone_number String
+  is_deleted   Boolean @default(false)
+
   products        products[]
   purchase_orders purchase_orders[]
 }
 
 model product_types {
-  type_id     String     @id @default(cuid())
-  name        String     @unique
+  type_id     String  @id @default(cuid())
+  name        String  @unique
   profit_rate Float
-  products    products[]
+  is_deleted  Boolean @default(false)
+
+  products products[]
 }
 
 model units {
@@ -31,16 +35,18 @@ model units {
 }
 
 model products {
-  product_id               String                     @id @default(cuid())
-  name                     String
-  image                    String
-  description              String
-  buy_price                Decimal
-  sell_price               Decimal
-  created_at               DateTime?                  @default(now())
-  supplier_id              String?
-  type                     String?
-  unit                     String?
+  product_id  String    @id @default(cuid())
+  name        String
+  image       String
+  description String
+  buy_price   Decimal
+  sell_price  Decimal
+  created_at  DateTime? @default(now())
+  supplier_id String?
+  type        String?
+  unit        String?
+  is_deleted  Boolean   @default(false)
+
   cart_details             cart_details[]
   inventory_report_details inventory_report_details[]
   supplier                 suppliers?                 @relation(fields: [supplier_id], references: [supplier_id], onDelete: Cascade)
@@ -51,9 +57,11 @@ model products {
 }
 
 model services {
-  service_id            String                  @id @default(cuid())
-  name                  String                  @unique
-  base_price            Decimal
+  service_id String  @id @default(cuid())
+  name       String  @unique
+  base_price Decimal
+  is_deleted Boolean @default(false)
+
   service_order_details service_order_details[]
 }
 

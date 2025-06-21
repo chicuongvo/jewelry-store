@@ -45,6 +45,9 @@ export default function useProducts(query?: string) {
     mutationFn: (id: string) => {
       return deleteProduct(id);
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+    },
   });
   const updateProductMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) => {

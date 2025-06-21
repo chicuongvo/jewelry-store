@@ -21,6 +21,8 @@ export const getAllProducts = async (req, res) => {
 
     const filters = {};
 
+    filters.is_deleted = false;
+
     if (name) {
       filters.name = {
         contains: name,
@@ -216,7 +218,10 @@ export const deleteProduct = async (req, res) => {
 
     console.log("checkProduct", checkProduct);
     if (checkProduct) {
-      await prisma.products.delete({ where: { product_id } });
+      await prisma.products.update({
+        where: { product_id },
+        data: { is_deleted: true },
+      });
       return res
         .status(200)
         .json({ success: true, message: "Delete product successfully" });
