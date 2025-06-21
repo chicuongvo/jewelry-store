@@ -1,3 +1,6 @@
+/* eslint-disable no-empty-pattern */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   createProductType,
@@ -17,7 +20,7 @@ export default function useProductTypes(queryString?: string) {
   const getFilteredProductTypesQuery = useQuery({
     queryKey: ["productTypes", queryString],
     queryFn: ({ queryKey }) => {
-      const [, query] = queryKey;
+      const [] = queryKey;
       return getAllProductTypes(queryString);
     },
   });

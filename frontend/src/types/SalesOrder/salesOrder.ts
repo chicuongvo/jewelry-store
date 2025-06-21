@@ -13,6 +13,10 @@ export type SalesOrderData = {
   sales_order_details: SalesOrderDetailData[];
 };
 
+export type CreateSalesOrderData = {
+  client_id: string;
+};
+
 export type SalesOrderDetailData = {
   sales_order_id: string;
   product_id: string;

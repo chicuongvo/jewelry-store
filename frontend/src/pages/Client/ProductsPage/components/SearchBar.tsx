@@ -1,14 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { useState } from "react";
 import FilterPrice from "./FilterPrice";
 import SortBy from "./SortBy";
-
-interface Price {
-  label: string;
-  min: string | undefined;
-  max: string | undefined;
-}
 
 export default function SearchBar({
   setSearchPrice,

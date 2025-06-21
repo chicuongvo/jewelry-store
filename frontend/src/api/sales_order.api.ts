@@ -1,9 +1,10 @@
 import { axiosClient } from "../lib/axios";
 import type {
   SalesOrderInput,
-  SalesOrderData,
+  // SalesOrderData,
   SalesOrderResponse,
   SalesOrderDetailResponse,
+  CreateSalesOrderData,
 } from "../types/SalesOrder/salesOrder";
 
 export interface GetSalesOrdersParams {
@@ -31,7 +32,9 @@ export const getSalesOrderDetail = async ({
 
   return res.data;
 };
-export const createSalesOrder = async (SalesOrderData: SalesOrderData) => {
+export const createSalesOrder = async (
+  SalesOrderData: CreateSalesOrderData
+) => {
   const response = await axiosClient.post("/sales-orders", SalesOrderData);
   return response?.data.data;
 };

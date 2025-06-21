@@ -17,7 +17,7 @@ const COLORS = [
 export default function CircleChart() {
   const { data, isLoading } = useQuery({
     queryKey: ["getAllProductTypes"],
-    queryFn: getAllProductTypes,
+    queryFn: () => getAllProductTypes(),
   });
 
   const salesData = useMemo(() => {
