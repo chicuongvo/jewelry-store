@@ -10,8 +10,11 @@ export const getAllSuppliers = async (req, res) => {
   const limitNumber = parseInt(limit);
   const skip = (pageNumber - 1) * limitNumber;
   try {
-    const totalItems = await prisma.suppliers.count();
+    const totalItems = await prisma.suppliers.count({
+      where: { is_deleted: false },
+    });
     const suppliers = await prisma.suppliers.findMany({
+      where: { is_deleted: false },
       skip,
       take: limitNumber,
       include: {
@@ -76,7 +79,7 @@ export const createSupplier = async (req, res) => {
     if (error.isJoi) {
       return res.status(400).json({
         success: false,
-        message: error.details.map(err => err.message),
+        message: error.details.map((err) => err.message),
       });
     }
 
@@ -102,7 +105,10 @@ export const deleteSupplier = async (req, res) => {
         .json({ success: false, message: "Supplier not found" });
     }
 
-    await prisma.suppliers.delete({ where: { supplier_id } });
+    await prisma.suppliers.update({
+      where: { supplier_id },
+      data: { is_deleted: true },
+    });
 
     return res
       .status(200)
@@ -159,7 +165,7 @@ export const updateSupplier = async (req, res) => {
     if (error.isJoi) {
       return res.status(400).json({
         success: false,
-        message: error.details.map(err => err.message),
+        message: error.details.map((err) => err.message),
       });
     } else {
       console.log("Error update supplier:", error);

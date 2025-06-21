@@ -211,7 +211,7 @@ export default function Suppliers() {
         align="center"
         current={page}
         total={totalItems || 0}
-        pageSize={limit}
+        pageSize={5}
         onChange={(current) => {
           setPage(current);
         }}
