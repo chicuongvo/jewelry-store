@@ -8,6 +8,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createSalesOrder } from "@/api/sales_order.api";
 import { createSalesOrderDetail } from "@/api/sales_order_detail.api";
 import { removeFromCart } from "@/api/cart.api";
+import { useCart } from "@/contexts/cartContext";
 
 interface Props {
   cartDetails: cartDetails[];
@@ -23,6 +24,7 @@ export default function ChosenCartDetails({
   const { userProfile } = useUser();
   const nav = useNavigate();
   const queryClient = useQueryClient();
+  const { setCartChanged } = useCart();
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -70,7 +72,8 @@ export default function ChosenCartDetails({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cart"] });
       setChosenCartDetails([]);
-      toast.success("🎉 Đặt hàng & xoá khỏi giỏ thành công!");
+      setCartChanged(true);
+      toast.success("🎉 Đặt hàng thành công!");
     },
     onError: (error: any) => {
       toast.error(error?.response?.data?.error || "Đặt hàng thất bại.");
@@ -127,7 +130,7 @@ export default function ChosenCartDetails({
           <button
             onClick={() => mutation.mutate()}
             disabled={mutation.isPending || cartDetails.length === 0}
-            className="cursor-pointer mt-3 w-full bg-white text-primary hover:text-white border-2 border-primary py-2 rounded-lg hover:bg-primary transition-all duration-200 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+            className="cursor-pointer mt-3 w-full bg-white text-primary hover:text-white border-2 border-primary py-2 rounded-lg hover:bg-primary transition-all duration-200 font-semibold  disabled:bg-primary/50 disabled:text-white disabled:border disabled:border-primary/50 disabled:cursor-not-allowed"
           >
             {mutation.isPending ? "Đang xử lý..." : "Xác nhận"}
           </button>
