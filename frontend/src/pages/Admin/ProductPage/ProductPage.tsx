@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
-import { Search, Plus, Edit2, Trash2 } from "lucide-react";
+import { Search, Plus, Edit2 } from "lucide-react";
 import { Modal } from "antd";
 import useProducts from "@/hooks/useProducts";
 import { Pagination } from "antd";
@@ -24,7 +24,6 @@ export default function Products() {
     getAllSuppliersQuery,
     getAllProductTypesQuery,
     updateProductMutation,
-    deleteProductMutation,
     createProductMutation,
     getFilteredProductsQuery,
   } = useProducts(newSearchParams.toString());
@@ -42,10 +41,6 @@ export default function Products() {
     return matchesSearch && matchesType && matchesSupplier;
   });
 
-  const confirmModalConfig = {
-    title: "Xóa sản phẩm",
-    message: "Bạn có chắc chắn muốn xóa sản phẩm này?",
-  };
   const handleEdit = (product: any) => {
     setEditingProduct(product);
     setShowModal(true);
@@ -98,6 +93,7 @@ export default function Products() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Sản phẩm</h1>
+          <p className="text-gray-600">Quản lý các sản phẩm của bạn</p>
         </div>
         <div className="flex items-center space-x-3">
           <button
@@ -172,34 +168,9 @@ export default function Products() {
                   <div className="flex items-center space-x-2 ml-2">
                     <button
                       onClick={() => handleEdit(product)}
-                      className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors duration-150"
+                      className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors duration-150 cursor-pointer"
                     >
                       <Edit2 className="h-3 w-3" />
-                    </button>
-                    <button className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150">
-                      <Trash2
-                        className="h-3 w-3"
-                        onClick={async () => {
-                          const confirmed = await modal.confirm(
-                            confirmModalConfig
-                          );
-                          if (confirmed) {
-                            try {
-                              await deleteProductMutation.mutateAsync(
-                                product.product_id
-                              );
-                              await modal.success({
-                                content: "₫ ã xóa sản phẩm thành công",
-                              });
-                            } catch (error) {
-                              console.error("Error deleting product:", error);
-                              await modal.error({
-                                content: "Xóa sản phẩm thất bại",
-                              });
-                            }
-                          }
-                        }}
-                      />
                     </button>
                   </div>
                 </div>

@@ -44,11 +44,12 @@ export default function ChosenServiceCards({
             service_order_id,
             service_id: service.service_id,
             quantity: 1,
+            extra_cost: 0,
             calculated_price: service.base_price,
             total_price: service.base_price,
             paid: service.base_price / 2,
             remaining: service.base_price / 2,
-            status: "NOT_DELIVERED",
+            // status: "NOT_DELIVERED",
           })
         )
       );

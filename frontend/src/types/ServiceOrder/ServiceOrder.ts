@@ -5,6 +5,7 @@ export type ServiceOrderCreate = {
   total_price?: number;
   total_paid?: number;
   total_remaining?: number;
+  extra_cost?: number;
   status?: string;
 };
 

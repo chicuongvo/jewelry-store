@@ -50,7 +50,7 @@ export default function InventoryReports() {
         <div className="flex flex-row gap-4 justify-center items-center">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
-              Báo Cáo Tồn Kho
+              Báo cáo tồn kho
             </h1>
             <p className="text-gray-600">Theo dõi báo cáo tồn kho mỗi tháng</p>
           </div>

@@ -32,7 +32,7 @@ export default function AddToCartButton({
     onSuccess: () => {
       setCartChanged(true);
       toast.success("Sản phẩm đã được thêm vào giỏ hàng", { autoClose: 1500 });
-      setQuantity(1);
+      if (setQuantity) setQuantity(1);
     },
     onError: (error) => {
       const err = error as any;
@@ -40,7 +40,7 @@ export default function AddToCartButton({
         err?.response?.data?.message ||
           `Có lỗi xảy ra khi thêm sản phẩm vào giỏ hảng.`
       );
-      console.log(product);
+      console.log(error);
     },
   });
 

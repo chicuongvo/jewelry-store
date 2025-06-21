@@ -14,6 +14,7 @@ interface UserContextType {
   setUserProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>;
   userChanged: boolean;
   setUserChanged: React.Dispatch<React.SetStateAction<boolean>>;
+  isLoading: boolean;
 }
 
 const UserContext = createContext<UserContextType | null>(null);
@@ -29,10 +30,13 @@ export const useUser = (): UserContextType => {
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [userChanged, setUserChanged] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  console.log("context: ", userProfile);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
+        setIsLoading(true);
         const data = await getCurrentUser();
         setUserProfile(data);
       } catch (error) {
@@ -40,6 +44,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         setUserProfile(null);
       } finally {
         setUserChanged(false);
+        setIsLoading(false);
       }
     };
 
@@ -52,6 +57,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         userProfile,
         setUserProfile,
         userChanged,
+        isLoading,
         setUserChanged,
       }}
     >

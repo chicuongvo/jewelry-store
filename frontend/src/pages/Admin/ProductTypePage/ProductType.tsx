@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { Search, Plus, Edit2, Trash2, Tag, Percent } from "lucide-react";
 
@@ -160,12 +161,12 @@ export default function ProductTypes() {
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => handleEdit(type)}
-                  className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors duration-150"
+                  className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors duration-150 cursor-pointer"
                 >
                   <Edit2 className="h-4 w-4" />
                 </button>
                 <button
-                  className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150"
+                  className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150 cursor-pointer"
                   onClick={async () => {
                     const confirmed = await modal.confirm({
                       title: "Xóa loại sản phẩm",
@@ -276,9 +277,9 @@ export default function ProductTypes() {
               <div className="flex justify-end space-x-3 mt-6 pt-4 border-t">
                 <button
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                  className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
                 >
-                  Hủy bỏ
+                  Hủy
                 </button>
                 {updateProductTypeMutation.isPending ||
                 createProductTypeMutation.isPending ? (

@@ -7,6 +7,7 @@ export const getCartByUserId = async (req, res) => {
       where: { user_id },
       include: {
         cart_details: {
+          orderBy: { created_at: "desc" },
           include: {
             product: {
               include: {

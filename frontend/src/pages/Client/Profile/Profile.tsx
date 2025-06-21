@@ -3,8 +3,10 @@ import { updateUserByFormdata } from "@/api/user.api";
 import { useMutation } from "@tanstack/react-query";
 import { useUser } from "@/contexts/userContext";
 import { toast } from "react-toastify";
+import { useState } from "react";
 export default function Profile() {
   const { userProfile } = useUser();
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const updateUserMutation = useMutation({
     mutationFn: (formData: FormData) => {
@@ -13,12 +15,9 @@ export default function Profile() {
   });
   const handleChangeAvatar = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-
     if (file) {
       const url = URL.createObjectURL(file);
-      console.log("Avatar URL:", url);
-      console.log(document.querySelector("#avatar"));
-      document.querySelector("#avatar")?.setAttribute("src", url);
+      setPreviewUrl(url);
     }
   };
   const handleUpdateDataByFormData = async (
@@ -36,14 +35,14 @@ export default function Profile() {
     }
   };
   return (
-    <div className="grid grid-cols-2 max-w-screen-lg mx-auto my-20 py-20  bg-zinc-100 rounded-xl">
+    <form
+      onSubmit={handleUpdateDataByFormData}
+      className="grid grid-cols-2 max-w-screen-lg mx-auto my-20 py-20  bg-zinc-100 rounded-xl"
+    >
       <div className="flex flex-col items-center justify-center">
         <h1 className="text-2xl font-bold mb-4">Thông tin cá nhân</h1>
         <h3>Bạn có thể thay đổi thông tin tài khoản tại đây</h3>
-        <form
-          onSubmit={handleUpdateDataByFormData}
-          className="flex flex-col items-center "
-        >
+        <div className="flex flex-col items-center ">
           <input
             type="file"
             name="avatar"
@@ -55,24 +54,14 @@ export default function Profile() {
             <img
               className="w-[200px] h-[200px] rounded-full object-cover"
               id="avatar"
-              src={userProfile?.profile_pic || Avatar}
+              src={previewUrl || userProfile?.profile_pic || Avatar}
               alt="Ảnh avatar của người dùng"
             />
           </label>
-          <button
-            className="border-2 hover:bg-primary hover:text-white transition-all duration-500 border-primary text-primary px-5 py-3 rounded mt-2 cursor-pointer"
-            type="submit"
-            disabled={updateUserMutation.isPending}
-          >
-            {!updateUserMutation.isPending ? "Cập nhật" : "Đang cập nhật..."}
-          </button>
-        </form>
+        </div>
       </div>
       <div>
-        <form
-          className="flex flex-col gap-4 px-10"
-          onSubmit={handleUpdateDataByFormData}
-        >
+        <div className="flex flex-col gap-4 px-10">
           <div>
             <label className="block mb-2 font-bold" htmlFor="fullname">
               Họ và tên
@@ -83,9 +72,7 @@ export default function Profile() {
               name="fullname"
               className="border border-gray-300 p-2 rounded w-full"
               placeholder="Nhập họ và tên của bạn"
-              required
               defaultValue={userProfile?.fullname || ""}
-              minLength={3}
             />
           </div>
           <div>
@@ -131,13 +118,13 @@ export default function Profile() {
           </div>
           <button
             type="submit"
-            className="cursor-pointer font-bold bg-primary text-white px-5 py-3 rounded mt-2 hover:bg-primary/80 transition-all duration-500"
+            className="cursor-pointer font-bold bg-primary text-white px-5 py-3 rounded mt-2 hover:bg-primary/80 transition-all duration-500 disabled:cursor-not-allowed disabled:bg-primary/80"
             disabled={updateUserMutation.isPending}
           >
             {!updateUserMutation.isPending ? "Lưu thông tin" : "Đang lưu..."}
           </button>
-        </form>
+        </div>
       </div>
-    </div>
+    </form>
   );
 }

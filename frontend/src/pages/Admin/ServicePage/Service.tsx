@@ -199,7 +199,7 @@ export default function AdminServices() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div className="flex-shrink-0">
-          <h1 className="text-2xl font-bold text-gray-900">Dịch Vụ</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Dịch vụ</h1>
           <p className="text-gray-600">Quản lý dịch vụ và giá cả</p>
         </div>
         <button
