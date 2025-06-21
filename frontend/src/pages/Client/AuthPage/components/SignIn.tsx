@@ -104,7 +104,7 @@ export default function SignIn() {
         className="py-2 bg-primary text-white font-semibold cursor-pointer border border-2 border-primary hover:bg-white  hover:text-primary transition-all duration-300 disabled:cursor-not-allowed disabled:bg-primary/50 disabled:text-white disabled:border disabled:border-primary/50"
         disabled={isLoading}
       >
-        {isLoading ? "Đang xử lý" : "ĐĂNG NHẬP"}
+        {isLoading ? "Đang xử lý..." : "ĐĂNG NHẬP"}
       </button>
     </form>
   );

@@ -16,6 +16,7 @@ export interface ServiceOrderDetailData {
   paid?: number;
   remaining?: number;
   status?: string;
+  extra_cost?: number;
 }
 
 export interface ServiceOrderDetailDataUpdate {

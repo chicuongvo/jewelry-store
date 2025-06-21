@@ -7,10 +7,6 @@ import ScrollToTop from "./components/ScrollToTop";
 function App() {
   return (
     <div className="font-primary">
-      <ScrollToTop />
-      <Navbar />
-      <Outlet />
-      <Footer />
       <ToastContainer
         aria-label={""}
         position="top-right"
@@ -24,6 +20,10 @@ function App() {
         transition={Bounce}
         hideProgressBar={true}
       />
+      <ScrollToTop />
+      <Navbar />
+      <Outlet />
+      <Footer />
     </div>
   );
 }
