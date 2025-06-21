@@ -10,11 +10,12 @@ const ProtectedRoute = ({
   children: any;
   requiredRole?: "ADMIN" | "USER";
 }) => {
-  const { userProfile } = useUser();
+  const { userProfile, isLoading } = useUser();
+  console.log("userProfile:", userProfile, "loading", isLoading);
 
-  if (!userProfile) return <Navigate to="/login" replace />;
+  if (!userProfile && !isLoading) return <Navigate to="/auth" replace />;
 
-  if (requiredRole && userProfile.role !== requiredRole) {
+  if (requiredRole && userProfile && userProfile.role !== requiredRole) {
     return <Navigate to="/unauthorized" replace />;
   }
 

@@ -38,8 +38,8 @@ const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <NotificationProvider>
-      <UserProvider>
+    <UserProvider>
+      <NotificationProvider>
         <CartProvider>
           <QueryClientProvider client={queryClient}>
             <BrowserRouter>
@@ -47,12 +47,19 @@ createRoot(document.getElementById("root")!).render(
                 <Route path="/" element={<App />}>
                   <Route index element={<Home />} />
                   <Route path="/history" element={<History />} />
-                  <Route path="/service-history" element={<ServiceHistory />} />
+                  <Route
+                    path="/service-history"
+                    element={
+                      <ProtectedRoute>
+                        <ServiceHistory />{" "}
+                      </ProtectedRoute>
+                    }
+                  />
                   <Route
                     path="/profile"
                     element={
-                      <ProtectedRoute requiredRole="USER">
-                        <Profile />{" "}
+                      <ProtectedRoute>
+                        <Profile />
                       </ProtectedRoute>
                     }
                   />
@@ -74,11 +81,25 @@ createRoot(document.getElementById("root")!).render(
                   <Route index element={<Services />} />
                 </Route>
 
-                <Route path="/cart" element={<App />}>
+                <Route
+                  path="/cart"
+                  element={
+                    <ProtectedRoute>
+                      <App />
+                    </ProtectedRoute>
+                  }
+                >
                   <Route index element={<Cart />} />
                 </Route>
 
-                <Route path="/admin" element={<Layout />}>
+                <Route
+                  path="/admin"
+                  element={
+                    <ProtectedRoute requiredRole="ADMIN">
+                      <Layout />
+                    </ProtectedRoute>
+                  }
+                >
                   <Route index element={<Dashboard />} />
                   <Route path="/admin/users" element={<UsersPage />} />
                   <Route path="/admin/suppliers" element={<Supplier />} />
@@ -121,7 +142,7 @@ createRoot(document.getElementById("root")!).render(
             </BrowserRouter>
           </QueryClientProvider>
         </CartProvider>
-      </UserProvider>
-    </NotificationProvider>
+      </NotificationProvider>
+    </UserProvider>
   </StrictMode>
 );
