@@ -24,7 +24,8 @@ export type PurchaseOrderUpdateData = {
 };
 
 export type Product = {
-  name: String;
+  name: string;
+  product_id: string;
 };
 
 export type PurchaseOrderDetail = {
@@ -36,12 +37,33 @@ export type PurchaseOrderDetail = {
 };
 
 export type PurchaseOrderDetailCreateData = {
+  purchase_order_id: string;
   product_id: string;
   quantity: number;
-  total_price: number;
 };
 
 export type PurchaseOrderDetailUpdateData = {
-  quantity?: number;
-  total_price?: number;
+  purchase_order_id: string;
+  product_id: string;
+  quantity: number;
+};
+
+export type PurchaseOrderResponse = {
+  data: PurchaseOrder[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+};
+
+export type PurchaseOrderDetailsResposne = {
+  data: PurchaseOrderDetail[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 };

@@ -73,10 +73,7 @@ export default function CartDetailsCard({
     cartDetails.product.inventory_report_details &&
     cartDetails.product.inventory_report_details.length > 0
   ) {
-    end_stock =
-      cartDetails.product.inventory_report_details[
-        cartDetails.product.inventory_report_details.length - 1
-      ]?.end_stock ?? 0;
+    end_stock = cartDetails.product.inventory_report_details[0]?.end_stock ?? 0;
   }
 
   if (end_stock < 0) {
@@ -105,13 +102,13 @@ export default function CartDetailsCard({
 
   return (
     <div
-      className={`flex justify-between items-start rounded-md px-6 py-4 h-[170px] ${
+      className={`flex justify-between items-start rounded-md px-6 py-4 h-[180px] ${
         isSelected
           ? "border-2 border-primary shadow-md"
           : "border-2 border-zinc-200 shadow-sm"
       }`}
     >
-      <div className="flex flex-row gap-3 w-full">
+      <div className="flex flex-row gap-3 w-full ">
         {showCheckbox && (
           <label className="flex items-start gap-2 cursor-pointer select-none mt-2">
             <input
@@ -160,7 +157,7 @@ export default function CartDetailsCard({
             {Number(cartDetails.product?.sell_price).toLocaleString()}₫
           </div>
 
-          <div className="w-max flex flex-col items-start gap-1">
+          <div className="w-max flex flex-col items-start gap-2">
             <div className="flex items-center border border-gray-300">
               <button
                 onClick={decreaseQuantity}

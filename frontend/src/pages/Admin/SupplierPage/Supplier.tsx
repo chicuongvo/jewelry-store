@@ -19,7 +19,7 @@ import {
   getAllSuppliers,
   updateSupplier,
 } from "@/api/supplier.api";
-import { useNotification } from "@/contexts/notificationContext";
+// import { useNotification } from "@/contexts/notificationContext";
 import { Pagination } from "antd";
 
 export default function Suppliers() {
@@ -35,10 +35,10 @@ export default function Suppliers() {
     {} as unknown as SupplierResponse
   );
 
-  const limit = 6;
+  const limit = 5;
 
   const { data, isLoading } = useQuery({
-    queryKey: ["suppliers", page],
+    queryKey: ["suppliers", page, limit],
     queryFn: () => getAllSuppliers({ page, limit }),
   });
 
@@ -48,13 +48,13 @@ export default function Suppliers() {
 
   if (page < totalPages)
     queryClient.prefetchQuery({
-      queryKey: ["suppliers", page + 1],
+      queryKey: ["suppliers", page + 1, limit],
       queryFn: () => getAllSuppliers({ page: page + 1, limit }),
     });
 
   if (page > 1)
     queryClient.prefetchQuery({
-      queryKey: ["suppliers", page - 1],
+      queryKey: ["suppliers", page - 1, limit],
       queryFn: () => getAllSuppliers({ page: page - 1, limit }),
     });
 
@@ -91,7 +91,7 @@ export default function Suppliers() {
         </div>
         <button
           onClick={handleAdd}
-          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+          className="flex cursor-pointer items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
         >
           <Plus className="h-4 w-4 mr-2" />
           Thêm nhà cung cấp
@@ -107,7 +107,7 @@ export default function Suppliers() {
               type="text"
               placeholder="Tìm kiếm nhà cung cấp..."
               value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
@@ -174,13 +174,13 @@ export default function Suppliers() {
                           onClick={() => handleEdit(supplier)}
                           className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors duration-150"
                         >
-                          <Edit2 className="h-4 w-4" />
+                          <Edit2 className="h-4 w-4 cursor-pointer" />
                         </button>
                         <button
                           onClick={() => handleDelete(supplier)}
                           className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-4 w-4 cursor-pointer" />
                         </button>
                       </div>
                     </td>
@@ -197,7 +197,7 @@ export default function Suppliers() {
         current={page}
         total={totalItems || 0}
         pageSize={limit}
-        onChange={current => {
+        onChange={(current) => {
           setPage(current);
         }}
       />
@@ -223,7 +223,7 @@ function TableSkeleton() {
     <>
       {[...Array(5)].map((_, index) => (
         <tr key={index} className="animate-pulse">
-          <td className="px-6 py-4 whitespace-nowrap">
+          <td className="px-6 py-5 whitespace-nowrap">
             <div className="space-y-2">
               <div className="h-4 w-32 bg-gray-200 rounded"></div>
               <div className="flex items-center">
@@ -276,7 +276,7 @@ function SupplierModal({
   });
 
   const queryClient = useQueryClient();
-  const { addNotification } = useNotification();
+  // const { addNotification } = useNotification();
   const { mutate, isPending } = useMutation({
     mutationFn: supplierData.supplier_id
       ? (data: Supplier) => updateSupplier(supplierData.supplier_id, data)
@@ -317,7 +317,7 @@ function SupplierModal({
     <div className="fixed inset-0 bg-gray-600/50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4 cursor-pointer">
             {supplier ? "Chỉnh sửa nhà cung cấp" : "Thêm nhà cung cấp mới"}
           </h2>
 
@@ -329,8 +329,9 @@ function SupplierModal({
               <input
                 disabled={isPending}
                 type="text"
+                required
                 defaultValue={supplier?.name || ""}
-                onChange={e =>
+                onChange={(e) =>
                   setSupplier({ ...supplier, name: e.target.value })
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -344,9 +345,10 @@ function SupplierModal({
               </label>
               <input
                 type="tel"
+                required
                 disabled={isPending}
                 defaultValue={supplier?.phone_number || ""}
-                onChange={e =>
+                onChange={(e) =>
                   setSupplier({ ...supplier, phone_number: e.target.value })
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -360,9 +362,10 @@ function SupplierModal({
               </label>
               <textarea
                 rows={3}
+                required
                 disabled={isPending}
                 defaultValue={supplier?.address || ""}
-                onChange={e =>
+                onChange={(e) =>
                   setSupplier({ ...supplier, address: e.target.value })
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -380,7 +383,7 @@ function SupplierModal({
             <button
               onClick={handleSubmit}
               disabled={isPending}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:bg-gray-600"
+              className="px-4 py-2 cursor-pointer disabled:cursor-not-allowed bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:bg-gray-600"
             >
               {isPending
                 ? "Đang cập nhật..."
@@ -403,7 +406,7 @@ function ConfirmModal({
   setDeleting: React.Dispatch<React.SetStateAction<SupplierResponse>>;
 }) {
   const queryClient = useQueryClient();
-  const { addNotification } = useNotification();
+  // const { addNotification } = useNotification();
   const { mutate, isPending } = useMutation({
     mutationFn: deleteSupplier,
     onSuccess() {
@@ -440,7 +443,7 @@ function ConfirmModal({
             <button
               onClick={handleSubmit}
               disabled={isPending}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:bg-gray-600"
+              className="px-4 py-2 disabled:cursor-not-allowed cursor-pointer bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:bg-gray-600"
             >
               {isPending ? "Đang xóa..." : "Xóa"}
             </button>

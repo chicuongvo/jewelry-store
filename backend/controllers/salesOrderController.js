@@ -3,16 +3,46 @@ import { prisma } from "../config/db.js";
 
 export const getAllSalesOrders = async (req, res) => {
   try {
-    const products = await prisma.sales_orders.findMany({
-      include: { client: true, sales_order_details: true },
-    });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
 
-    return res.status(200).json({ success: true, data: products });
+    const [salesOrders, total] = await Promise.all([
+      prisma.sales_orders.findMany({
+        skip,
+        take: limit,
+        orderBy: {
+          created_at: "desc",
+        },
+        include: {
+          client: true,
+          sales_order_details: {
+            include: {
+              product: true,
+            },
+          },
+        },
+      }),
+      prisma.sales_orders.count(),
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      data: salesOrders,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
   } catch (error) {
     console.log(error.toString());
-    return res
-      .status(500)
-      .json({ success: false, error: "Internal Server Error" });
+    return res.status(500).json({
+      success: false,
+      error: "Internal Server Error",
+      error2: error.toString(),
+    });
   }
 };
 

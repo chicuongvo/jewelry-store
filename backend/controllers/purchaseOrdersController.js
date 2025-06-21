@@ -6,13 +6,39 @@ import {
 
 export const getAllPurchaseOrders = async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const skip = (page - 1) * limit;
+
+    const total = await prisma.purchase_orders.count();
+
     const purchaseOrders = await prisma.purchase_orders.findMany({
+      skip,
+      take: limit,
+      orderBy: {
+        created_at: "desc",
+      },
       include: {
         supplier: true,
-        purchase_order_details: { include: { product: true } },
+        purchase_order_details: {
+          include: {
+            product: true,
+          },
+        },
       },
     });
-    return res.status(200).json({ success: true, data: purchaseOrders });
+
+    return res.status(200).json({
+      success: true,
+      data: purchaseOrders,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -23,7 +49,7 @@ export const getAllPurchaseOrders = async (req, res) => {
 };
 
 export const getPurchaseOrder = async (req, res) => {
-  const purchase_order_id = req.params.id;
+  const purchase_order_id = req.params.orderId;
 
   try {
     const purchaseOrder = await prisma.purchase_orders.findUnique({

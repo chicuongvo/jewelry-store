@@ -1,5 +1,15 @@
 import { axiosClient } from "../lib/axios";
-import type { SignInData, SignUpData, UserProfile } from "../types/User/User";
+import type {
+  SignInData,
+  SignUpData,
+  UserProfile,
+  UserResponse,
+} from "../types/User/User";
+
+export interface GetUsersParams {
+  page?: number;
+  limit?: number;
+}
 
 export const signIn = async (
   signInData: SignInData
@@ -65,9 +75,7 @@ export const verifyEmail = async (
   return response.data.message;
 };
 
-export const geytPasswordResetToken = async (
-  email: string
-): Promise<string> => {
+export const getPasswordResetToken = async (email: string): Promise<string> => {
   const response = await axiosClient.post("/auth/reset-password-token", {
     email,
   });
@@ -92,12 +100,10 @@ export const resetPassword = async (
 };
 
 export const getAllUsers = async (
-  params: { page: number; limit: number } = { page: 1, limit: 6 }
-) => {
-  const response = await axiosClient.get(
-    `/auth?page=${params.page}&limit=${params.limit}`
-  );
-  return response.data;
+  params: GetUsersParams = {}
+): Promise<UserResponse> => {
+  const res = await axiosClient.get("/auth", { params });
+  return res?.data;
 };
 
 export const banUser = async (id: string) => {

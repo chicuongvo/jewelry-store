@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Search, Plus, Edit2, Trash2 } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 
 import type { SalesOrderDetailData } from "@/types/SalesOrder/salesOrder.ts";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  getAllSalesOrderDetail,
   createSalesOrderDetail,
   updateSalesOrderDetail,
   deleteSalesOrderDetail,
@@ -18,18 +18,28 @@ export default function SalesOrderDetail() {
   const [editingPurchaseOrderDetail, setEditingPurchaseOrderDetail] =
     useState<SalesOrderDetailData>({} as SalesOrderDetailData);
   const [deleting, setDeleting] = useState<SalesOrderDetailData>(
-    {} as SalesOrderDetailData,
+    {} as SalesOrderDetailData
   );
 
-  const location = useLocation();
-  console.log(location.pathname.split("/")[2]);
-
-  const { data: salesOrderDetailData } = useQuery({
-    queryKey: ["salesOrderDetailData", location.pathname.split("/")[2]],
-    queryFn: () => getAllSalesOrderDetail(location.pathname.split("/")[2]),
+  const { sales_order_id } = useParams();
+  const [page, setPage] = useState(1);
+  const limit = 6;
+  const { data: salesOrderDetailData, isLoading } = useQuery({
+    queryKey: ["salesOrderDetailData", sales_order_id, page, limit],
+    queryFn: () =>
+      getSalesOrderDetail({
+        sales_order_id: sales_order_id as string,
+        page,
+        limit,
+      }),
   });
 
-  const filteredSalesOrderDetail = salesOrderDetailData?.filter(
+  const haveProduct: string[] = [];
+  salesOrderDetailData?.data.map((salesOrder) => {
+    haveProduct.push(salesOrder.product_id);
+  });
+
+  const filteredSalesOrderDetail = salesOrderDetailData?.data.filter(
     (salesOrderDetail) =>
       salesOrderDetail.quantity
         .toString()
@@ -39,9 +49,9 @@ export default function SalesOrderDetail() {
         .toString()
         .toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
-      salesOrderDetail.product.name
+      salesOrderDetail.product?.name
         .toLowerCase()
-        .includes(searchTerm.toLowerCase()),
+        .includes(searchTerm.toLowerCase())
   );
 
   const handleEdit = (salesOrderDetail: SalesOrderDetailData) => {
@@ -59,31 +69,30 @@ export default function SalesOrderDetail() {
 
   return (
     <div className="space-y-6 p-6">
-      {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Purchase Order</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Đơn mua hàng</h1>
           <p className="text-gray-600">
-            Manage your purchase order detail information and relationships
+            <span className="font-bold">Mã đơn: </span>
+            <span>{sales_order_id}</span>
           </p>
         </div>
         <button
           onClick={() => handleAdd()}
-          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+          className="cursor-pointer disabled:cursor-not-allowed flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Add Purchase Order Detail
+          Thêm sản phầm
         </button>
       </div>
 
-      {/* Search and Filters */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <input
               type="text"
-              placeholder="Search purchase order..."
+              placeholder="Tìm kiếm sản phẩm..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -94,74 +103,103 @@ export default function SalesOrderDetail() {
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-gray-200 text-center">
+            <thead className="bg-gray-50 text-center">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ID
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  STT
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Sản phẩm
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Số lượng
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Đơn giá
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Action
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Hành động
                 </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredSalesOrderDetail?.map((salesOrderDetail) => (
-                <tr className="hover:bg-gray-50 transition-colors duration-150">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {filteredSalesOrderDetail.indexOf(salesOrderDetail) + 1}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {salesOrderDetail.product.name}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {salesOrderDetail.quantity}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {salesOrderDetail.total_price}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => handleEdit(salesOrderDetail)}
-                        className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors duration-150"
-                      >
-                        <Edit2 className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(salesOrderDetail)}
-                        className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {isLoading
+                ? Array.from({ length: 5 }).map((_, i) => (
+                    <tr
+                      key={i}
+                      className="animate-pulse hover:bg-gray-50 transition-colors duration-150 text-center"
+                    >
+                      {[...Array(5)].map((_, colIdx) => (
+                        <td
+                          key={colIdx}
+                          className="px-6 py-4 whitespace-nowrap"
+                        >
+                          <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto" />
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                : filteredSalesOrderDetail?.map((salesOrderDetail) => (
+                    <tr className="hover:bg-gray-50 transition-colors duration-150">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">
+                          {filteredSalesOrderDetail.indexOf(salesOrderDetail) +
+                            1}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">
+                          {salesOrderDetail?.product?.name}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">
+                          {salesOrderDetail.quantity}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900 text-center">
+                          {Number(
+                            salesOrderDetail.total_price
+                          ).toLocaleString()}
+                          ₫
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex flex-row items-center justify-center">
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => handleEdit(salesOrderDetail)}
+                            className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors duration-150"
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(salesOrderDetail)}
+                            className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
             </tbody>
           </table>
         </div>
       </div>
+      <Pagination
+        align="center"
+        total={salesOrderDetailData?.pagination.totalItems}
+        onChange={(current) => {
+          setPage(current);
+        }}
+        current={page}
+        pageSize={6}
+      />
       {showModal && (
         <PurchaseOrderModal
-          sales_order_id={location.pathname.split("/")[2]}
+          sales_order_id={location.pathname.split("/")[3]}
           salesOrderDetailData={editingPurchaseOrderDetail}
           setShowModal={setShowModal}
         />
@@ -173,12 +211,9 @@ export default function SalesOrderDetail() {
   );
 }
 
-// export type SalesOrderDetailCreate = {
-//   sales_order_id: string;
-//   product_id: string;
-//   quantity: number;
-//   total_price: number;
-// };
+import { getAllProducts } from "@/api/product.api";
+import { getSalesOrderDetail } from "@/api/sales_order.api";
+import { Pagination } from "antd";
 
 function PurchaseOrderModal({
   sales_order_id,
@@ -189,12 +224,17 @@ function PurchaseOrderModal({
   salesOrderDetailData: SalesOrderDetailData;
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-  const [salesOrderDetail, setPurchaseOrderDetail] = useState({
+  const [salesOrderDetail, setSalesOrderDetail] = useState({
     sales_order_id: sales_order_id,
     product_id: salesOrderDetailData.product_id,
-    quantity: salesOrderDetailData.quantity,
+    quantity: salesOrderDetailData.quantity ? salesOrderDetailData.quantity : 1,
     total_price: 1,
   } as SalesOrderDetailData);
+
+  const { data: productData } = useQuery({
+    queryKey: ["productData"],
+    queryFn: () => getAllProducts(),
+  });
 
   const queryClient = useQueryClient();
   const { mutate, isPending } = useMutation({
@@ -206,13 +246,27 @@ function PurchaseOrderModal({
         queryKey: ["salesOrderDetailData", sales_order_id],
       });
       setShowModal(false);
+      if (salesOrderDetailData.product_id) {
+        toast.success("Cập nhật thành công!");
+      } else {
+        toast.success("Tạo đơn mua hàng thành công!");
+      }
+    },
+    onError() {
+      toast.error("Quá số lượng hàng tồn kho.");
     },
   });
 
   const handleSubmit = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
-    if (!salesOrderDetail.sales_order_id || !salesOrderDetail.product_id)
+    if (salesOrderDetail.quantity <= 0) {
+      toast.error("Số lượng sản phẩm không hợp lệ.");
       return;
+    }
+    if (!salesOrderDetail.sales_order_id || !salesOrderDetail.product_id) {
+      toast.error("Vui lòng chọn sản phẩm.");
+      return;
+    }
     mutate(salesOrderDetail);
   };
 
@@ -221,66 +275,71 @@ function PurchaseOrderModal({
       <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            {salesOrderDetail
-              ? "Edit Purchase Order"
-              : "Add New Purchase Order"}
+            {salesOrderDetail ? "Cập nhật sản phẩm" : "Thêm mới sản phẩm"}
           </h2>
 
-          <form className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Product_id:
+          <form className="space-y-6 p-4 bg-white rounded-xl w-full max-w-md mx-auto">
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold text-gray-700 mb-2">
+                Sản phẩm:
               </label>
-              <input
-                disabled={isPending}
-                type="text"
-                defaultValue={salesOrderDetail?.product_id || ""}
+              <select
+                defaultValue={salesOrderDetailData.product_id || ""}
+                disabled={!!salesOrderDetailData.product_id}
                 onChange={(e) =>
-                  setPurchaseOrderDetail({
+                  setSalesOrderDetail({
                     ...salesOrderDetail,
                     product_id: e.target.value,
                   })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter supplier name"
-              />
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none disabled:bg-gray-100 disabled:text-gray-500"
+              >
+                <option value="">-- Chọn sản phẩm --</option>
+                {productData?.map((product) => (
+                  <option key={product.product_id} value={product.product_id}>
+                    {product.name}
+                  </option>
+                ))}
+              </select>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Quantity:
+
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold text-gray-700 mb-2">
+                Số lượng:
               </label>
               <input
                 disabled={isPending}
                 type="number"
                 defaultValue={salesOrderDetail?.quantity || 0}
                 onChange={(e) =>
-                  setPurchaseOrderDetail({
+                  setSalesOrderDetail({
                     ...salesOrderDetail,
                     quantity: parseInt(e.target.value),
                   })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter quantity"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg  disabled:bg-gray-100"
+                placeholder="Nhập số lượng"
               />
             </div>
           </form>
+
           <div className="flex justify-end space-x-3 mt-6 pt-4 border-t">
             <button
               onClick={() => setShowModal(false)}
-              className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+              className="px-4 cursor-pointer py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
             >
-              Cancel
+              Hủy
             </button>
             <button
               onClick={handleSubmit}
               disabled={isPending}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:bg-gray-600"
+              className="px-4 py-2 cursor-pointer disabled:cursor-not-allowed bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:bg-gray-600"
             >
               {isPending
-                ? "Updating ..."
+                ? "Đang xử lý..."
                 : salesOrderDetailData.product_id
-                  ? "Update"
-                  : "Create"}{" "}
+                ? "Cập nhập"
+                : "Tạo mới"}{" "}
             </button>
           </div>
         </div>
@@ -301,9 +360,10 @@ function ConfirmModal({
     mutationFn: deleteSalesOrderDetail,
     onSuccess() {
       queryClient.invalidateQueries({
-        queryKey: ["salesOrderDetail"],
+        queryKey: ["salesOrderDetailData"],
       });
       setDeleting({} as unknown as SalesOrderDetailData);
+      toast.success("Xóa thành công!");
     },
   });
 
@@ -316,8 +376,7 @@ function ConfirmModal({
       <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Bạn chắc chắn muốn xóa Đơn đặt hàng <b>{deleting.sales_order_id}</b>
-            ?
+            Bạn chắc chắn muốn xóa sản phẩm <b>{deleting?.product?.name}</b>?
           </h2>
 
           <div className="flex justify-end space-x-3 mt-6 pt-4 border-t">
@@ -325,14 +384,14 @@ function ConfirmModal({
               onClick={() => setDeleting({} as unknown as SalesOrderDetailData)}
               className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
             >
-              Cancel
+              Hủy
             </button>
             <button
               onClick={handleSubmit}
               disabled={isPending}
               className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:bg-gray-600"
             >
-              {isPending ? "Deleting ..." : "Delete"}
+              {isPending ? "Đang xóa ..." : "Xóa"}
             </button>
           </div>
         </div>

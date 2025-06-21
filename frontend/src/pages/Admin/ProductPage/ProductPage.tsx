@@ -93,6 +93,7 @@ export default function Products() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Sản phẩm</h1>
+          <p className="text-gray-600">Quản lý các sản phẩm của bạn</p>
         </div>
         <div className="flex items-center space-x-3">
           <button

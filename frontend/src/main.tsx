@@ -16,6 +16,7 @@ import Login from "./pages/Admin/LoginPage/Login.tsx";
 import UsersPage from "./pages/Admin/UserPage/User.tsx";
 import PurchaseOrder from "@/pages/Admin/PurchaseOrderPage/PurchaseOrder.tsx";
 import SalesOrder from "@/pages/Admin/SalesOrderPage/SalesOrder.tsx";
+import SalesOrderDetail from "@/pages/Admin/SalesOrderDetailPage/SalesOrderDetail.tsx";
 import Supplier from "./pages/Admin/SupplierPage/Supplier.tsx";
 import AdminServices from "./pages/Admin/ServicePage/Service.tsx";
 import AdminServiceOrders from "./pages/Admin/ServiceOrderPage/ServiceOrder.tsx";
@@ -30,7 +31,7 @@ import Profile from "./pages/Client/Profile/Profile.tsx";
 import ServiceHistory from "./components/Client/ServiceHistory.tsx";
 import { CartProvider } from "./contexts/cartContext.tsx";
 import Cart from "./pages/Client/CartPage/Cart.tsx";
-
+import PurchaseOrderDetail from "./pages/Admin/PurchaseOrderDetailPage/PurchaseOrderDetail.tsx";
 const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
@@ -89,7 +90,15 @@ createRoot(document.getElementById("root")!).render(
                     path="/admin/purchase-orders"
                     element={<PurchaseOrder />}
                   />
+                  <Route
+                    path="/admin/purchase-orders-detail/:purchase_order_id"
+                    element={<PurchaseOrderDetail />}
+                  />
                   <Route path="/admin/sales-orders" element={<SalesOrder />} />{" "}
+                  <Route
+                    path="/admin/sales-orders-detail/:sales_order_id"
+                    element={<SalesOrderDetail />}
+                  />
                   <Route path="/admin/services" element={<AdminServices />} />
                   <Route
                     path="/admin/service-orders"

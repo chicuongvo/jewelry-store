@@ -6,13 +6,14 @@ import {
 import { axiosClient } from "../lib/axios";
 
 export interface GetSupplierParams {
-  page?: string;
-  limit?: string;
+  page?: number;
+  limit?: number;
 }
 
 export const getAllSuppliers = async (params: GetSupplierParams = {}) => {
   const res = await axiosClient.get("/suppliers", { params });
-  return res?.data.data;
+  console.log(res.data);
+  return res?.data;
 };
 
 export const getSupplierById = async (

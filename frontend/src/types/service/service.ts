@@ -1,4 +1,4 @@
-import type { Client } from "../ServiceOrder/ServiceOrder";
+import type { UserProfile } from "../User/User";
 
 export type ServiceCreate = {
   name: string;
@@ -23,7 +23,7 @@ export type ServiceOrderDetail = {
     total_remaining: number;
     status: string;
     created_at: string;
-    client: Client;
+    client: UserProfile;
   };
 };
 

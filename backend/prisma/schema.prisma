@@ -43,9 +43,9 @@ model products {
   unit                     String?
   cart_details             cart_details[]
   inventory_report_details inventory_report_details[]
-  supplier                 suppliers?                 @relation(fields: [supplier_id], references: [supplier_id])
-  productType              product_types?             @relation(fields: [type], references: [name])
-  productUnit              units?                     @relation(fields: [unit], references: [name])
+  supplier                 suppliers?                 @relation(fields: [supplier_id], references: [supplier_id], onDelete: Cascade)
+  productType              product_types?             @relation(fields: [type], references: [name], onDelete: Cascade)
+  productUnit              units?                     @relation(fields: [unit], references: [name], onDelete: Cascade)
   purchase_order_details   purchase_order_details[]
   sales_order_details      sales_order_details[]
 }
@@ -71,7 +71,7 @@ model inventory_report_details {
   buy_quantity  Int               @default(0)
   sell_quantity Int               @default(0)
   end_stock     Int               @default(0)
-  product       products          @relation(fields: [product_id], references: [product_id])
+  product       products          @relation(fields: [product_id], references: [product_id], onDelete: Cascade, onUpdate: NoAction)
   belongs_to    inventory_reports @relation(fields: [report_id], references: [report_id])
 
   @@id([report_id, product_id])
@@ -114,7 +114,7 @@ model purchase_order_details {
   product_id        String
   quantity          Int
   total_price       Decimal         @default(0)
-  product           products        @relation(fields: [product_id], references: [product_id])
+  product           products        @relation(fields: [product_id], references: [product_id], onDelete: Cascade)
   purchase_order    purchase_orders @relation(fields: [purchase_order_id], references: [purchase_order_id])
 
   @@id([purchase_order_id, product_id])
@@ -135,7 +135,7 @@ model sales_order_details {
   product_id     String
   quantity       Int
   total_price    Decimal      @default(0)
-  product        products     @relation(fields: [product_id], references: [product_id])
+  product        products     @relation(fields: [product_id], references: [product_id], onDelete: Cascade)
   sales_order    sales_orders @relation(fields: [sales_order_id], references: [sales_order_id])
 
   @@id([sales_order_id, product_id])
@@ -183,9 +183,9 @@ model cart_details {
   product_id  String
   quantity    Int
   total_price Int      @default(0)
-  cart        carts    @relation(fields: [cart_id], references: [cart_id], onDelete: Cascade)
-  product     products @relation(fields: [product_id], references: [product_id])
   created_at  DateTime @default(now())
+  cart        carts    @relation(fields: [cart_id], references: [cart_id], onDelete: Cascade)
+  product     products @relation(fields: [product_id], references: [product_id], onDelete: Cascade)
 
   @@id([cart_id, product_id])
 }

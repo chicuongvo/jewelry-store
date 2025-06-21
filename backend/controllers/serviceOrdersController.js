@@ -23,6 +23,9 @@ export const createServiceOrders = async (req, res) => {
         total_paid,
         total_remaining,
       },
+      include: {
+        client: true,
+      },
     });
 
     return res.status(201).json({
@@ -157,6 +160,29 @@ export const deleteServiceOrder = async (req, res) => {
   const { service_order_id } = req.params;
   try {
     await deleteServiceOrderValidator.validateAsync(req.params);
+
+    // Check if service order exists
+    const existingServiceOrder = await prisma.service_orders.findUnique({
+      where: {
+        service_order_id,
+      },
+    });
+
+    if (!existingServiceOrder) {
+      return res.status(404).json({
+        success: false,
+        message: "Service order not found",
+      });
+    }
+
+    // Delete all related service order details first
+    await prisma.service_order_details.deleteMany({
+      where: {
+        service_order_id,
+      },
+    });
+
+    // Delete the service order
     await prisma.service_orders.delete({
       where: {
         service_order_id,
@@ -165,9 +191,10 @@ export const deleteServiceOrder = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "Service order deleted successfully",
+      message: "Service order and its details deleted successfully",
     });
   } catch (error) {
+    console.error("Error deleting service order:", error);
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",

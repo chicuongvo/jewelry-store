@@ -4,10 +4,7 @@ import { Link } from "react-router";
 import AddToCartButton from "./AddToCartButton";
 
 export default function ProductCard({ product }: { product: Product }) {
-  let end_stock =
-    product.inventory_report_details?.[
-      product.inventory_report_details.length - 1
-    ]?.end_stock ?? 0;
+  let end_stock = product.inventory_report_details?.[0]?.end_stock ?? 0;
 
   if (end_stock < 0) {
     end_stock = 0;
