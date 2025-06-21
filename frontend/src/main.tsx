@@ -12,7 +12,6 @@ import Products from "./pages/Client/ProductsPage/Products.tsx";
 import ProductDetailsPage from "./pages/Client/ProductDetailsPage/ProductDetails.tsx";
 import Layout from "./components/Admin/Layout.tsx";
 import Dashboard from "./pages/Admin/Dashboard/Dashboard.tsx";
-import Login from "./pages/Admin/LoginPage/Login.tsx";
 import UsersPage from "./pages/Admin/UserPage/User.tsx";
 import PurchaseOrder from "@/pages/Admin/PurchaseOrderPage/PurchaseOrder.tsx";
 import SalesOrder from "@/pages/Admin/SalesOrderPage/SalesOrder.tsx";
@@ -32,6 +31,9 @@ import ServiceHistory from "./components/Client/ServiceHistory.tsx";
 import { CartProvider } from "./contexts/cartContext.tsx";
 import Cart from "./pages/Client/CartPage/Cart.tsx";
 import PurchaseOrderDetail from "./pages/Admin/PurchaseOrderDetailPage/PurchaseOrderDetail.tsx";
+import ProtectedRoute from "./components/ProtectedRoutes.tsx";
+import UnauthorizedPage from "./pages/UnauthorizedPage.tsx";
+import NotFoundPage from "./pages/NotFoundPage.tsx";
 const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
@@ -46,7 +48,14 @@ createRoot(document.getElementById("root")!).render(
                   <Route index element={<Home />} />
                   <Route path="/history" element={<History />} />
                   <Route path="/service-history" element={<ServiceHistory />} />
-                  <Route path="/profile" element={<Profile />} />
+                  <Route
+                    path="/profile"
+                    element={
+                      <ProtectedRoute requiredRole="USER">
+                        <Profile />{" "}
+                      </ProtectedRoute>
+                    }
+                  />
                 </Route>
 
                 <Route path="/auth" element={<App />}>
@@ -105,10 +114,9 @@ createRoot(document.getElementById("root")!).render(
                     element={<AdminServiceOrders />}
                   />
                 </Route>
+                <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
-                <Route path="/admin/login">
-                  <Route index element={<Login />} />
-                </Route>
+                <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </BrowserRouter>
           </QueryClientProvider>
