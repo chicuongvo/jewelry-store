@@ -89,6 +89,17 @@ export default function PurchaseOrderDetail() {
             Thêm sản phẩm
           </button>
           <button
+            onClick={() =>
+              exportToExcel(
+                purchaseOrderDetailData?.data ?? [],
+                `Đơn hàng ${purchase_order_id}`
+              )
+            }
+            className="cursor-pointer px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+          >
+            Xuất dữ liệu
+          </button>
+          <button
             onClick={() => nav("/admin/purchase-orders")}
             className="px-4 py-2 text-gray-700 cursor-pointer border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors duration-200"
           >
@@ -231,6 +242,7 @@ export default function PurchaseOrderDetail() {
 import { getAllProducts } from "@/api/product.api";
 import { getPurchaseOrderDetail } from "@/api/purchaseOrder.api";
 import { Pagination } from "antd";
+import { exportToExcel } from "@/utility/exportToExcel";
 
 function PurchaseOrderModal({
   purchase_order_id,

@@ -27,7 +27,6 @@ export default function Profile() {
     event.preventDefault();
     try {
       await updateUserMutation.mutateAsync(formData);
-      console.log("User data updated successfully");
       toast.success("Cập nhật thông tin thành công!");
     } catch (error) {
       console.error("Error updating user data:", error);

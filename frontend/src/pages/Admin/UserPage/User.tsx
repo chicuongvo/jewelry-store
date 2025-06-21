@@ -14,6 +14,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { banUser, getAllUsers } from "@/api/user.api";
 import { toast } from "react-toastify";
 import { Pagination } from "antd";
+import { exportToExcel } from "@/utility/exportToExcel";
 
 export default function Users() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -24,7 +25,6 @@ export default function Users() {
   const [deleting, setDeleting] = useState({} as unknown as UserProfile);
 
   const limit = 5;
-  console.log(page);
 
   const { data, isLoading } = useQuery({
     queryKey: ["users", page],
@@ -34,9 +34,8 @@ export default function Users() {
   const usersData = data?.data;
   const totalItems = data?.totalItems;
   const totalPages = data?.totalPages;
-  console.log(usersData);
 
-  if (page < totalPages) {
+  if (typeof totalPages === "number" && page < totalPages) {
     queryClient.prefetchQuery({
       queryKey: ["users", page + 1],
       queryFn: () => getAllUsers({ page: page + 1, limit }),
@@ -107,7 +106,12 @@ export default function Users() {
           </select>
 
           <div className="flex items-center space-x-2">
-            <button className="cursor-pointer px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+            <button
+              onClick={() =>
+                exportToExcel(filteredUsers ?? [], `Danh sách người dùng`)
+              }
+              className="cursor-pointer px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+            >
               Xuất dữ liệu
             </button>
           </div>

@@ -73,13 +73,26 @@ export default function PurchaseOrder() {
           <h1 className="text-2xl font-bold text-gray-900">Nhập hàng</h1>
           <p className="text-gray-600">Quản lý thông tin các đơn nhập hàng</p>
         </div>
-        <button
-          onClick={() => handleAdd()}
-          className="flex cursor-pointer items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Tạo đơn nhập hàng
-        </button>
+        <div className="flex flex-row gap-3">
+          <button
+            onClick={() => handleAdd()}
+            className="flex cursor-pointer items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Tạo đơn nhập hàng
+          </button>
+          <button
+            onClick={() =>
+              exportToExcel(
+                purchaseOrderData?.data ?? [],
+                `Danh sách phiếu mua hàng`
+              )
+            }
+            className="cursor-pointer px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+          >
+            Xuất dữ liệu
+          </button>
+        </div>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -211,6 +224,7 @@ export default function PurchaseOrder() {
 import { getAllSuppliers } from "@/api/supplier.api";
 import SkeletonRow from "../../../components/Admin/SkeletonRow";
 import { Pagination } from "antd";
+import { exportToExcel } from "@/utility/exportToExcel";
 
 function PurchaseOrderModal({
   purchaseOrderData,

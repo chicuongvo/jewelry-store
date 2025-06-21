@@ -7,6 +7,7 @@ import {
   Phone,
   MapPin,
   Package,
+  Download,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { AxiosError } from "axios";
@@ -21,6 +22,7 @@ import {
 } from "@/api/supplier.api";
 // import { useNotification } from "@/contexts/notificationContext";
 import { Pagination } from "antd";
+import { exportToExcel } from "@/utility/exportToExcel";
 
 export default function Suppliers() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -89,13 +91,26 @@ export default function Suppliers() {
             Quản lý thông tin và mối quan hệ với nhà cung cấp
           </p>
         </div>
-        <button
-          onClick={handleAdd}
-          className="flex cursor-pointer items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Thêm nhà cung cấp
-        </button>
+
+        <div className="flex flex-row gap-3">
+          <button
+            onClick={handleAdd}
+            className="flex cursor-pointer items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Thêm nhà cung cấp
+          </button>
+
+          <button
+            onClick={() =>
+              exportToExcel(filteredSuppliers ?? [], `Danh sách nhà cung cấp`)
+            }
+            className="flex cursor-pointer items-center px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Xuất dữ liệu
+          </button>
+        </div>
       </div>
 
       {/* Search and Filters */}

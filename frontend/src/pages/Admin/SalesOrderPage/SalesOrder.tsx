@@ -17,6 +17,7 @@ import { getAllUsers } from "@/api/user.api";
 import type { UserProfile } from "@/types/User/User";
 import { Pagination } from "antd";
 import SkeletonRow from "@/components/Admin/SkeletonRow";
+import { exportToExcel } from "@/utility/exportToExcel";
 
 export default function SalesOrder() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -28,6 +29,11 @@ export default function SalesOrder() {
   const { isLoading, data: salesOrderData } = useQuery({
     queryKey: ["salesOrder", limit, page],
     queryFn: () => getAllSalesOrders({ limit: limit, page: page }),
+  });
+
+  const { data: allSalesOrderData } = useQuery({
+    queryKey: ["allSalesOrderData"],
+    queryFn: () => getAllSalesOrders(),
   });
 
   const navigate = useNavigate();
@@ -47,7 +53,7 @@ export default function SalesOrder() {
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
   );
-
+  console.log(allSalesOrderData);
   return (
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
@@ -55,13 +61,26 @@ export default function SalesOrder() {
           <h1 className="text-2xl font-bold text-gray-900">Đơn bán hàng</h1>
           <p className="text-gray-600">Quản lý các khách hàng</p>
         </div>
-        <button
-          onClick={() => setShowModal(true)}
-          className="flex cursor-pointer items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Tạo đơn bán hàng
-        </button>
+        <div className="flex flex-row gap-3">
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex cursor-pointer items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Tạo đơn bán hàng
+          </button>
+          <button
+            onClick={() =>
+              exportToExcel(
+                allSalesOrderData?.data ?? [],
+                `Danh sách phiếu bán hàng`
+              )
+            }
+            className="cursor-pointer px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+          >
+            Xuất dữ liệu
+          </button>
+        </div>
       </div>
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex flex-col sm:flex-row gap-4">

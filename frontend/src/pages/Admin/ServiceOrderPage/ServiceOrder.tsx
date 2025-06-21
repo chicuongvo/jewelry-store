@@ -34,6 +34,7 @@ import { getAllUsers } from "../../../api/user.api";
 import type { ServiceResponse } from "../../../types/service/service";
 import { useNotification } from "@/contexts/notificationContext";
 import type { UserResponse } from "@/types/User/User";
+import { exportToExcel } from "@/utility/exportToExcel";
 
 export default function AdminServiceOrders() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -464,14 +465,22 @@ export default function AdminServiceOrders() {
             Quản lý đơn dịch vụ và theo dõi trạng thái
           </p>
         </div>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="flex-shrink-0 flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled={createMutation.isPending}
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          {createMutation.isPending ? "Đang tạo..." : "Tạo đơn dịch vụ"}
-        </button>
+        <div className="flex flex-row gap-3">
+          <button
+            onClick={() => exportToExcel(orders, `Danh sách phiếu dịch vụ`)}
+            className="cursor-pointer px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+          >
+            Xuất dữ liệu
+          </button>
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="flex-shrink-0 flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={createMutation.isPending}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            {createMutation.isPending ? "Đang tạo..." : "Tạo đơn dịch vụ"}
+          </button>
+        </div>
       </div>
 
       {/* Search and Filters */}

@@ -77,13 +77,26 @@ export default function SalesOrderDetail() {
             <span>{sales_order_id}</span>
           </p>
         </div>
-        <button
-          onClick={() => handleAdd()}
-          className="cursor-pointer disabled:cursor-not-allowed flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Thêm sản phầm
-        </button>
+        <div className="flex flex-row gap-2">
+          <button
+            onClick={() => handleAdd()}
+            className="cursor-pointer disabled:cursor-not-allowed flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Thêm sản phầm
+          </button>
+          <button
+            onClick={() =>
+              exportToExcel(
+                salesOrderDetailData?.data ?? [],
+                `Đơn hàng ${sales_order_id}`
+              )
+            }
+            className="cursor-pointer px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+          >
+            Xuất dữ liệu
+          </button>
+        </div>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -214,6 +227,7 @@ export default function SalesOrderDetail() {
 import { getAllProducts } from "@/api/product.api";
 import { getSalesOrderDetail } from "@/api/sales_order.api";
 import { Pagination } from "antd";
+import { exportToExcel } from "@/utility/exportToExcel";
 
 function PurchaseOrderModal({
   sales_order_id,

@@ -1,12 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
-import { Search, Plus, Edit2 } from "lucide-react";
+import { Search, Plus, Edit2, Download } from "lucide-react";
 import { Modal } from "antd";
 import useProducts from "@/hooks/useProducts";
 import { Pagination } from "antd";
 import { useSearchParams } from "react-router";
 import InventoryReportSkeleton from "../InventoryReportPage/components/Skeleton";
+import { exportToExcel } from "@/utility/exportToExcel";
+
 const limit = 8;
 export default function Products() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -104,6 +106,15 @@ export default function Products() {
           >
             <Plus className="h-4 w-4 mr-2" />
             Thêm sản phẩm
+          </button>
+          <button
+            onClick={() =>
+              exportToExcel(filteredProducts ?? [], ` Danh sách sản phẩm `)
+            }
+            className="flex cursor-pointer items-center px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Xuất dữ liệu
           </button>
         </div>
       </div>

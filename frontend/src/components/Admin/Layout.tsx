@@ -13,7 +13,7 @@ export default function Layout() {
         <div className="sticky left-0 top-0 w-full z-1">
           <Header />
         </div>
-        <div className="p-6 bg-gray-50 h-min-screen">
+        <div className="p-6 bg-gray-50 min-h-screen">
           <Outlet />
         </div>
       </div>

@@ -1,6 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
-import { Search, Plus, Edit2, Trash2, Tag, Percent } from "lucide-react";
+import {
+  Search,
+  Plus,
+  Edit2,
+  Trash2,
+  Tag,
+  Percent,
+  Download,
+} from "lucide-react";
 
 import { Modal } from "antd";
 
@@ -9,6 +17,7 @@ import { Pagination } from "antd";
 import { useSearchParams } from "react-router";
 import InventoryReportSkeleton from "../InventoryReportPage/components/Skeleton";
 import ProducTable from "./Partials/ProductTable";
+import { exportToExcel } from "@/utility/exportToExcel";
 const limit = 6;
 export default function ProductTypes() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -107,13 +116,24 @@ export default function ProductTypes() {
             lệ lợi nhuận.
           </p>
         </div>
-        <button
-          onClick={handleAdd}
-          className="flex cursor-pointer items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Thêm loại sản phẩm
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={handleAdd}
+            className="flex cursor-pointer items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Thêm loại sản phẩm
+          </button>
+          <button
+            onClick={() =>
+              exportToExcel(filteredTypes ?? [], ` Danh sách loại sản phẩm `)
+            }
+            className="flex cursor-pointer items-center px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Xuất dữ liệu
+          </button>
+        </div>
       </div>
 
       {/* Search */}

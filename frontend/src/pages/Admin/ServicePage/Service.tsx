@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Search, Plus, Edit2, Trash2, Wrench, X } from "lucide-react";
+import { Search, Plus, Edit2, Trash2, Wrench, X, Download } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNotification } from "@/contexts/notificationContext";
 import { Pagination } from "antd";
@@ -16,6 +16,7 @@ import {
 } from "../../../api/service.api";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { exportToExcel } from "@/utility/exportToExcel";
 
 export default function AdminServices() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -202,13 +203,24 @@ export default function AdminServices() {
           <h1 className="text-2xl font-bold text-gray-900">Dịch vụ</h1>
           <p className="text-gray-600">Quản lý dịch vụ và giá cả</p>
         </div>
-        <button
-          onClick={handleAdd}
-          className="flex-shrink-0 flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 hover:cursor-pointer"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Thêm dịch vụ
-        </button>
+        <div className="flex flex-row gap-2">
+          <button
+            onClick={handleAdd}
+            className="flex-shrink-0 flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 hover:cursor-pointer"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Thêm dịch vụ
+          </button>
+          <button
+            onClick={() =>
+              exportToExcel(filteredServices ?? [], `Danh sách dịch vụ`)
+            }
+            className="flex cursor-pointer items-center px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Xuất dữ liệu
+          </button>
+        </div>
       </div>
 
       {/* Search */}

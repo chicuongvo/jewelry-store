@@ -2,6 +2,7 @@ import { getInventoryReportByMonthAndYear } from "@/api/inventoryReport.api";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
 import { Download, TrendingUp, TrendingDown } from "lucide-react";
+import { exportToExcel } from "@/utility/exportToExcel";
 
 export default function InventoryReportDetails() {
   const params = useParams();
@@ -27,13 +28,21 @@ export default function InventoryReportDetails() {
             </p>
           </div>
           <div className="flex items-center space-x-3">
-            <button className="flex items-center px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+            <button
+              onClick={() =>
+                exportToExcel(
+                  reportData?.inventory_report_details ?? [],
+                  ` Báo cáo tháng ${reportData?.month}/${reportData?.year} `
+                )
+              }
+              className="flex cursor-pointer items-center px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+            >
               <Download className="h-4 w-4 mr-2" />
-              Xuất PDF
+              Xuất dữ liệu
             </button>
             <button
               onClick={() => nav("/admin/inventory-reports")}
-              className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+              className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
             >
               Quay lại
             </button>
