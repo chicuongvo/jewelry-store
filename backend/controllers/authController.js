@@ -73,7 +73,7 @@ export const getAllUsers = async (req, res) => {
       orderBy: Object.keys(orderBy).length ? orderBy : undefined,
       include: {
         sales_orders: true,
-        service_orders: true,
+        service_orders: { include: { service_order_details: true } },
         carts: { include: { cart_details: { include: { product: true } } } },
       },
       skip,
@@ -115,7 +115,6 @@ export const getUser = async (req, res) => {
             },
           },
         },
-        service_orders: true,
         carts: { include: { cart_details: { include: { product: true } } } },
       },
     });
