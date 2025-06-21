@@ -28,6 +28,8 @@ export default function Products() {
     getFilteredProductsQuery,
   } = useProducts(newSearchParams.toString());
 
+  // console.log("all ", getAllSuppliersQuery);
+
   const filteredProducts = getFilteredProductsQuery.data?.filter((product) => {
     const matchesSearch = product.name
       .toLowerCase()
@@ -126,11 +128,11 @@ export default function Products() {
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="">Tất cả nhà cung cấp</option>
-            {/* {getAllSuppliersQuery.data?.map((supplier) => {
+            {getAllSuppliersQuery.data?.data.map((supplier: any) => {
               return (
                 <option value={supplier.supplier_id}>{supplier.name}</option>
               );
-            })} */}
+            })}
           </select>
         </div>
       </div>
@@ -193,7 +195,7 @@ export default function Products() {
                     <div>
                       <span className="text-gray-500">Mua: </span>
                       <span className="font-medium text-gray-900">
-                        {Number(product.sell_price).toLocaleString("vi-VN", {
+                        {Number(product.buy_price).toLocaleString("vi-VN", {
                           style: "currency",
                           currency: "VND",
                         })}
@@ -280,7 +282,7 @@ export default function Products() {
                     defaultValue={editingProduct?.supplier_id || ""}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    {getAllSuppliersQuery.data?.map((supplier: any) => (
+                    {getAllSuppliersQuery.data.data.map((supplier: any) => (
                       <option
                         key={supplier.supplier_id}
                         value={supplier.supplier_id}
@@ -354,15 +356,24 @@ export default function Products() {
               <div className="flex justify-end space-x-3 mt-6 pt-4 border-t">
                 <button
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                  className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 cursor-pointer disabled:cursor-not-allowed"
                 >
                   Hủy
                 </button>
                 <button
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 cursor-pointer disabled:cursor-not-allowed"
+                  disabled={
+                    createProductMutation.isPending ||
+                    updateProductMutation.isPending
+                  }
                   onClick={handleAddAndUpdateProduct}
                 >
-                  {editingProduct ? "Cập nhật" : "Tạo"} sản phẩm
+                  <>
+                    {createProductMutation.isPending ||
+                    updateProductMutation.isPending
+                      ? "Đang xử lý... "
+                      : `${editingProduct ? "Cập nhật" : "Tạo"} sản phẩm`}
+                  </>
                 </button>
               </div>
             </div>

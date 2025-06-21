@@ -100,6 +100,7 @@ export default function CartDetailsCard({
     }
   };
 
+  console.log(cartDetails);
   return (
     <div
       className={`flex justify-between items-start rounded-md px-6 py-4 h-[180px] ${
