@@ -185,6 +185,7 @@ model cart_details {
   total_price Int      @default(0)
   cart        carts    @relation(fields: [cart_id], references: [cart_id], onDelete: Cascade)
   product     products @relation(fields: [product_id], references: [product_id])
+  created_at  DateTime @default(now())
 
   @@id([cart_id, product_id])
 }
