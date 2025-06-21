@@ -36,7 +36,7 @@
     "passport": "^0.7.0",
     "passport-google-oauth": "^2.0.0",
     "passport-google-oauth20": "^2.0.0",
-    "puppeteer": "^24.10.0"
+    "puppeteer": "^23.11.1"
   },
   "devDependencies": {
     "@mermaid-js/mermaid-cli": "^11.4.2",
