@@ -41,6 +41,7 @@ export default function CartDetailsCard({
     }) => updateCart(product_id, quantity),
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: ["cart"] });
+      setCartChanged(true);
     },
     onError(error: any) {
       const message =
@@ -163,7 +164,7 @@ export default function CartDetailsCard({
             <div className="flex items-center border border-gray-300">
               <button
                 onClick={decreaseQuantity}
-                className="p-2 disabled:opacity-50"
+                className="p-2 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
                 disabled={quantity <= 1}
               >
                 <Minus className="h-3 w-3" />
@@ -173,14 +174,13 @@ export default function CartDetailsCard({
               </span>
               <button
                 onClick={increaseQuantity}
-                className="p-2 disabled:opacity-50"
+                className="p-2 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
                 disabled={quantity >= (end_stock ?? Infinity)}
               >
                 <Plus className="h-3 w-3" />
               </button>
             </div>
 
-            {/* 👇 Hiển thị tồn kho */}
             <div className="text-[12px] text-gray-500 mt-1">
               Còn lại:{" "}
               <span

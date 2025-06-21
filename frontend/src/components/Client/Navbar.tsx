@@ -140,6 +140,15 @@ export default function Navbar() {
             >
               Lịch sử dịch vụ
             </Link>
+            {userProfile?.role == "ADMIN" && (
+              <Link
+                to="/admin"
+                className=" py-3 px-2 border-b border-primary  hover:bg-zinc-200  hover:text-primary transition-all duration-300 cursor-pointer rounded-t "
+                onClick={() => setOpenMenu(false)}
+              >
+                Quản trị viên
+              </Link>
+            )}
             <div
               onClick={handleSignOut}
               className=" py-3 px-2 hover:bg-zinc-200 hover:text-primary transition-all duration-300 cursor-pointer rounded-b"

@@ -72,9 +72,7 @@ export default function Profile() {
               name="fullname"
               className="border border-gray-300 p-2 rounded w-full"
               placeholder="Nhập họ và tên của bạn"
-              required
               defaultValue={userProfile?.fullname || ""}
-              minLength={3}
             />
           </div>
           <div>
