@@ -352,7 +352,7 @@ function PurchaseOrderModal({
               {isPending
                 ? "Đang xử lý..."
                 : salesOrderDetailData.product_id
-                ? "Cập nhập"
+                ? "Cập nhật"
                 : "Tạo mới"}{" "}
             </button>
           </div>
