@@ -308,7 +308,7 @@ export default function AdminServiceOrders() {
       matchesStatus = order.status === "DELIVERED";
     if (statusFilter === "pending")
       matchesStatus = order.status === "NOT_DELIVERED";
-    if (statusFilter === "paid") matchesStatus = order.total_remaining === 0;
+    if (statusFilter === "paid") matchesStatus = !(order.total_remaining > 0);
     if (statusFilter === "unpaid") matchesStatus = order.total_remaining > 0;
 
     let matchesDate = true;
@@ -528,13 +528,12 @@ export default function AdminServiceOrders() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <input
               type="text"
-              placeholder="Tìm kiếm đơn dịch vụ..."
+              placeholder="Tìm kiếm theo mã đơn hoặc tên khách hàng..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
-
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -546,7 +545,6 @@ export default function AdminServiceOrders() {
             <option value="paid">Đã thanh toán</option>
             <option value="unpaid">Chưa thanh toán</option>
           </select>
-
           <input
             type="date"
             value={dateFilter}
