@@ -36,6 +36,8 @@ export default function Services() {
     0
   );
 
+  const filterServices = services.filter((service) => !service.is_deleted);
+
   return (
     <div>
       <div className="">
@@ -68,7 +70,7 @@ export default function Services() {
               ? Array.from({ length: 4 }).map((_, idx) => (
                   <ServiceCardSkeleton key={idx} />
                 ))
-              : services.map((service) => {
+              : filterServices.map((service) => {
                   const isSelected = chosenServices.includes(service);
                   return (
                     <ServiceCard
