@@ -346,13 +346,17 @@ export default function AdminServiceOrders() {
     createMutation.mutate(data);
   };
 
+  const filteredServices = services.filter((s) => !s.is_deleted);
   const handleAddService = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!selectedOrder) return;
 
     const formData = new FormData(e.currentTarget);
     const serviceId = formData.get("service_id") as string;
-    const selectedService = services.find((s) => s.service_id === serviceId);
+
+    const selectedService = filteredServices.find(
+      (s) => s.service_id === serviceId
+    );
 
     if (!selectedService) {
       toast.error("Không tìm thấy dịch vụ");
@@ -788,7 +792,13 @@ export default function AdminServiceOrders() {
                             <tr
                               key={`${detail.service_order_id}-${detail.service_id}`}
                             >
-                              <td className="px-4 py-3 text-sm text-gray-900">
+                              <td
+                                className={`px-4 py-3 text-sm ${
+                                  detail.service.is_deleted
+                                    ? "text-red-600"
+                                    : "text-gray-900"
+                                }`}
+                              >
                                 {detail.service?.name}
                               </td>
                               <td className="px-4 py-3 text-sm text-gray-900">
@@ -1239,7 +1249,7 @@ export default function AdminServiceOrders() {
                     <option value="" disabled hidden>
                       Chọn dịch vụ...
                     </option>
-                    {services.map((service) => (
+                    {filteredServices.map((service) => (
                       <option
                         key={service.service_id}
                         value={service.service_id}
