@@ -4,7 +4,6 @@ import { prisma } from "../config/db.js";
 export const getAllServices = async (req, res) => {
   try {
     const services = await prisma.services.findMany({
-      where: { is_deleted: false },
       include: {
         service_order_details: {
           include: {
@@ -108,7 +107,7 @@ export const createService = async (req, res) => {
 // Update service
 export const updateService = async (req, res) => {
   const service_id = req.params.id;
-  const { name, base_price } = req.body;
+  const { name, base_price, is_deleted } = req.body;
 
   try {
     if (!req.body || Object.keys(req.body).length === 0) {
@@ -148,6 +147,8 @@ export const updateService = async (req, res) => {
         base_price: base_price
           ? parseFloat(base_price)
           : existingService.base_price,
+        is_deleted:
+          is_deleted !== undefined ? is_deleted : existingService.is_deleted,
       },
     });
 

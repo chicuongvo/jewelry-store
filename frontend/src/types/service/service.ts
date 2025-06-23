@@ -15,6 +15,7 @@ export type ServiceOrderDetail = {
   paid: number;
   remaining: number;
   status: string;
+  is_deleted: boolean;
   service_order: {
     service_order_id: string;
     client_id: string;
@@ -31,10 +32,12 @@ export type ServiceResponse = {
   service_id: string;
   name: string;
   base_price: number;
+  is_deleted: boolean;
   service_order_details: ServiceOrderDetail[];
 };
 
 export type ServiceUpdate = {
   name?: string;
   base_price?: number;
+  is_deleted?: boolean;
 };

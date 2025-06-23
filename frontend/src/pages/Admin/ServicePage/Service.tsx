@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import { Search, Plus, Edit2, Trash2, Wrench, X, Download } from "lucide-react";
+import {
+  Search,
+  Plus,
+  Edit2,
+  Trash2,
+  Wrench,
+  X,
+  Download,
+  RotateCcw,
+} from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNotification } from "@/contexts/notificationContext";
 import { Pagination } from "antd";
@@ -13,6 +22,7 @@ import {
   createService,
   updateService,
   deleteService,
+  restoreService,
 } from "../../../api/service.api";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -34,6 +44,9 @@ export default function AdminServices() {
   );
   const queryClient = useQueryClient();
   const { addNotification } = useNotification();
+  const [filterDeleted, setFilterDeleted] = useState<
+    "all" | "active" | "deleted"
+  >("all");
 
   const { data: services = [], isLoading } = useQuery({
     queryKey: ["services"],
@@ -94,9 +107,29 @@ export default function AdminServices() {
     },
   });
 
-  const filteredServices = services.filter((service) =>
-    service.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const restoreMutation = useMutation({
+    mutationFn: (id: string) => restoreService(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["services"] });
+      toast.success("Khôi phục dịch vụ thành công");
+      setFilterDeleted("all");
+    },
+    onError: (error) => {
+      toast.error("Không thể khôi phục dịch vụ");
+      console.error("Lỗi khôi phục dịch vụ:", error);
+    },
+  });
+
+  const filteredServices = services
+    .filter((service) =>
+      service.name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .filter((service) => {
+      if (filterDeleted === "all") return true;
+      if (filterDeleted === "active") return !service.is_deleted;
+      if (filterDeleted === "deleted") return service.is_deleted;
+      return true;
+    });
 
   const handleEdit = (service: ServiceResponse) => {
     setEditingService(service);
@@ -223,6 +256,40 @@ export default function AdminServices() {
         </div>
       </div>
 
+      {/* Filter Deleted */}
+      <div className="flex gap-2 mb-2">
+        <button
+          className={`px-3 py-1 rounded ${
+            filterDeleted === "all"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-100 text-gray-700"
+          }`}
+          onClick={() => setFilterDeleted("all")}
+        >
+          Tất cả
+        </button>
+        <button
+          className={`px-3 py-1 rounded ${
+            filterDeleted === "active"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-100 text-gray-700"
+          }`}
+          onClick={() => setFilterDeleted("active")}
+        >
+          Đang hoạt động
+        </button>
+        <button
+          className={`px-3 py-1 rounded ${
+            filterDeleted === "deleted"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-100 text-gray-700"
+          }`}
+          onClick={() => setFilterDeleted("deleted")}
+        >
+          Đã xóa
+        </button>
+      </div>
+
       {/* Search */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="relative max-w-md">
@@ -244,9 +311,36 @@ export default function AdminServices() {
           .map((service) => (
             <div
               key={service.service_id}
-              className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200"
+              className={`bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-shadow duration-200 relative ${
+                service.is_deleted
+                  ? "opacity-60 border-red-400"
+                  : "border-gray-200"
+              }`}
             >
-              <div className="flex items-start justify-between mb-4">
+              {service.is_deleted && (
+                <>
+                  <div className="absolute inset-0 bg-red-50/70 rounded-xl flex items-center justify-center z-10"></div>
+                  <span className="absolute top-2 right-2 bg-red-100 text-red-600 text-xs px-2 py-1 rounded flex items-center gap-1 z-20">
+                    <Trash2 className="w-3 h-3" /> Đã xóa
+                  </span>
+                  <div className="absolute inset-0 flex items-center justify-center z-30">
+                    <button
+                      onClick={() => restoreMutation.mutate(service.service_id)}
+                      disabled={restoreMutation.isPending}
+                      className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg shadow-lg hover:bg-green-700 transition-colors duration-200 disabled:opacity-50 hover:cursor-pointer text-base font-semibold"
+                      title="Khôi phục dịch vụ này"
+                    >
+                      {restoreMutation.isPending ? (
+                        <RotateCcw className="animate-spin h-5 w-5" />
+                      ) : (
+                        <RotateCcw className="h-5 w-5" />
+                      )}
+                      Khôi phục
+                    </button>
+                  </div>
+                </>
+              )}
+              <div className="flex items-start justify-between mb-4 relative z-20">
                 <div className="flex items-center">
                   <div className="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center">
                     <Wrench className="h-5 w-5 text-purple-600" />
@@ -260,22 +354,24 @@ export default function AdminServices() {
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => handleEdit(service)}
-                    disabled={updateMutation.isPending}
-                    className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors duration-150 disabled:opacity-50 hover:cursor-pointer"
-                  >
-                    <Edit2 className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(service)}
-                    disabled={deleteMutation.isPending}
-                    className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150 disabled:opacity-50 hover:cursor-pointer"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
+                {!service.is_deleted && (
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => handleEdit(service)}
+                      disabled={updateMutation.isPending}
+                      className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors duration-150 disabled:opacity-50 hover:cursor-pointer"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(service)}
+                      disabled={deleteMutation.isPending}
+                      className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-150 disabled:opacity-50 hover:cursor-pointer"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-3">

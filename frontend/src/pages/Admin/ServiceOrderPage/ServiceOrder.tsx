@@ -98,6 +98,14 @@ export default function AdminServiceOrders() {
         }.`
       );
       setShowCreateModal(false);
+
+      const updatedOrders = queryClient.getQueryData(["serviceOrders"]);
+      if (updatedOrders && response) {
+        const updatedOrder = updatedOrders.find(
+          (o) => o.service_order_id === response.service_order_id
+        );
+        if (updatedOrder) setSelectedOrder(updatedOrder);
+      }
     },
     onError: (error) => {
       toast.error("Không thể tạo đơn dịch vụ");
@@ -121,6 +129,14 @@ export default function AdminServiceOrders() {
           response.total_paid
         ).toLocaleString("vi-VN")}đ.`
       );
+
+      const updatedOrders = queryClient.getQueryData(["serviceOrders"]);
+      if (updatedOrders && response) {
+        const updatedOrder = updatedOrders.find(
+          (o) => o.service_order_id === response.service_order_id
+        );
+        if (updatedOrder) setSelectedOrder(updatedOrder);
+      }
     },
     onError: (error) => {
       toast.error("Không thể cập nhật đơn dịch vụ");
@@ -178,6 +194,14 @@ export default function AdminServiceOrders() {
         )}đ, Đặt cọc: ${Number(response.paid).toLocaleString("vi-VN")}đ.`
       );
       setShowAddServiceModal(false);
+
+      const updatedOrders = queryClient.getQueryData(["serviceOrders"]);
+      if (updatedOrders && response) {
+        const updatedOrder = updatedOrders.find(
+          (o) => o.service_order_id === response.service_order_id
+        );
+        if (updatedOrder) setSelectedOrder(updatedOrder);
+      }
     },
     onError: (error) => {
       toast.error("Không thể thêm dịch vụ");
@@ -203,6 +227,14 @@ export default function AdminServiceOrders() {
         `Dịch vụ ${deletingDetail?.service?.name} đã được xóa khỏi đơn hàng ${selectedOrder?.service_order_id}.`
       );
       setDeletingDetail(null);
+
+      const updatedOrders = queryClient.getQueryData(["serviceOrders"]);
+      if (updatedOrders && selectedOrder) {
+        const updatedOrder = updatedOrders.find(
+          (o) => o.service_order_id === selectedOrder.service_order_id
+        );
+        if (updatedOrder) setSelectedOrder(updatedOrder);
+      }
     },
     onError: (error) => {
       toast.error("Không thể xóa chi tiết đơn hàng");
@@ -249,6 +281,14 @@ export default function AdminServiceOrders() {
         }.`
       );
       setEditingDetail(null);
+
+      const updatedOrders = queryClient.getQueryData(["serviceOrders"]);
+      if (updatedOrders && response) {
+        const updatedOrder = updatedOrders.find(
+          (o) => o.service_order_id === response.service_order_id
+        );
+        if (updatedOrder) setSelectedOrder(updatedOrder);
+      }
     },
     onError: (error) => {
       toast.error("Không thể cập nhật chi tiết đơn hàng");
@@ -334,7 +374,7 @@ export default function AdminServiceOrders() {
     const paymentAmount = parseFloat(formData.get("amount") as string);
 
     const data = {
-      total_paid: +selectedOrder.total_paid + paymentAmount, // Convert to number and add the payment amount to the existing selectedOrder.total_paid + paymentAmount, // Convert to number and add the payment amount to the existing totalselectedOrder.total_paid + paymentAmount,
+      total_paid: +selectedOrder.total_paid + paymentAmount,
       total_remaining: selectedOrder.total_remaining - paymentAmount,
     };
 

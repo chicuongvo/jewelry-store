@@ -28,3 +28,7 @@ export const deleteService = async (id: string) => {
   console.log(response);
   return response.data.data;
 };
+
+export const restoreService = async (id: string) => {
+  return updateService(id, { is_deleted: false });
+};
