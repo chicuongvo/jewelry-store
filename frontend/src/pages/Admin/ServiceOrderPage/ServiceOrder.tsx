@@ -99,7 +99,9 @@ export default function AdminServiceOrders() {
       );
       setShowCreateModal(false);
 
-      const updatedOrders = queryClient.getQueryData(["serviceOrders"]);
+      const updatedOrders = queryClient.getQueryData<ServiceOrderResponse[]>([
+        "serviceOrders",
+      ]);
       if (updatedOrders && response) {
         const updatedOrder = updatedOrders.find(
           (o) => o.service_order_id === response.service_order_id
@@ -130,7 +132,9 @@ export default function AdminServiceOrders() {
         ).toLocaleString("vi-VN")}đ.`
       );
 
-      const updatedOrders = queryClient.getQueryData(["serviceOrders"]);
+      const updatedOrders = queryClient.getQueryData<ServiceOrderResponse[]>([
+        "serviceOrders",
+      ]);
       if (updatedOrders && response) {
         const updatedOrder = updatedOrders.find(
           (o) => o.service_order_id === response.service_order_id
@@ -195,7 +199,9 @@ export default function AdminServiceOrders() {
       );
       setShowAddServiceModal(false);
 
-      const updatedOrders = queryClient.getQueryData(["serviceOrders"]);
+      const updatedOrders = queryClient.getQueryData<ServiceOrderResponse[]>([
+        "serviceOrders",
+      ]);
       if (updatedOrders && response) {
         const updatedOrder = updatedOrders.find(
           (o) => o.service_order_id === response.service_order_id
@@ -228,7 +234,9 @@ export default function AdminServiceOrders() {
       );
       setDeletingDetail(null);
 
-      const updatedOrders = queryClient.getQueryData(["serviceOrders"]);
+      const updatedOrders = queryClient.getQueryData<ServiceOrderResponse[]>([
+        "serviceOrders",
+      ]);
       if (updatedOrders && selectedOrder) {
         const updatedOrder = updatedOrders.find(
           (o) => o.service_order_id === selectedOrder.service_order_id
@@ -282,7 +290,9 @@ export default function AdminServiceOrders() {
       );
       setEditingDetail(null);
 
-      const updatedOrders = queryClient.getQueryData(["serviceOrders"]);
+      const updatedOrders = queryClient.getQueryData<ServiceOrderResponse[]>([
+        "serviceOrders",
+      ]);
       if (updatedOrders && response) {
         const updatedOrder = updatedOrders.find(
           (o) => o.service_order_id === response.service_order_id
