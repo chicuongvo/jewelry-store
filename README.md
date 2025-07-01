@@ -247,6 +247,17 @@ The application is configured for deployment on:
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
+## 👥 Team
+
+### Full-stack Developer
+
+- **Fullname**: Nguyễn Thị Khánh Ngọc - **ID**: 23521032
+- **Fullname**: Ung Quang Trí - **ID**: 23521649
+- **Fullname**: Võ Chí Cường - **ID**: 23520210
+- **Fullname**: Nguyễn Công Đức - **ID**: 23520307
+- **Fullname**: Cao Tùng Dương - **ID**: 23520343
+
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
